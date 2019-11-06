@@ -44,6 +44,10 @@ namespace AMM {
        m_mgr->InitializePhysiologyValue();
        m_mgr->InitializePhysiologyWaveform();
 
+       m_mgr->CreateOperationalDescriptionPublisher();
+       m_mgr->CreateModuleConfigurationPublisher();
+       m_mgr->CreateStatusPublisher();
+
        m_mgr->CreatePhysiologyValuePublisher();
        m_mgr->CreatePhysiologyWaveformPublisher();
 
