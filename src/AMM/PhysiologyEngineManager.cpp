@@ -21,7 +21,7 @@ std::string get_filename_date(void) {
 namespace AMM {
     PhysiologyEngineManager::PhysiologyEngineManager() {
 
-       static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+       static plog::ColorConsoleAppender <plog::TxtFormatter> consoleAppender;
        //static plog::DDS_Log_Appender<plog::TxtFormatter> DDSAppender(mgr);
        //plog::init(plog::verbose, &consoleAppender).addAppender(&DDSAppender);
 
@@ -236,6 +236,7 @@ namespace AMM {
     void PhysiologyEngineManager::OnNewPhysiologyModification(AMM::PhysiologyModification &pm, SampleInfo_t *info) {
        // If the payload is empty, use the type to execute an XML file.
        // Otherwise, the payload is considered to be XML to execute.
+       LOG_INFO << "Physiology modification received (type " << pm.type() << "): " << pm.data();
        if (pm.type() == "pain") {
           LOG_INFO << "Pain payload received: " << pm.data();
           m_mutex.lock();
@@ -247,8 +248,17 @@ namespace AMM {
           bg->SetHemorrhage("", pm.data());
           m_mutex.unlock();
        } else {
-          LOG_INFO << "Physiology modification received (type " << pm.type() << "): " << pm.data();
-          bg->ExecuteXMLCommand(pm.data());
+          if (pm.data().empty()) {
+             LOG_INFO << "Executing scenario file: " << pm.type();
+             m_mutex.lock();
+             bg->ExecuteCommand(pm.type());
+             m_mutex.unlock();
+          } else {
+             LOG_INFO << "Executing Biogears XML";
+             m_mutex.lock();
+             bg->ExecuteXMLCommand(pm.data());
+             m_mutex.unlock();
+          }
        }
     }
 
