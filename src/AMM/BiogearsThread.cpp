@@ -346,10 +346,9 @@ namespace AMM {
     bool BiogearsThread::LoadScenarioFile(const std::string &scenarioFile) {
 
        if (!file_exists(scenarioFile.c_str())) {
-          // LOG_WARNING << "Scenario file does not exist: " << scenarioFile;
+          LOG_WARNING << "Scenario/action file does not exist: " << scenarioFile;
           return false;
        }
-
 
        biogears::SEScenario sce(m_pe->GetSubstanceManager());
        sce.Load(scenarioFile);
