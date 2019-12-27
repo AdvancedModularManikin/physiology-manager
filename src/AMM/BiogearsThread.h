@@ -142,6 +142,7 @@ namespace AMM {
 
 
         // AMM Standard patient actions
+        // AMM Standard patient actions
         void SetAcuteStress(const std::string &actionSettings);
 
         void SetAirwayObstruction(const std::string &actionSettings);
@@ -180,7 +181,7 @@ namespace AMM {
 
         void SetExercise(const std::string &actionSettings);
 
-        void SetHemorrhage(const std::string &actionSettings);
+        void SetHemorrhage(const std::string &location, double flow);
 
         void SetInfection(const std::string &actionSettings);
 
@@ -190,7 +191,7 @@ namespace AMM {
 
         void SetNeedleDecompression(const std::string &actionSettings);
 
-        void SetPainStimulus(const std::string &actionSettings);
+        void SetPain(const std::string &location, double severity);
 
         void SetPatientAction(const std::string &actionSettings);
 
@@ -206,6 +207,10 @@ namespace AMM {
 
         void SetSubstanceBolus(const std::string &actionSettings);
 
+        void
+        SetSubstanceBolus(const std::string &substance, double concentration, const std::string &concUnit, double dose,
+                          const std::string &doseUnit, const std::string &adminRoute);
+
         void SetSubstanceCompoundInfusion(const std::string &actionSettings);
 
         void SetSubstanceInfusion(const std::string &actionSettings);
@@ -218,12 +223,13 @@ namespace AMM {
 
         void SetUseInhaler(const std::string &actionSettings);
 
-
         void SetLogging(bool log);
 
         void SetLastFrame(int lastFrame);
 
         void Status();
+
+        bool running = false;
 
         static std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
         static std::vector<std::string> highFrequencyNodes;
@@ -394,7 +400,6 @@ namespace AMM {
 
     protected:
         std::mutex m_mutex;
-        bool running = false;
         std::unique_ptr<biogears::PhysiologyEngine> m_pe;
 
         double thresh = 1.0;

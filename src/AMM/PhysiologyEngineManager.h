@@ -8,6 +8,8 @@
 
 #include "amm_std.h"
 
+#include "tinyxml2.h"
+
 #include "BiogearsThread.h"
 
 namespace AMM {
@@ -19,7 +21,7 @@ namespace AMM {
 
         virtual ~PhysiologyEngineManager();
 
-        BiogearsThread *bg;
+        BiogearsThread *m_pe;
         std::string stateFile;
 
         void PublishOperationalDescription();
@@ -36,6 +38,8 @@ namespace AMM {
         void StartTickSimulation();
 
         void StopTickSimulation();
+
+        void ExecutePhysiologyModification(const std::string &pm);
 
         void PublishData(bool force);
 
