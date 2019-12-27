@@ -166,11 +166,12 @@ namespace AMM {
        }
     }
 
-    void PhysiologyEngineManager::ExecutePhysiologyModification(const std::string &pm) {
+    void PhysiologyEngineManager::ExecutePhysiologyModification(std::string pm) {
        if (m_pe == nullptr) {
           LOG_WARNING << "Physiology engine not running, cannot execute physiology modification.";
           return;
        }
+
        tinyxml2::XMLDocument doc;
        doc.Parse(pm.c_str());
 

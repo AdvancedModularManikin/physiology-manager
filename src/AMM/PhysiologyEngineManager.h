@@ -39,7 +39,7 @@ namespace AMM {
 
         void StopTickSimulation();
 
-        void ExecutePhysiologyModification(const std::string &pm);
+        void ExecutePhysiologyModification(std::string pm);
 
         void PublishData(bool force);
 

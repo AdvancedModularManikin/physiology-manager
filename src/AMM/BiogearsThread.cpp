@@ -1001,7 +1001,10 @@ namespace AMM {
 
     void BiogearsThread::SetHemorrhage(const std::string &location, double flow) {
        try {
-
+          biogears::SEHemorrhage hemorrhage;
+          hemorrhage.SetCompartment(location);
+          hemorrhage.GetInitialRate().SetValue(flow, biogears::VolumePerTimeUnit::mL_Per_min);
+          m_pe->ProcessAction(hemorrhage);
        }
        catch (std::exception &e) {
           LOG_ERROR << "Error processing hemorrhage action: " << e.what();
