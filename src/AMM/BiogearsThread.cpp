@@ -998,6 +998,46 @@ namespace AMM {
        }
     }
 
+    void BiogearsThread::SetAirwayObstruction(double severity) {
+       try {
+          biogears::SEAirwayObstruction obstruction;
+          obstruction.GetSeverity().SetValue(severity);
+          m_pe->ProcessAction(obstruction);
+       }
+       catch (std::exception &e) {
+          LOG_ERROR << "Error processing airway obstruction action: " << e.what();
+       }
+    }
+
+    void BiogearsThread::SetAsthmaAttack(double severity) {
+       try {
+          SEAsthmaAttack asthmaAttack;
+          asthmaAttack.GetSeverity().SetValue(severity);
+          m_pe->ProcessAction(asthmaAttack);
+       }
+       catch (std::exception &e) {
+          LOG_ERROR << "Error processing asthma action: " << e.what();
+       }
+    }
+
+    void BiogearsThread::SetBrainInjury(double severity, const std::string &type) {
+       try {
+          SEBrainInjury tbi;
+          if (type == "Diffuse") {
+             tbi.SetType(CDM::enumBrainInjuryType::Diffuse);
+          } else if (type == "LeftFocal") {
+             tbi.SetType(CDM::enumBrainInjuryType::LeftFocal);
+          } else if (type == "RightFocal") {
+             tbi.SetType(CDM::enumBrainInjuryType::RightFocal);
+          }
+          tbi.GetSeverity().SetValue(severity);
+          m_pe->ProcessAction(tbi);
+       }
+       catch (std::exception &e) {
+          LOG_ERROR << "Error processing brain injury action: " << e.what();
+       }
+    }
+
     void BiogearsThread::SetHemorrhage(const std::string &location, double flow) {
        try {
           biogears::SEHemorrhage hemorrhage;
@@ -1019,79 +1059,6 @@ namespace AMM {
        }
     }
 
-    void BiogearsThread::SetHemorrhage(
-       const std::string &location, const std::string &hemorrhageSettings) {
-       LOG_DEBUG << "Setting hemo with location " << location
-                 << " and settings: " << hemorrhageSettings;
-
-       double flowRate;
-       std::string s(hemorrhageSettings);
-       s.erase(remove(s.begin(), s.end(), '\"'), s.end());
-
-       std::vector<std::string> strings = Utility::explode("\n", s);
-       for (auto str : strings) {
-          std::vector<std::string> strs;
-          boost::split(strs, str, boost::is_any_of("=, = "));
-          auto strs_size = strs.size();
-
-          if (strs_size != 2 && strs_size != 4) {
-             continue;
-          }
-
-          std::string kvp_k = strs[0];
-
-
-          try {
-             if (kvp_k == "flowrate") {
-                if (strs_size == 2) {
-                   flowRate = std::stod(strs[1]);
-                } else if (strs_size == 4) {
-                   flowRate = std::stod(strs[3]);
-                }
-             } else {
-                LOG_INFO << "Unknown hemorrhage setting: " << kvp_k << " = " << strs[1];
-             }
-          }
-          catch (std::exception &e) {
-             LOG_ERROR << "Issue with setting " << e.what();
-          }
-       }
-
-       biogears::SEHemorrhage hemorrhage;
-       try {
-          if (location == "spleen") {
-             hemorrhage.SetCompartment("Spleen");
-          } else if (location == "venacava") {
-             hemorrhage.SetCompartment("VenaCava");
-          } else {
-             hemorrhage.SetCompartment(location);
-          }
-          hemorrhage.GetInitialRate().SetValue(flowRate, biogears::VolumePerTimeUnit::mL_Per_min);
-       }
-       catch (std::exception &e) {
-          LOG_ERROR << "Error processing hemorrhage action: " << e.what();
-       }
-
-       try {
-          m_pe->ProcessAction(hemorrhage);
-       }
-       catch (std::exception &e) {
-          LOG_ERROR << "Error processing hemorrhage action: " << e.what();
-       }
-    }
-
-    bool BiogearsThread::ProcessPatientAction(std::string actionType, std::string payload) {
-
-       /*if (actionType.equals("acutestress")) {
-
-       } else if (actionType.equals("airwayobstruction")) {
-
-       } else {
-           LOG_WARNING << "Unknown patient action: " << actionType << " with payload: " << payload;
-           return false;
-       }*/
-       return true;
-    }
 
     bool BiogearsThread::ExecuteCommand(const std::string &cmd) {
        std::string scenarioFile = "Actions/" + cmd + ".xml";

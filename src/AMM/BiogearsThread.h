@@ -37,6 +37,10 @@
 #include <biogears/cdm/patient/actions/SEPainStimulus.h>
 #include <biogears/cdm/patient/actions/SESubstanceBolus.h>
 #include <biogears/cdm/patient/actions/SEHemorrhage.h>
+#include <biogears/cdm/patient/actions/SEAirwayObstruction.h>
+#include <biogears/cdm/patient/actions/SEAsthmaAttack.h>
+#include <biogears/cdm/patient/actions/SEBrainInjury.h>
+#include <biogears/cdm/patient/actions/SEPupillaryResponse.h>
 
 #include <biogears/cdm/substance/SESubstanceManager.h>
 #include <biogears/cdm/system/physiology/SEBloodChemistrySystem.h>
@@ -145,13 +149,13 @@ namespace AMM {
         // AMM Standard patient actions
         void SetAcuteStress(const std::string &actionSettings);
 
-        void SetAirwayObstruction(const std::string &actionSettings);
+        void SetAirwayObstruction(double severity);
 
         void SetApnea(const std::string &actionSettings);
 
-        void SetAsthmaAttack(const std::string &actionSettings);
+        void SetAsthmaAttack(double severity);
 
-        void SetBrainInjury(const std::string &actionSettings);
+        void SetBrainInjury(double severity, const std::string &type);
 
         void SetBronchoconstriction(const std::string &actionSettings);
 
@@ -160,10 +164,6 @@ namespace AMM {
         void SetCardiacArrest(const std::string &actionSettings);
 
         void SetChestCompression(const std::string &actionSettings);
-
-        void SetChestCompressionForce(const std::string &actionSettings);
-
-        void SetChestCompressionForceScale(const std::string &actionSettings);
 
         void SetChestOcclusiveDressing(const std::string &actionSettings);
 

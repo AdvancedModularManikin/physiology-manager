@@ -182,14 +182,24 @@ namespace AMM {
 
           while (pRoot) {
              std::string pmType = pRoot->ToElement()->Attribute("type");
-
              LOG_INFO << "Physmod type " << pmType;
 
              if (pmType == "AcuteStress") {
+
              } else if (pmType == "AirwayObstruction") {
+                double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+                m_pe->SetAirwayObstruction(pSev);
+                return;
              } else if (pmType == "Apnea") {
              } else if (pmType == "AsthmaAttack") {
+                double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+                m_pe->SetAsthmaAttack(pSev);
+                return;
              } else if (pmType == "BrainInjury") {
+                double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+                std::string pType = pRoot->FirstChildElement("Type")->ToElement()->GetText();
+                m_pe->SetBrainInjury(pSev, pType);
+                return;
              } else if (pmType == "Bronchoconstriction") {
              } else if (pmType == "Burn") {
              } else if (pmType == "CardiacArrest") {
@@ -347,14 +357,10 @@ namespace AMM {
        // Otherwise, the payload is considered to be XML to execute.
        if (pm.data().empty()) {
           LOG_INFO << "Executing scenario file: " << pm.type();
-          m_mutex.lock();
           m_pe->ExecuteCommand(pm.type());
-          m_mutex.unlock();
        } else {
           LOG_INFO << "Executing AMM PhysMod XML patient action";
-          m_mutex.lock();
           ExecutePhysiologyModification(pm.data());
-          m_mutex.unlock();
        }
     }
 
