@@ -1,6 +1,8 @@
 
 #include "AMM/PhysiologyEngineManager.h"
 
+#include "AMM/BaseLogger.h"
+
 using namespace AMM;
 
 bool closed = false;
@@ -39,6 +41,7 @@ void show_menu(AMM::PhysiologyEngineManager *pe) {
    }
    std::cout << ")" << std::endl;
    std::cout << " [7]Quit" << std::endl;
+   std::cout << " [8]Test physmod XML" << std::endl;
    std::cout << " >> ";
    getline(std::cin, action);
    transform(action.begin(), action.end(), action.begin(), ::toupper);
@@ -87,6 +90,10 @@ void show_menu(AMM::PhysiologyEngineManager *pe) {
    } else if (action == "8") {
       std::string XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><PhysiologyModification type=\"Hemorrhage\"><Location>LeftLeg</Location><Flow unit=\"mL/hr\">250</Flow></PhysiologyModification>";
       pe->ExecutePhysiologyModification(XML);
+   } else if (action == "9") {
+      pe->StartSimulation();
+   } else if (action == "0") {
+      pe->StopSimulation();
    } else if (action == "LIST") {
       pe->PrintAvailableNodePaths();
    } else if (action == "PRINT") {

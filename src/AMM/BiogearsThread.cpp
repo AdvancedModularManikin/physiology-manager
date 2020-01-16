@@ -295,6 +295,10 @@ namespace AMM {
              *lactate, "BloodConcentration", biogears::MassPerVolumeUnit::ug_Per_mL);
           m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
              "UrineProductionRate", biogears::VolumePerTimeUnit::mL_Per_min);
+          m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+             BGE::PulmonaryCompartment::Carina, *O2, "PartialPressure");
+          m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+             BGE::PulmonaryCompartment::Carina, *CO2, "PartialPressure");
           m_pe->GetEngineTrack()->GetDataRequestManager().SetResultsFilename(logFilename);
        }
 
@@ -713,6 +717,10 @@ namespace AMM {
        return carina->GetSubstanceQuantity(*CO2)->GetPartialPressure(biogears::PressureUnit::mmHg);
     }
 
+    double BiogearsThread::GetExhaledO2() {
+       return carina->GetSubstanceQuantity(*O2)->GetPartialPressure(biogears::PressureUnit::mmHg);
+    }
+
 // Get Tidal Volume - mL
     double BiogearsThread::GetTidalVolume() {
        return m_pe->GetRespiratorySystem()->GetTidalVolume(biogears::VolumeUnit::mL);
@@ -1050,9 +1058,29 @@ namespace AMM {
        }
     }
 
+    void BiogearsThread::SetNeedleDecompression(const std::string &location) {
+
+    }
+
     void BiogearsThread::SetPain(const std::string &location, double severity) {
        try {
+          biogears::SEPainStimulus PainStimulus;
+          PainStimulus.SetLocation(location);
+          PainStimulus.GetSeverity().SetValue(severity);
+          m_pe->ProcessAction(PainStimulus);
+       }
+       catch (std::exception &e) {
+          LOG_ERROR << "Error processing pain action: " << e.what();
+       }
+    }
 
+
+    void BiogearsThread::SetSepsis(const std::string &location, double severity) {
+       try {
+//          biogears::SESepsisState sepsis;
+//          PainStimulus.SetLocation(location);
+//          PainStimulus.GetSeverity().SetValue(severity);
+//          m_pe->ProcessAction(PainStimulus);
        }
        catch (std::exception &e) {
           LOG_ERROR << "Error processing pain action: " << e.what();
@@ -1063,48 +1091,6 @@ namespace AMM {
     bool BiogearsThread::ExecuteCommand(const std::string &cmd) {
        std::string scenarioFile = "Actions/" + cmd + ".xml";
        return LoadScenarioFile(scenarioFile);
-    }
-
-
-    void BiogearsThread::SetPain(const std::string &painSettings) {
-       std::vector<std::string> strings = Utility::explode("\n", painSettings);
-
-       std::string location; // location of pain stimulus, examples "Arm", "Leg"
-       double severity;      // severity (scale 0-1)
-
-       for (auto str : strings) {
-          std::vector<std::string> strs;
-          boost::split(strs, str, boost::is_any_of("="));
-          auto strs_size = strs.size();
-          // Check if it's not a key value pair
-          if (strs_size != 2) {
-             continue;
-          }
-          std::string kvp_k = strs[0];
-          // all settings for the ventilator are floats
-          try {
-             if (kvp_k == "location") {
-                location = strs[1];
-             } else if (kvp_k == "severity") {
-                severity = std::stod(strs[1]);
-             } else {
-                LOG_INFO << "Unknown pain setting: " << kvp_k << " = " << strs[1];
-             }
-          }
-          catch (std::exception &e) {
-             LOG_ERROR << "Issue with setting " << e.what();
-          }
-          // set up the configuration of the pain stimulus
-       }
-       biogears::SEPainStimulus PainStimulus; // pain object
-       PainStimulus.SetLocation(location);
-       PainStimulus.GetSeverity().SetValue(severity);
-       try {
-          m_pe->ProcessAction(PainStimulus);
-       }
-       catch (std::exception &e) {
-          LOG_ERROR << "Error processing pain action: " << e.what();
-       }
     }
 
     void BiogearsThread::SetVentilator(const std::string &ventilatorSettings) {

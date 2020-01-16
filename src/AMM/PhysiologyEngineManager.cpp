@@ -218,10 +218,21 @@ namespace AMM {
              } else if (pmType == "Intubation") {
              } else if (pmType == "MechanicalVentilation") {
              } else if (pmType == "NeedleDecompression") {
+                std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
+                m_pe->SetNeedleDecompression(pLoc);
+                return;
              } else if (pmType == "OcclusiveDressing") {
              } else if (pmType == "PainStimulus") {
+                double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+                std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
+                m_pe->SetPain(pLoc,pSev);
+                return;
              } else if (pmType == "PericardialEffusion") {
              } else if (pmType == "Sepsis") {
+                double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+                std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
+                m_pe->SetSepsis(pLoc,pSev);
+                return;
              } else if (pmType == "SubstanceBolus") {
                 std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
 
@@ -348,7 +359,7 @@ namespace AMM {
 
     void PhysiologyEngineManager::OnNewPhysiologyModification(AMM::PhysiologyModification &pm, SampleInfo_t *info) {
        LOG_INFO << "Physiology modification received (type " << pm.type() << "): " << pm.data();
-       if (m_pe == nullptr) {
+       if (m_pe == nullptr || !running) {
           LOG_WARNING << "Physiology engine not running, cannot execute physiology modification.";
           return;
        }
@@ -443,6 +454,10 @@ namespace AMM {
 
     void PhysiologyEngineManager::OnNewInstrumentData(AMM::InstrumentData &i, SampleInfo_t *info) {
        LOG_DEBUG << "Instrument data for " << i.instrument() << " received with payload: " << i.payload();
+       if (m_pe == nullptr || !running) {
+          LOG_WARNING << "Physiology engine not running, cannot execute instrument data.";
+          return;
+       }
        std::string instrument(i.instrument());
        m_mutex.lock();
        if (instrument == "ventilator") {

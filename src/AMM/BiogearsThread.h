@@ -140,12 +140,7 @@ namespace AMM {
 
         void SetIVPump(const std::string &pumpSettings);
 
-        void SetPain(const std::string &painSettings);
 
-        void SetHemorrhage(const std::string &location, const std::string &hemorrhageSettings);
-
-
-        // AMM Standard patient actions
         // AMM Standard patient actions
         void SetAcuteStress(const std::string &actionSettings);
 
@@ -189,7 +184,7 @@ namespace AMM {
 
         void SetMechanicalVentilation(const std::string &actionSettings);
 
-        void SetNeedleDecompression(const std::string &actionSettings);
+        void SetNeedleDecompression(const std::string &location);
 
         void SetPain(const std::string &location, double severity);
 
@@ -201,7 +196,7 @@ namespace AMM {
 
         void SetPupillaryResponse(const std::string &actionSettings);
 
-        void SetSepsis(const std::string &actionSettings);
+        void SetSepsis(const std::string &location, double severity);
 
         void SetSubstanceAdministration(const std::string &actionSettings);
 
@@ -326,6 +321,8 @@ namespace AMM {
         double GetPlateletCount();
 
         double GetExhaledCO2();
+
+        double GetExhaledO2();
 
         double GetTidalVolume();
 
