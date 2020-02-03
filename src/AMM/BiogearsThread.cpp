@@ -264,7 +264,8 @@ namespace AMM {
           fs.close();
 
           m_pe->GetEngineTrack()->GetDataRequestManager().Clear();
-
+          m_pe->GetEngineTrack()->GetDataRequestManager().CreateEnvironmentDataRequest().Set("AtmosphericPressure",
+                                                                                             biogears::PressureUnit::mmHg);
           m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
              "HeartRate", biogears::FrequencyUnit::Per_min);
           m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
@@ -299,6 +300,8 @@ namespace AMM {
              BGE::PulmonaryCompartment::Carina, *O2, "PartialPressure");
           m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
              BGE::PulmonaryCompartment::Carina, *CO2, "PartialPressure");
+          m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+             BGE::PulmonaryCompartment::Carina, "Pressure", biogears::PressureUnit::cmH2O);
           m_pe->GetEngineTrack()->GetDataRequestManager().SetResultsFilename(logFilename);
        }
 
@@ -941,13 +944,10 @@ namespace AMM {
 
                 LOG_DEBUG << "Infusing with concentration of " << conVal << " " << massUnit << "/"
                           << volUnit;
-                if (massUnit == "mg" && volUnit == "mL") {
-                   infuse.GetConcentration().SetValue(
-                      conVal, biogears::MassPerVolumeUnit::mg_Per_mL);
-                } else {
-                   infuse.GetConcentration().SetValue(
-                      conVal, biogears::MassPerVolumeUnit::mg_Per_mL);
-                }
+
+                infuse.GetConcentration().SetValue(
+                   conVal, biogears::MassPerVolumeUnit::mg_Per_mL);
+
 
                 std::vector<std::string> rateb = Utility::explode(" ", rate);
                 rateVal = std::stod(rateb[0]);

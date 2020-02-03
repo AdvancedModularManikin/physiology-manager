@@ -77,7 +77,7 @@ namespace AMM {
 
     void PhysiologyEngineManager::PublishConfiguration() {
        AMM::ModuleConfiguration mc;
-       auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+       uint64_t ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
        mc.timestamp(ms);
        mc.module_id(m_uuid);
        mc.name(moduleName);
@@ -370,7 +370,11 @@ namespace AMM {
           LOG_INFO << "Executing scenario file: " << pm.type();
           m_pe->ExecuteCommand(pm.type());
        } else {
-          LOG_INFO << "Executing AMM PhysMod XML patient action";
+          if (pm.type().empty()) {
+             LOG_INFO << "Executing Biogears PhysMod XML patient action";
+             m_pe->ExecuteXMLCommand(pm.type().data());
+          }
+          LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
           ExecutePhysiologyModification(pm.data());
        }
     }
