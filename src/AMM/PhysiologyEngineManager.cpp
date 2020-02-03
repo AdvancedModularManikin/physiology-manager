@@ -370,7 +370,7 @@ namespace AMM {
           LOG_INFO << "Executing scenario file: " << pm.type();
           m_pe->ExecuteCommand(pm.type());
        } else {
-          if (pm.type().empty()) {
+          if (pm.type().empty() || pm.type() == "biogears") {
              LOG_INFO << "Executing Biogears PhysMod XML patient action";
              m_pe->ExecuteXMLCommand(pm.type().data());
           }
