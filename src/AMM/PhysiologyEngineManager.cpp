@@ -369,10 +369,12 @@ namespace AMM {
        if (pm.data().empty()) {
           LOG_INFO << "Executing scenario file: " << pm.type();
           m_pe->ExecuteCommand(pm.type());
+          return;
        } else {
           if (pm.type().empty() || pm.type() == "biogears") {
              LOG_INFO << "Executing Biogears PhysMod XML patient action";
-             m_pe->ExecuteXMLCommand(pm.type().data());
+             m_pe->ExecuteXMLCommand(pm.data());
+             return;
           }
           LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
           ExecutePhysiologyModification(pm.data());
