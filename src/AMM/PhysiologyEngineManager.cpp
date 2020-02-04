@@ -408,14 +408,17 @@ namespace AMM {
 
           case AMM::ControlType::SAVE: {
              LOG_INFO << "Message recieved; Save sim";
-             std::ostringstream ss;
-             double simTime = m_pe->GetSimulationTime();
-             LOG_TRACE << "Simulation time is " << simTime;
-             std::string filenamedate = get_filename_date();
-             LOG_TRACE << "Filename is " << filenamedate;
-             ss << "./states/SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s.xml";
-             LOG_INFO << "Saved state to " << ss.str();
-             m_pe->SaveState(ss.str());
+             if (m_pe != nullptr) {
+                std::ostringstream ss;
+                double simTime = m_pe->GetSimulationTime();
+                std::string filenamedate = get_filename_date();
+                ss << "./states/SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s.xml";
+                LOG_INFO << "Saved state to " << ss.str();
+                m_pe->SaveState(ss.str());
+             } else {
+                LOG_ERROR << "Simulation has not been run, no state to save.";
+             }
+
              break;
           }
        }
