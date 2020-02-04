@@ -410,7 +410,9 @@ namespace AMM {
              LOG_INFO << "Message recieved; Save sim";
              std::ostringstream ss;
              double simTime = m_pe->GetSimulationTime();
+             LOG_TRACE << "Simulation time is " << simTime;
              std::string filenamedate = get_filename_date();
+             LOG_TRACE << "Filename is " << filenamedate;
              ss << "./states/SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s.xml";
              LOG_INFO << "Saved state to " << ss.str();
              m_pe->SaveState(ss.str());
@@ -430,6 +432,7 @@ namespace AMM {
              this->SetLogging(false);
           } else if (!value.compare(0, loadPrefix.size(), loadPrefix)) {
              StopTickSimulation();
+             LOG_INFO << "Loading state.  Setting state file to " << value.substr(loadPrefix.size());
              stateFile = "./states/" + value.substr(loadPrefix.size()) + ".xml";
           } else {
              LOG_DEBUG << "Unknown system command received: " << cm.message();
