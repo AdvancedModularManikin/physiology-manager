@@ -293,8 +293,8 @@ namespace AMM {
 
        if (!running) {
           LOG_INFO << "Initializing Biogears thread";
-          this->SetLogging(logging_enabled);
           m_pe = new BiogearsThread("logs/biogears.log");
+          this->SetLogging(logging_enabled);
           LOG_INFO << "Loading " << stateFile << " at " << startPosition;
           if (m_pe->LoadState(stateFile.c_str(), startPosition)) {
              running = true;
