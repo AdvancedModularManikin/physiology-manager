@@ -264,8 +264,6 @@ namespace AMM {
           fs.close();
 
           m_pe->GetEngineTrack()->GetDataRequestManager().Clear();
-          m_pe->GetEngineTrack()->GetDataRequestManager().CreateEnvironmentDataRequest().Set("AtmosphericPressure",
-                                                                                             biogears::PressureUnit::mmHg);
           m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
              "HeartRate", biogears::FrequencyUnit::Per_min);
           m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
