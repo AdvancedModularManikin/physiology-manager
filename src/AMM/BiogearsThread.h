@@ -229,6 +229,8 @@ namespace AMM {
         static std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
         static std::vector<std::string> highFrequencyNodes;
 
+        bool paralyzed = false;
+        bool paralyzedSent = false;
 
     private:
         bool LoadScenarioFile(const std::string &scenarioFile);
@@ -427,5 +429,6 @@ namespace AMM {
         int loggingFrequency = 50;
 
         bool logging_enabled = false;
+
     };
 }

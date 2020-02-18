@@ -293,14 +293,19 @@ namespace AMM {
 
        if (!running) {
           LOG_INFO << "Initializing Biogears thread";
+          m_mutex.lock();
           m_pe = new BiogearsThread("logs/biogears.log");
+          m_mutex.unlock();
+
           this->SetLogging(logging_enabled);
+
+          m_mutex.lock();
           LOG_INFO << "Loading " << stateFile << " at " << startPosition;
           if (m_pe->LoadState(stateFile.c_str(), startPosition)) {
              running = true;
              m_pe->running = true;
           }
-
+          m_mutex.unlock();
           nodePathMap = m_pe->GetNodePathTable();
        }
 
@@ -325,7 +330,17 @@ namespace AMM {
 
     void PhysiologyEngineManager::StopSimulation() { m_pe->StopSimulation(); }
 
-    void PhysiologyEngineManager::AdvanceTimeTick() { m_pe->AdvanceTimeTick(); }
+    void PhysiologyEngineManager::AdvanceTimeTick() {
+       if (m_pe->paralyzed == true && m_pe->paralyzedSent == false) {
+          LOG_DEBUG << "Patient is paralyzed but we haven't sent the render mod.";
+          AMM::RenderModification renderMod;
+          renderMod.type("PATIENT_STATE_PARALYZED");
+          renderMod.data("PATIENT_STATE_PARALYZED");
+          m_mgr->WriteRenderModification(renderMod);
+          m_pe->paralyzedSent = true;
+       }
+
+       m_pe->AdvanceTimeTick(); }
 
     void PhysiologyEngineManager::SetLogging(bool log) {
 #ifdef _WIN32

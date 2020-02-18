@@ -891,13 +891,20 @@ namespace AMM {
           }
        }
 
+       if (substance == "Succinylcholine") {
+          LOG_DEBUG << "Setting paralyzed to TRUE from succs infusion";
+          paralyzed = true;
+       }
+
        try {
           if (type == "infusion") {
              std::string concentrationsMass, concentrationsVol, rateUnit, massUnit, volUnit;
              double rateVal, massVal, volVal, conVal;
 
-             if (substance == "Saline" || substance == "Whole Blood" || substance == "Blood") {
-                if (substance == "Whole Blood") {
+             if (substance == "Saline" || substance == "Whole Blood" || substance == "WholeBlood" ||
+                 substance == "Blood" || substance == "RingersLactate" || substance == "PRBC"
+                ) {
+                if (substance == "Whole Blood" || substance == "WholeBlood") {
                    substance = "Blood";
                 }
                 biogears::SESubstanceCompound *subs =
