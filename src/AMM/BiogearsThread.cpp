@@ -126,6 +126,7 @@ namespace AMM {
        nodePathTable["BloodChemistry_VenousCarbonDioxidePressure"] =
           &BiogearsThread::GetVenousCarbonDioxidePressure;
 
+       nodePathTable["IntracranialPressure"] = &BiogearsThread::GetIntracranialPressure;
        // Substances
        nodePathTable["Substance_Sodium"] = &BiogearsThread::GetSodium;
        nodePathTable["Substance_Sodium_Concentration"] = &BiogearsThread::GetSodiumConcentration;
@@ -598,7 +599,7 @@ namespace AMM {
               1000;
     }
 
-// RBC - Red Blood Cell Count - ct/uL
+// BC - Red Blood Cell Count - ct/uL
     double BiogearsThread::GetRedBloodCellCount() {
        return m_pe->GetBloodChemistrySystem()->GetRedBloodCellCount(
           biogears::AmountPerVolumeUnit::ct_Per_uL) /
@@ -619,6 +620,10 @@ namespace AMM {
     double BiogearsThread::GetRawBloodPH() {
        rawBloodPH = m_pe->GetBloodChemistrySystem()->GetVenousBloodPH();
        return rawBloodPH;
+    }
+
+    double BiogearsThread::GetIntracranialPressure() {
+       m_pe->GetCardiovascularSystem()->GetIntracranialPressure(biogears::PressureUnit::mmHg);
     }
 
     double BiogearsThread::GetBloodPH() {

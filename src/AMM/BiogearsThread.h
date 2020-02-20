@@ -277,6 +277,7 @@ namespace AMM {
 
         double GetBUN();
 
+        double GetIntracranialPressure();
 
         double GetCreatinineConcentration();
 
