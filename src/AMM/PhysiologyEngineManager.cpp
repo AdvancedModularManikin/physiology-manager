@@ -88,7 +88,10 @@ namespace AMM {
 
     PhysiologyEngineManager::~PhysiologyEngineManager() {
        if (m_pe != nullptr) {
+          m_mutex.lock();
           m_pe->Shutdown();
+          delete m_pe;
+          m_mutex.unlock();
        }
        m_mgr->Shutdown();
     }
@@ -325,10 +328,11 @@ namespace AMM {
           return;
        }
 
+       m_mutex.lock();
        m_pe->running = false;
        m_pe->Shutdown();
-
        delete m_pe;
+       m_mutex.unlock();
     }
 
     void PhysiologyEngineManager::StartSimulation() { m_pe->StartSimulation(); }
@@ -336,7 +340,7 @@ namespace AMM {
     void PhysiologyEngineManager::StopSimulation() { m_pe->StopSimulation(); }
 
     void PhysiologyEngineManager::AdvanceTimeTick() {
-       if (m_pe->paralyzed == true && m_pe->paralyzedSent == false) {
+       if (m_pe->paralyzed && m_pe->paralyzedSent) {
           LOG_DEBUG << "Patient is paralyzed but we haven't sent the render mod.";
           AMM::RenderModification renderMod;
           renderMod.type("PATIENT_STATE_PARALYZED");
@@ -424,9 +428,6 @@ namespace AMM {
           case AMM::ControlType::RESET: {
              LOG_DEBUG << "SimControl recieved: Reset simulation, clearing engine data and preparing for next run.";
              StopTickSimulation();
-             running = false;
-             m_pe->running = false;
-             paused = false;
              break;
           }
 
@@ -438,7 +439,9 @@ namespace AMM {
                 std::string filenamedate = get_filename_date();
                 ss << "./states/SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s.xml";
                 LOG_INFO << "Saved state to " << ss.str();
+                m_mutex.lock();
                 m_pe->SaveState(ss.str());
+                m_mutex.unlock();
              } else {
                 LOG_ERROR << "Simulation has not been run, no state to save.";
              }
