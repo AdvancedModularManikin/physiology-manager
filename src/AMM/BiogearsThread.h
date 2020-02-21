@@ -53,6 +53,7 @@
 
 #include <biogears/cdm/engine/PhysiologyEngineTrack.h>
 #include <biogears/cdm/utils/SEEventHandler.h>
+#include <biogears/cdm/scenario/SEScenarioExec.h>
 
 #include <biogears/cdm/properties/SEFunctionVolumeVsTime.h>
 #include <biogears/cdm/properties/SEScalarAmountPerVolume.h>

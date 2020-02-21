@@ -317,6 +317,8 @@ namespace AMM {
           m_mutex.lock();
           running = false;
           m_pe->running = false;
+          m_pe->paralyzedSent = false;
+          m_pe->paralyzed = false;
           paused = false;
           std::this_thread::sleep_for(std::chrono::milliseconds(200));
           if (m_pe == nullptr) {

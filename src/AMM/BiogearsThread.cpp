@@ -48,7 +48,7 @@ namespace AMM {
     BiogearsThread::~BiogearsThread() {
        running = false;
        m_pe = nullptr;
-       std::this_thread::sleep_for(std::chrono::seconds(1));
+       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     void BiogearsThread::PopulateNodePathTable() {
@@ -188,7 +188,9 @@ namespace AMM {
        return &nodePathTable;
     }
 
-    void BiogearsThread::Shutdown() {}
+    void BiogearsThread::Shutdown() {
+
+    }
 
     void BiogearsThread::StartSimulation() {
        if (!running) {
@@ -203,6 +205,11 @@ namespace AMM {
     }
 
     bool BiogearsThread::LoadState(const std::string &stateFile, double sec) {
+       if (m_pe == nullptr) {
+          LOG_ERROR << "Unable to load state, Biogears has not been initialized.";
+          return false;
+       }
+
        auto *startTime = new biogears::SEScalarTime();
        startTime->SetValue(sec, biogears::TimeUnit::s);
 
@@ -213,20 +220,25 @@ namespace AMM {
        }
 
        LOG_INFO << "Loading state file " << stateFile << " at position " << sec << " seconds";
+       m_mutex.lock();
        try {
 
           if (!m_pe->LoadState(stateFile, startTime)) {
              LOG_ERROR << "Error loading state";
+             m_mutex.unlock();
              return false;
           }
        }
        catch (std::exception &e) {
           LOG_ERROR << "Exception loading state: " << e.what();
+          m_mutex.unlock();
           return false;
        }
+       m_mutex.unlock();
 
        LOG_DEBUG << "Preloading substances";
        // preload substances
+       m_mutex.lock();
        sodium = m_pe->GetSubstanceManager().GetSubstance("Sodium");
        glucose = m_pe->GetSubstanceManager().GetSubstance("Glucose");
        creatinine = m_pe->GetSubstanceManager().GetSubstance("Creatinine");
@@ -252,6 +264,7 @@ namespace AMM {
        leftLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::LeftLung);
        rightLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::RightLung);
        bladder = m_pe->GetCompartments().GetLiquidCompartment(BGE::UrineCompartment::Bladder);
+       m_mutex.unlock();
 
        startingBloodVolume = 5400.00;
        currentBloodVolume = startingBloodVolume;
@@ -308,7 +321,13 @@ namespace AMM {
     }
 
     bool BiogearsThread::SaveState(const std::string &stateFile) {
+       if (m_pe == nullptr) {
+          LOG_ERROR << "Unable to save state, Biogears has not been initialized.";
+          return false;
+       }
+       m_mutex.lock();
        m_pe->SaveState(stateFile);
+       m_mutex.unlock();
        return true;
     }
 
@@ -350,12 +369,29 @@ namespace AMM {
 // This bypasses the standard BioGears ExecuteScenario method to avoid resetting the BioGears
 // engine
     bool BiogearsThread::LoadScenarioFile(const std::string &scenarioFile) {
+       if (m_pe == nullptr) {
+          LOG_ERROR << "Unable to load scenario, Biogears has not been initialized.";
+          return false;
+       }
 
        if (!file_exists(scenarioFile.c_str())) {
           LOG_WARNING << "Scenario/action file does not exist: " << scenarioFile;
           return false;
        }
 
+       SEScenarioExec exec(*m_pe);
+       m_mutex.lock();
+       try {
+          if (!exec.Execute(scenarioFile.c_str(), nullptr, nullptr)) {
+             LOG_ERROR << "Unable to process action.";
+          }
+       }
+       catch (std::exception &e) {
+          LOG_ERROR << "Error processing action: " << e.what();
+       }
+       m_mutex.unlock();
+
+       /**
        biogears::SEScenario sce(m_pe->GetSubstanceManager());
        sce.Load(scenarioFile);
 
@@ -394,6 +430,7 @@ namespace AMM {
              }
           }
        }
+        **/
        return true;
     }
 
