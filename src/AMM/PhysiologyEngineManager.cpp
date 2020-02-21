@@ -314,23 +314,20 @@ namespace AMM {
 
     void PhysiologyEngineManager::StopTickSimulation() {
        if (running) {
-          m_mutex.lock();
           running = false;
           m_pe->running = false;
           m_pe->paralyzedSent = false;
           m_pe->paralyzed = false;
           paused = false;
           std::this_thread::sleep_for(std::chrono::milliseconds(200));
+       }
           if (m_pe == nullptr) {
              LOG_WARNING << "Physiology engine not running, all other settings reset.";
-             m_mutex.unlock();
              return;
           }
           m_pe->Shutdown();
-          m_mutex.unlock();
 
           delete m_pe;
-       }
     }
 
     void PhysiologyEngineManager::StartSimulation() { m_pe->StartSimulation(); }
@@ -408,23 +405,22 @@ namespace AMM {
     }
 
     void PhysiologyEngineManager::OnNewSimulationControl(AMM::SimulationControl &simControl, SampleInfo_t *info) {
-       LOG_INFO << "Received simulation control message";
        switch (simControl.type()) {
           case AMM::ControlType::RUN: {
-             LOG_DEBUG << "Message recieved; Run sim.";
+             LOG_DEBUG << "SimControl recieved: Run sim.";
              StartTickSimulation();
              break;
           }
 
           case AMM::ControlType::HALT: {
-             LOG_DEBUG << "Message recieved; Halt sim";
+             LOG_DEBUG << "SimControl recieved: Halt sim";
              paused = true;
              break;
           }
 
 
           case AMM::ControlType::RESET: {
-             LOG_DEBUG << "Reset simulation, clearing engine data and preparing for next run.";
+             LOG_DEBUG << "SimControl recieved: Reset simulation, clearing engine data and preparing for next run.";
              StopTickSimulation();
              running = false;
              m_pe->running = false;
@@ -433,7 +429,7 @@ namespace AMM {
           }
 
           case AMM::ControlType::SAVE: {
-             LOG_INFO << "Message recieved; Save sim";
+             LOG_DEBUG << "SimControl recieved: Save sim";
              if (m_pe != nullptr) {
                 std::ostringstream ss;
                 double simTime = m_pe->GetSimulationTime();
