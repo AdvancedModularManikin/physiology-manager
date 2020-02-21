@@ -468,7 +468,9 @@ namespace AMM {
              LOG_DEBUG << "Disabling logging";
              this->SetLogging(false);
           } else if (!value.compare(0, loadPrefix.size(), loadPrefix)) {
-             StopTickSimulation();
+             if (running || m_pe != nullptr) {
+                StopTickSimulation();
+             }
              LOG_INFO << "Loading state.  Setting state file to " << value.substr(loadPrefix.size());
              stateFile = "./states/" + value.substr(loadPrefix.size()) + ".xml";
           } else {
