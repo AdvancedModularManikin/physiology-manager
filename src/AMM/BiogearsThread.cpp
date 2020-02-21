@@ -352,16 +352,22 @@ namespace AMM {
        _mktemp(tmpname);
 #else
        char *tmpname = strdup("/tmp/tmp_amm_xml_XXXXXX");
-       mkstemp(tmpname);
+       //mkstemp(tmpname);
 #endif
        std::ofstream out(tmpname);
-       out << cmd;
-       out.close();
-       if (!LoadScenarioFile(tmpname)) {
-          LOG_ERROR << "Unable to load scenario file from temp.";
-          return false;
+       if(out.is_open())
+       {
+          out << cmd;
+
+          out.close();
+          if (!LoadScenarioFile(tmpname)) {
+             LOG_ERROR << "Unable to load scenario file from temp.";
+             return false;
+          } else {
+             return true;
+          }
        } else {
-          return true;
+          LOG_ERROR << "Unable to open file.";
        }
 
     }
