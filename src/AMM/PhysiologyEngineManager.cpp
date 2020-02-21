@@ -414,19 +414,26 @@ namespace AMM {
        switch (simControl.type()) {
           case AMM::ControlType::RUN: {
              LOG_DEBUG << "SimControl recieved: Run sim.";
-             StartTickSimulation();
+             if (!running) {
+                StartTickSimulation();
+             }
              break;
           }
 
           case AMM::ControlType::HALT: {
              LOG_DEBUG << "SimControl recieved: Halt sim";
-             paused = true;
+             if (running) {
+                paused = true;
+             }
              break;
           }
 
 
           case AMM::ControlType::RESET: {
              LOG_DEBUG << "SimControl recieved: Reset simulation, clearing engine data and preparing for next run.";
+             if (running) {
+                paused = true;
+             }
              StopTickSimulation();
              break;
           }
