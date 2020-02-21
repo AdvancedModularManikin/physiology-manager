@@ -225,13 +225,13 @@ namespace AMM {
              } else if (pmType == "PainStimulus") {
                 double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
                 std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-                m_pe->SetPain(pLoc,pSev);
+                m_pe->SetPain(pLoc, pSev);
                 return;
              } else if (pmType == "PericardialEffusion") {
              } else if (pmType == "Sepsis") {
                 double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
                 std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-                m_pe->SetSepsis(pLoc,pSev);
+                m_pe->SetSepsis(pLoc, pSev);
                 return;
              } else if (pmType == "SubstanceBolus") {
                 std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
@@ -315,19 +315,20 @@ namespace AMM {
     void PhysiologyEngineManager::StopTickSimulation() {
        if (running) {
           running = false;
-          m_pe->running = false;
-          m_pe->paralyzedSent = false;
-          m_pe->paralyzed = false;
-          paused = false;
           std::this_thread::sleep_for(std::chrono::milliseconds(200));
        }
-          if (m_pe == nullptr) {
-             LOG_WARNING << "Physiology engine not running, all other settings reset.";
-             return;
-          }
-          m_pe->Shutdown();
 
-          delete m_pe;
+
+       if (m_pe == nullptr) {
+          LOG_WARNING << "Physiology engine not running, all other settings reset.";
+          return;
+       }
+
+       paused = false;
+       m_pe->running = false;
+       m_pe->Shutdown();
+
+       delete m_pe;
     }
 
     void PhysiologyEngineManager::StartSimulation() { m_pe->StartSimulation(); }
@@ -344,7 +345,8 @@ namespace AMM {
           m_pe->paralyzedSent = true;
        }
 
-       m_pe->AdvanceTimeTick(); }
+       m_pe->AdvanceTimeTick();
+    }
 
     void PhysiologyEngineManager::SetLogging(bool log) {
 #ifdef _WIN32
