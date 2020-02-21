@@ -319,6 +319,11 @@ namespace AMM {
           m_pe->running = false;
           paused = false;
           std::this_thread::sleep_for(std::chrono::milliseconds(200));
+          if (m_pe == nullptr) {
+             LOG_WARNING << "Physiology engine not running, all other settings reset.";
+             m_mutex.unlock();
+             return;
+          }
           m_pe->Shutdown();
           m_mutex.unlock();
 
