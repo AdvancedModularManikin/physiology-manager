@@ -382,14 +382,6 @@ namespace AMM {
        biogears::SEScenario sce(m_pe->GetSubstanceManager());
        sce.Load(scenarioFile);
 
-       double dT_s = m_pe->GetTimeStep(biogears::TimeUnit::s);
-       // double scenarioTime_s;
-
-       double sampleTime_s = sce.GetDataRequestManager().GetSamplesPerSecond();
-       if (sampleTime_s != 0)
-          sampleTime_s = 1 / sampleTime_s;
-       double currentSampleTime_s = sampleTime_s; // Sample the first step
-
        SEAdvanceTime *adv;
        // Now run the scenario actions
        for (SEAction *a : sce.GetActions()) {
