@@ -357,7 +357,13 @@ namespace AMM {
        std::ofstream out(tmpname);
        out << cmd;
        out.close();
-       return LoadScenarioFile(tmpname);
+       if (!LoadScenarioFile(tmpname)) {
+          LOG_ERROR << "Unable to load scenario file from temp.";
+          return false;
+       } else {
+          return true;
+       }
+
     }
 
     bool file_exists(const char *fileName) {
@@ -385,7 +391,6 @@ namespace AMM {
        SEAdvanceTime *adv;
        // Now run the scenario actions
        for (SEAction *a : sce.GetActions()) {
-          // We want the tracker to process an advance time action so it will write each time step of data to our track file
           adv = dynamic_cast<SEAdvanceTime *>(a);
           if (adv != nullptr) {
              m_mutex.lock();
