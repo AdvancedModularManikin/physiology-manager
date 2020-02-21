@@ -318,7 +318,6 @@ namespace AMM {
     void PhysiologyEngineManager::StopTickSimulation() {
        if (running) {
           running = false;
-          std::this_thread::sleep_for(std::chrono::milliseconds(200));
        }
 
        paused = false;
@@ -332,6 +331,7 @@ namespace AMM {
        m_pe->running = false;
        m_pe->Shutdown();
        delete m_pe;
+       std::this_thread::sleep_for(std::chrono::milliseconds(200));
        m_mutex.unlock();
     }
 
@@ -469,6 +469,7 @@ namespace AMM {
              this->SetLogging(false);
           } else if (!value.compare(0, loadPrefix.size(), loadPrefix)) {
              if (running || m_pe != nullptr) {
+                LOG_INFO << "Loading state, but shutting down existing sim and Biogears thread first.";
                 StopTickSimulation();
              }
              LOG_INFO << "Loading state.  Setting state file to " << value.substr(loadPrefix.size());
