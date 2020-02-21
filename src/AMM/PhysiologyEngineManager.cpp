@@ -318,13 +318,13 @@ namespace AMM {
           std::this_thread::sleep_for(std::chrono::milliseconds(200));
        }
 
+       paused = false;
 
        if (m_pe == nullptr) {
           LOG_WARNING << "Physiology engine not running, all other settings reset.";
           return;
        }
 
-       paused = false;
        m_pe->running = false;
        m_pe->Shutdown();
 
