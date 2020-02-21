@@ -379,19 +379,6 @@ namespace AMM {
           return false;
        }
 
-       SEScenarioExec exec(*m_pe);
-       m_mutex.lock();
-       try {
-          if (!exec.Execute(scenarioFile.c_str(), nullptr, nullptr)) {
-             LOG_ERROR << "Unable to process action.";
-          }
-       }
-       catch (std::exception &e) {
-          LOG_ERROR << "Error processing action: " << e.what();
-       }
-       m_mutex.unlock();
-
-       /**
        biogears::SEScenario sce(m_pe->GetSubstanceManager());
        sce.Load(scenarioFile);
 
@@ -403,23 +390,22 @@ namespace AMM {
           sampleTime_s = 1 / sampleTime_s;
        double currentSampleTime_s = sampleTime_s; // Sample the first step
 
-       biogears::SEAdvanceTime *adv;
-       for (biogears::SEAction *a : sce.GetActions()) {
-          adv = dynamic_cast<biogears::SEAdvanceTime *>(a);
+       SEAdvanceTime *adv;
+       // Now run the scenario actions
+       for (SEAction *a : sce.GetActions()) {
+          // We want the tracker to process an advance time action so it will write each time step of data to our track file
+          adv = dynamic_cast<SEAdvanceTime *>(a);
           if (adv != nullptr) {
-             double time_s = adv->GetTime(biogears::TimeUnit::s);
-             auto count = (int) (time_s / dT_s);
-             for (int i = 0; i <= count; i++) {
-                m_mutex.lock();
+             m_mutex.lock();
+             try {
                 m_pe->AdvanceModelTime();
-                m_mutex.unlock();
-                currentSampleTime_s += dT_s;
-                if (currentSampleTime_s >= sampleTime_s) {
-                   currentSampleTime_s = 0;
-                }
              }
-             continue;
+             catch (std::exception &e) {
+                LOG_ERROR << "Error advancing time: " << e.what();
+             }
+             m_mutex.unlock();
           } else {
+             m_mutex.lock();
              try {
                 if (!m_pe->ProcessAction(*a)) {
                    LOG_ERROR << "Unable to process action.";
@@ -428,9 +414,9 @@ namespace AMM {
              catch (std::exception &e) {
                 LOG_ERROR << "Error processing action: " << e.what();
              }
+             m_mutex.unlock();
           }
        }
-        **/
        return true;
     }
 
