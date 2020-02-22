@@ -390,16 +390,12 @@ namespace AMM {
        // Otherwise, the payload is considered to be XML to execute.
        if (pm.data().empty()) {
           LOG_INFO << "Executing scenario file: " << pm.type();
-          m_mutex.lock();
           m_pe->ExecuteCommand(pm.type());
-          m_mutex.unlock();
           return;
        } else {
           if (pm.type().empty() || pm.type() == "biogears") {
              LOG_INFO << "Executing Biogears PhysMod XML patient action";
-             m_mutex.lock();
              m_pe->ExecuteXMLCommand(pm.data());
-             m_mutex.unlock();
              return;
           }
           LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
