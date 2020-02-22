@@ -316,10 +316,6 @@ namespace AMM {
     }
 
     void PhysiologyEngineManager::StopTickSimulation() {
-       if (running) {
-          running = false;
-       }
-
        paused = false;
 
        if (m_pe == nullptr) {
@@ -328,11 +324,11 @@ namespace AMM {
        }
 
        m_mutex.lock();
-       m_pe->running = false;
-       m_pe->Shutdown();
        delete m_pe;
-       std::this_thread::sleep_for(std::chrono::milliseconds(200));
+       std::this_thread::sleep_for(std::chrono::milliseconds(300));
        m_mutex.unlock();
+
+       LOG_INFO << "Simulation stopped and reset.";
     }
 
     void PhysiologyEngineManager::StartSimulation() { m_pe->StartSimulation(); }
