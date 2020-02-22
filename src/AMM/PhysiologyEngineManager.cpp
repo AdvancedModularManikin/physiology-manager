@@ -90,7 +90,7 @@ namespace AMM {
        if (m_pe != nullptr) {
           m_mutex.lock();
           m_pe->Shutdown();
-          delete m_pe;
+          m_pe = nullptr;
           m_mutex.unlock();
        }
        m_mgr->Shutdown();
@@ -323,10 +323,11 @@ namespace AMM {
           return;
        }
 
-       m_mutex.lock();
-       delete m_pe;
+       LOG_INFO << "Deleting BG thread";
+
+       m_pe = nullptr;
+
        std::this_thread::sleep_for(std::chrono::milliseconds(300));
-       m_mutex.unlock();
 
        LOG_INFO << "Simulation stopped and reset.";
     }
