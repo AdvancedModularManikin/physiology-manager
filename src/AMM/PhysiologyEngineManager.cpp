@@ -465,8 +465,17 @@ namespace AMM {
                 LOG_INFO << "Loading state, but shutting down existing sim and Biogears thread first.";
                 StopTickSimulation();
              }
+
              LOG_INFO << "Loading state.  Setting state file to " << value.substr(loadPrefix.size());
+             std::string holdStateFile = stateFile;
              stateFile = "./states/" + value.substr(loadPrefix.size()) + ".xml";
+             std::ifstream infile(stateFile);
+             if (!infile.good()) {
+                LOG_ERROR << "State file does not exist: " << stateFile;
+                stateFile = holdStateFile;
+                LOG_ERROR << "Returning to last good state: " << stateFile;
+             }
+             infile.close();
           } else {
              LOG_DEBUG << "Unknown system command received: " << cm.message();
           }
