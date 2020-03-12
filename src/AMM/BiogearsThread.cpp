@@ -5,7 +5,7 @@ using namespace biogears;
 namespace AMM {
     class PhysiologyEngineLogger : public LoggerForward {
     public:
-        void ForwardDebug(const std::string &msg, const std::string &origin) override {
+        virtual void ForwardDebug(const std::string &msg, const std::string &origin) {
            LOG_DEBUG << msg;
         }
 
@@ -260,7 +260,7 @@ namespace AMM {
        lactate = m_pe->GetSubstanceManager().GetSubstance("Lactate");
 
        // preload compartments
-       carina = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::Carina);
+       carina = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::Trachea);
        leftLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::LeftLung);
        rightLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::RightLung);
        bladder = m_pe->GetCompartments().GetLiquidCompartment(BGE::UrineCompartment::Bladder);
@@ -299,7 +299,7 @@ namespace AMM {
           m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
              "OxygenSaturation");
           m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
-             BGE::PulmonaryCompartment::Carina, "InFlow");
+             BGE::PulmonaryCompartment::Trachea, "InFlow");
           m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
              "BloodVolume", biogears::VolumeUnit::mL);
           m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
@@ -309,11 +309,11 @@ namespace AMM {
           m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
              "UrineProductionRate", biogears::VolumePerTimeUnit::mL_Per_min);
           m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
-             BGE::PulmonaryCompartment::Carina, *O2, "PartialPressure");
+             BGE::PulmonaryCompartment::Trachea, *O2, "PartialPressure");
           m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
-             BGE::PulmonaryCompartment::Carina, *CO2, "PartialPressure");
+             BGE::PulmonaryCompartment::Trachea, *CO2, "PartialPressure");
           m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
-             BGE::PulmonaryCompartment::Carina, "Pressure", biogears::PressureUnit::cmH2O);
+             BGE::PulmonaryCompartment::Trachea, "Pressure", biogears::PressureUnit::cmH2O);
           m_pe->GetEngineTrack()->GetDataRequestManager().SetResultsFilename(logFilename);
        }
 
@@ -370,6 +370,7 @@ namespace AMM {
           LOG_ERROR << "Unable to open file.";
        }
 
+       return true;
     }
 
     bool file_exists(const char *fileName) {
@@ -649,7 +650,7 @@ namespace AMM {
     }
 
     double BiogearsThread::GetIntracranialPressure() {
-       m_pe->GetCardiovascularSystem()->GetIntracranialPressure(biogears::PressureUnit::mmHg);
+      return m_pe->GetCardiovascularSystem()->GetIntracranialPressure(biogears::PressureUnit::mmHg);
     }
 
     double BiogearsThread::GetBloodPH() {
