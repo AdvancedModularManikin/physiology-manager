@@ -101,17 +101,13 @@
 namespace AMM {
     class BiogearsThread {
     public:
-        BiogearsThread(const std::string &stateFile);
+        explicit BiogearsThread(const std::string &stateFile);
 
         ~BiogearsThread();
 
         bool LoadState(const std::string &stateFile, double sec);
 
         bool SaveState(const std::string &stateFile);
-
-        bool SaveState();
-
-        bool ProcessPatientAction(std::string actionType, std::string payload);
 
         bool ExecuteXMLCommand(const std::string &cmd);
 

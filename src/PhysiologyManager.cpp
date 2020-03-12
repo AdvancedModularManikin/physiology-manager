@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
       }
    }
 
-   AMM::PhysiologyEngineManager *pe = new AMM::PhysiologyEngineManager();
+   auto *pe = new AMM::PhysiologyEngineManager();
    pe->SetLogging(logging);
    std::this_thread::sleep_for(std::chrono::milliseconds(250));
 

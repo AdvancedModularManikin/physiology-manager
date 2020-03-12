@@ -3,7 +3,7 @@
 using namespace std;
 using namespace std::chrono;
 
-std::string get_filename_date(void) {
+std::string get_filename_date() {
    time_t now;
    char the_date[18];
 
@@ -77,7 +77,7 @@ namespace AMM {
 
     void PhysiologyEngineManager::PublishConfiguration() {
        AMM::ModuleConfiguration mc;
-       uint64_t ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+       uint64_t ms = static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
        mc.timestamp(ms);
        mc.module_id(m_uuid);
        mc.name(moduleName);
@@ -400,6 +400,17 @@ namespace AMM {
           }
           LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
           ExecutePhysiologyModification(pm.data());
+
+
+
+
+
+
+
+
+
+
+
        }
     }
 

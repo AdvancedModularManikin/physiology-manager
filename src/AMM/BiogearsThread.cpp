@@ -5,7 +5,7 @@ using namespace biogears;
 namespace AMM {
     class PhysiologyEngineLogger : public LoggerForward {
     public:
-        virtual void ForwardDebug(const std::string &msg, const std::string &origin) {
+        void ForwardDebug(const std::string &msg, const std::string &origin) override {
            LOG_DEBUG << msg;
         }
 
