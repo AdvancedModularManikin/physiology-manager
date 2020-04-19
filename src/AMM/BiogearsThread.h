@@ -127,6 +127,8 @@ namespace AMM {
 
         double GetSimulationTime();
 
+        double GetPatientTime();
+
         std::map<std::string, double (BiogearsThread::*)()> *GetNodePathTable();
 
         double GetNodePath(const std::string &nodePath);
@@ -136,7 +138,6 @@ namespace AMM {
         void SetBVMMask(const std::string &ventilatorSettings);
 
         void SetIVPump(const std::string &pumpSettings);
-
 
         // AMM Standard patient actions
         void SetAcuteStress(const std::string &actionSettings);

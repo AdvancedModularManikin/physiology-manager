@@ -20,14 +20,10 @@ std::string get_filename_date() {
 
 namespace AMM {
     PhysiologyEngineManager::PhysiologyEngineManager() {
-
        static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
        //static plog::DDS_Log_Appender<plog::TxtFormatter> DDSAppender(mgr);
        //plog::init(plog::verbose, &consoleAppender).addAppender(&DDSAppender);
 
-       if (m_pe == nullptr) {
-          LOG_WARNING << "BioGears thread not initialized.";
-       }
 
        stateFile = "./states/StandardMale@0s.xml";
 
@@ -156,6 +152,10 @@ namespace AMM {
     }
 
     void PhysiologyEngineManager::PublishData(bool force = false) {
+       if (m_pe == nullptr || !running) {
+          LOG_WARNING << "Physiology engine not running, cannot publish data.";
+          return;
+       }
        auto it = nodePathMap->begin();
        while (it != nodePathMap->end()) {
           if ((lastFrame % 10) == 0 || force) {
@@ -302,6 +302,11 @@ namespace AMM {
 
           this->SetLogging(logging_enabled);
 
+          if (m_pe == nullptr) {
+             LOG_WARNING << "Physiology engine not running, unable to start tick simulation.";
+             return;
+          }
+
           m_mutex.lock();
           LOG_INFO << "Loading " << stateFile << " at " << startPosition;
           if (m_pe->LoadState(stateFile.c_str(), startPosition)) {
@@ -324,11 +329,8 @@ namespace AMM {
        }
 
        LOG_INFO << "Deleting BG thread";
-
        m_pe = nullptr;
-
-       std::this_thread::sleep_for(std::chrono::milliseconds(300));
-
+       std::this_thread::sleep_for(std::chrono::milliseconds(100));
        LOG_INFO << "Simulation stopped and reset.";
     }
 
@@ -337,6 +339,11 @@ namespace AMM {
     void PhysiologyEngineManager::StopSimulation() { m_pe->StopSimulation(); }
 
     void PhysiologyEngineManager::AdvanceTimeTick() {
+       if (m_pe == nullptr || !running) {
+          LOG_WARNING << "Physiology engine not running, cannot advance time.";
+          return;
+       }
+
        if (m_pe->paralyzed && m_pe->paralyzedSent) {
           LOG_DEBUG << "Patient is paralyzed but we haven't sent the render mod.";
           AMM::RenderModification renderMod;
@@ -351,6 +358,7 @@ namespace AMM {
 
     void PhysiologyEngineManager::SetLogging(bool log) {
 #ifdef _WIN32
+       LOG_WARNING << "Unable to set logging on Windows systems.";
        return;
 #endif
 
@@ -400,16 +408,6 @@ namespace AMM {
           }
           LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
           ExecutePhysiologyModification(pm.data());
-
-
-
-
-
-
-
-
-
-
 
        }
     }

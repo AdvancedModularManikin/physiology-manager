@@ -55,6 +55,10 @@ void show_menu(AMM::PhysiologyEngineManager *pe) {
       }
       std::cout << pe->GetTickCount() << std::endl;
    } else if (action == "2") {
+      if (!pe->isRunning()) {
+         std::cout << " == Simulation not running" << std::endl;
+         return;
+      }
       std::cout << " == Advancing time one tick" << std::endl;
       pe->AdvanceTimeTick();
    } else if (action == "3") {
@@ -72,22 +76,26 @@ void show_menu(AMM::PhysiologyEngineManager *pe) {
          std::cout << " == Not running" << std::endl;
       }
    } else if (action == "5") {
-      std::cout << " == Publishing all data" << std::endl;
-      pe->PublishData(true);
-      std::cout << " == Done publishing " << pe->GetNodePathCount() << " items."
-                << std::endl;
+      if (pe->isRunning()) {
+         std::cout << " == Publishing all data" << std::endl;
+         pe->PublishData(true);
+         std::cout << " == Done publishing " << pe->GetNodePathCount() << " items." << std::endl;
+      }
    } else if (action == "6") {
       logging = !logging;
       pe->SetLogging(logging);
    } else if (action == "7") {
       if (!pe->isRunning()) {
-         std::cout << " == Simulation not running, but shutting down anyway"
-                   << std::endl;
+         std::cout << " == Simulation not running, but shutting down anyway" << std::endl;
       }
       pe->StopSimulation();
       pe->Shutdown();
       closed = true;
    } else if (action == "8") {
+      if (!pe->isRunning()) {
+         std::cout << " == Simulation not running" << std::endl;
+         return;
+      }
       std::string XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><PhysiologyModification type=\"Hemorrhage\"><Location>LeftLeg</Location><Flow unit=\"mL/hr\">250</Flow></PhysiologyModification>";
       pe->ExecutePhysiologyModification(XML);
    } else if (action == "9") {

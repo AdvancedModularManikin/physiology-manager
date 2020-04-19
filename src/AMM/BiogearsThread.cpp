@@ -58,6 +58,7 @@ namespace AMM {
        // Legacy values
        nodePathTable["ECG"] = &BiogearsThread::GetECGWaveform;
        nodePathTable["HR"] = &BiogearsThread::GetHeartRate;
+       nodePathTable["PATIENT_TIME"] = &BiogearsThread::GetPatientTime;
        nodePathTable["SIM_TIME"] = &BiogearsThread::GetSimulationTime;
        nodePathTable["LOGGING_STATUS"] = &BiogearsThread::GetLoggingStatus;
 
@@ -347,13 +348,7 @@ namespace AMM {
     }
 
     bool BiogearsThread::ExecuteXMLCommand(const std::string &cmd) {
-#ifdef _WIN32
-       char* tmpname = _strdup("/tmp/tmp_amm_xml_XXXXXX");
-       _mktemp(tmpname);
-#else
        char *tmpname = strdup("/tmp/tmp_amm_xml_XXXXXX");
-       //mkstemp(tmpname);
-#endif
        std::ofstream out(tmpname);
        if(out.is_open())
        {
@@ -425,6 +420,16 @@ namespace AMM {
     }
 
     void BiogearsThread::AdvanceTimeTick() {
+       if (m_pe == nullptr) {
+          LOG_ERROR << "Unable to advance time, Biogears has not been initialized.";
+          return;
+       }
+
+       if (!running) {
+          LOG_ERROR << "Cannot advance time, simulation is not running.";
+          return;
+       }
+
        m_mutex.lock();
        try {
           m_pe->AdvanceModelTime();
@@ -445,6 +450,10 @@ namespace AMM {
     }
 
     double BiogearsThread::GetSimulationTime() {
+       return lastFrame / 50;
+    }
+
+    double BiogearsThread::GetPatientTime() {
        return m_pe->GetSimulationTime(biogears::TimeUnit::s);
     }
 
