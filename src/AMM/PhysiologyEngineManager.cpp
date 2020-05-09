@@ -3,7 +3,7 @@
 using namespace std;
 using namespace std::chrono;
 
-std::string get_filename_date() {
+std::string get_filename_date(void) {
    time_t now;
    char the_date[18];
 
@@ -328,7 +328,7 @@ namespace AMM {
           return;
        }
 
-       LOG_INFO << "Deleting BG thread";
+       LOG_INFO << "Deleting Physiology Engine thread";
        m_pe = nullptr;
        std::this_thread::sleep_for(std::chrono::milliseconds(100));
        LOG_INFO << "Simulation stopped and reset.";
@@ -381,7 +381,7 @@ namespace AMM {
     void PhysiologyEngineManager::Shutdown() {
        SendShutdown();
 
-       LOG_DEBUG << "[PhysiologyManager][m_pe] Shutting down BioGears.";
+       LOG_DEBUG << "[PhysiologyManager] Shutting down physiology engine.";
        m_pe->Shutdown();
     }
 
@@ -408,7 +408,6 @@ namespace AMM {
           }
           LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
           ExecutePhysiologyModification(pm.data());
-
        }
     }
 
@@ -446,7 +445,7 @@ namespace AMM {
                 std::ostringstream ss;
                 double simTime = m_pe->GetSimulationTime();
                 std::string filenamedate = get_filename_date();
-                ss << "./states/SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s.xml";
+                ss << "./states/SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s." << stateFilePrefix;
                 LOG_INFO << "Saved state to " << ss.str();
                 m_mutex.lock();
                 m_pe->SaveState(ss.str());
@@ -471,13 +470,13 @@ namespace AMM {
              this->SetLogging(false);
           } else if (!value.compare(0, loadPrefix.size(), loadPrefix)) {
              if (running || m_pe != nullptr) {
-                LOG_INFO << "Loading state, but shutting down existing sim and Biogears thread first.";
+                LOG_INFO << "Loading state, but shutting down existing sim and physiology engine thread first.";
                 StopTickSimulation();
              }
 
              LOG_INFO << "Loading state.  Setting state file to " << value.substr(loadPrefix.size());
              std::string holdStateFile = stateFile;
-             stateFile = "./states/" + value.substr(loadPrefix.size()) + ".xml";
+             stateFile = "./states/" + value.substr(loadPrefix.size()) + "." + stateFilePrefix;
              std::ifstream infile(stateFile);
              if (!infile.good()) {
                 LOG_ERROR << "State file does not exist: " << stateFile;

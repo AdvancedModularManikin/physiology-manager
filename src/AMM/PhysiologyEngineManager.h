@@ -84,9 +84,8 @@ namespace AMM {
         std::map<std::string, double (BiogearsThread::*)()> *nodePathMap;
 
         std::string sysPrefix = "[SYS]";
-        std::string actPrefix = "[ACT]";
         std::string loadPrefix = "LOAD_STATE:";
-        std::string loadScenarioPrefix = "LOAD_SCENARIO:";
+        std::string stateFilePrefix = "xml";
 
     protected:
         AMM::UUID m_uuid;
