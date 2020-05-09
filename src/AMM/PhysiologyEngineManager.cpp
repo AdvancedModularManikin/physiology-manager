@@ -485,6 +485,14 @@ namespace AMM {
                 LOG_ERROR << "Returning to last good state: " << stateFile;
              }
              infile.close();
+
+             // If we've loaded a state, we should really send out a reset to clear the sim clock
+             LOG_INFO << "Sending AMM reset to clear sim ticks.";
+             AMM::SimulationControl simControl;
+             auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+             simControl.timestamp(ms);
+             simControl.type(AMM::ControlType::RESET);
+             m_mgr->WriteSimulationControl(simControl);
           } else {
              LOG_DEBUG << "Unknown system command received: " << cm.message();
           }
