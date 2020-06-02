@@ -3,31 +3,6 @@
 using namespace biogears;
 
 namespace AMM {
-    class PhysiologyEngineLogger : public LoggerForward {
-    public:
-        virtual void ForwardDebug(const std::string &msg, const std::string &origin) {
-           LOG_DEBUG << msg;
-        }
-
-        virtual void ForwardInfo(const std::string &msg, const std::string &origin) {
-           LOG_INFO << msg;
-        }
-
-        virtual void ForwardWarning(const std::string &msg, const std::string &origin) {
-           LOG_WARNING << msg;
-        }
-
-        virtual void ForwardError(const std::string &msg, const std::string &origin) {
-           LOG_ERROR << msg;
-        }
-
-        virtual void ForwardFatal(const std::string &msg, const std::string &origin) {
-           LOG_ERROR << msg;
-        }
-    };
-}
-
-namespace AMM {
 
     std::vector<std::string> BiogearsThread::highFrequencyNodes;
     std::map<std::string, double (BiogearsThread::*)()> BiogearsThread::nodePathTable;
