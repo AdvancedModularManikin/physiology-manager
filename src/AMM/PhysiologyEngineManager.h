@@ -61,11 +61,10 @@ namespace AMM {
 
         void WriteHighFrequencyNodeData(std::string node);
 
-        void TickLoop();
-
         void AdvanceTimeTick();
 
-        bool closed = false;
+        void InitializeBiogears();
+
         bool paused = false;
         bool running = false;
         int lastFrame = 0;
