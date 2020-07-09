@@ -54,7 +54,8 @@ namespace AMM {
 
        //  Respiratory System
        nodePathTable["Respiratory_Respiration_Rate_RAW"] = &BiogearsThread::GetRawRespirationRate;
-       nodePathTable["Respiratory_Respiration_Rate"] = &BiogearsThread::GetRespirationRate;
+        nodePathTable["Respiratory_Respiration_Rate_MOD"] = &BiogearsThread::GetRespirationRate;
+        nodePathTable["Respiratory_Respiration_Rate"] = &BiogearsThread::GetRawRespirationRate;
        nodePathTable["Respiration_EndTidalCarbonDioxide"] =
           &BiogearsThread::GetEndTidalCarbonDioxideFraction;
        nodePathTable["Respiratory_Tidal_Volume"] = &BiogearsThread::GetTidalVolume;
@@ -92,7 +93,8 @@ namespace AMM {
        nodePathTable["BloodChemistry_Oxygen_Saturation"] = &BiogearsThread::GetOxygenSaturation;
        nodePathTable["BloodChemistry_Hemaocrit"] = &BiogearsThread::GetHematocrit;
        nodePathTable["BloodChemistry_BloodPH_RAW"] = &BiogearsThread::GetRawBloodPH;
-       nodePathTable["BloodChemistry_BloodPH"] = &BiogearsThread::GetBloodPH;
+        nodePathTable["BloodChemistry_BloodPH_MOD"] = &BiogearsThread::GetBloodPH;
+        nodePathTable["BloodChemistry_BloodPH"] = &BiogearsThread::GetRawBloodPH;
        nodePathTable["BloodChemistry_Arterial_CarbonDioxide_Pressure"] =
           &BiogearsThread::GetArterialCarbonDioxidePressure;
        nodePathTable["BloodChemistry_Arterial_Oxygen_Pressure"] =

@@ -447,7 +447,7 @@ namespace AMM {
                     paused = true;
                 }
                 StopTickSimulation();
-                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                std::this_thread::sleep_for(std::chrono::milliseconds(150));
                 InitializeBiogears();
                 break;
             }
