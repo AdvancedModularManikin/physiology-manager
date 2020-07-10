@@ -152,9 +152,13 @@ namespace AMM {
        nodePathTable["Renal_BladderGlucose"] = &BiogearsThread::GetBladderGlucose;
 
        // Label which nodes are high-frequency
-       highFrequencyNodes = {"ECG", "Cardiovascular_HeartRate", "Respiratory_LeftLung_Volume",
-                             "Respiratory_RightLung_Volume", "Cardiovascular_Arterial_Pressure",
-                             "Respiratory_CarbonDioxide_Exhaled", "Respiratory_Respiration_Rate"};
+       highFrequencyNodes = {"ECG",
+                             "Cardiovascular_HeartRate",
+                             "Respiratory_TotalPressure",
+                             "Respiratory_Inspiratory_Flow",
+                             "Cardiovascular_Arterial_Pressure",
+                             "Respiratory_CarbonDioxide_Exhaled",
+                             "Respiratory_Respiration_Rate"};
     }
 
     double BiogearsThread::GetLoggingStatus() {
