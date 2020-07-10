@@ -255,6 +255,10 @@ namespace AMM {
 
         double GetMeanCentralVenousPressure();
 
+        double GetInspiratoryFlow();
+
+        double GetRespiratoryTotalPressure();
+
         double GetEndTidalCarbonDioxideFraction();
 
         double GetOxygenSaturation();

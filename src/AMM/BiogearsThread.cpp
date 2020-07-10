@@ -56,6 +56,9 @@ namespace AMM {
        nodePathTable["Respiratory_Respiration_Rate_RAW"] = &BiogearsThread::GetRawRespirationRate;
         nodePathTable["Respiratory_Respiration_Rate_MOD"] = &BiogearsThread::GetRespirationRate;
         nodePathTable["Respiratory_Respiration_Rate"] = &BiogearsThread::GetRawRespirationRate;
+        nodePathTable["Respiratory_Inspiratory_Flow"] =
+                &BiogearsThread::GetInspiratoryFlow;
+        nodePathTable["Respiratory_TotalPressure"] =&BiogearsThread::GetRespiratoryTotalPressure;
        nodePathTable["Respiration_EndTidalCarbonDioxide"] =
           &BiogearsThread::GetEndTidalCarbonDioxideFraction;
        nodePathTable["Respiratory_Tidal_Volume"] = &BiogearsThread::GetTidalVolume;
@@ -496,6 +499,14 @@ namespace AMM {
 // SPO2 - Oxygen Saturation - unitless %
     double BiogearsThread::GetOxygenSaturation() {
        return m_pe->GetBloodChemistrySystem()->GetOxygenSaturation() * 100;
+    }
+
+    double BiogearsThread::GetInspiratoryFlow() {
+        return m_pe->GetRespiratorySystem()->GetInspiratoryFlow(biogears::VolumePerTimeUnit::L_Per_min);
+    }
+
+    double BiogearsThread::GetRespiratoryTotalPressure() {
+        return m_pe->GetBloodChemistrySystem()->GetArterialCarbonDioxidePressure(biogears::PressureUnit::cmH2O);
     }
 
     double BiogearsThread::GetRawRespirationRate() {
