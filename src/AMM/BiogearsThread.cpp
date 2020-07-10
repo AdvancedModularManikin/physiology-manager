@@ -158,6 +158,7 @@ namespace AMM {
                              "Respiratory_Inspiratory_Flow",
                              "Cardiovascular_Arterial_Pressure",
                              "Respiratory_CarbonDioxide_Exhaled",
+                             "Respiratory_LungTotal_Volume",
                              "Respiratory_Respiration_Rate"};
     }
 
@@ -510,7 +511,7 @@ namespace AMM {
     }
 
     double BiogearsThread::GetRespiratoryTotalPressure() {
-        return m_pe->GetBloodChemistrySystem()->GetArterialCarbonDioxidePressure(biogears::PressureUnit::cmH2O);
+        return carina->GetSubstanceQuantity(*CO2)->GetPartialPressure(biogears::PressureUnit::cmH2O);
     }
 
     double BiogearsThread::GetRawRespirationRate() {
