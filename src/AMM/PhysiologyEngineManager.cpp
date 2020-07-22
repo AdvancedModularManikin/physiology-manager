@@ -21,9 +21,6 @@ std::string get_filename_date(void) {
 namespace AMM {
     PhysiologyEngineManager::PhysiologyEngineManager() {
         static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
-        //static plog::DDS_Log_Appender<plog::TxtFormatter> DDSAppender(mgr);
-        //plog::init(plog::verbose, &consoleAppender).addAppender(&DDSAppender);
-
 
         stateFile = "./states/StandardMale@0s.xml";
 
@@ -349,7 +346,16 @@ namespace AMM {
             return;
         }
 
-        if (m_pe->paralyzed && m_pe->paralyzedSent) {
+        if (m_pe->irreversible && !m_pe->irreversibleSent) {
+            LOG_DEBUG << "Patient has entered an irreversible state, sending render mod.";
+            AMM::RenderModification renderMod;
+            renderMod.type("PATIENT_STATE_IRREVERSIBLE");
+            renderMod.data("<RenderModification type='PATIENT_STATE_IRREVERSIBLE'/>");
+            m_mgr->WriteRenderModification(renderMod);
+            m_pe->irreversibleSent = true;
+        }
+
+        if (m_pe->paralyzed && !m_pe->paralyzedSent) {
             LOG_DEBUG << "Patient is paralyzed but we haven't sent the render mod.";
             AMM::RenderModification renderMod;
             renderMod.type("PATIENT_STATE_PARALYZED");

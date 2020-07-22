@@ -97,8 +97,12 @@
 
 #include "AMM/Utility.h"
 
+using namespace biogears;
+
 // Forward declare what we will use in our thread
 namespace AMM {
+    class EventHandler;
+
     class BiogearsThread {
     public:
         explicit BiogearsThread(const std::string &stateFile);
@@ -229,6 +233,10 @@ namespace AMM {
 
         bool paralyzed = false;
         bool paralyzedSent = false;
+        bool irreversible = false;
+        bool irreversibleSent = false;
+
+        EventHandler *myEventHandler;
 
     private:
         bool LoadScenarioFile(const std::string &scenarioFile);
