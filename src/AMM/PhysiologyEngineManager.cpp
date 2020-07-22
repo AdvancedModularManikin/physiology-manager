@@ -365,7 +365,6 @@ namespace AMM {
 
             AMM::RenderModification renderMod;
             renderMod.event_id(erID);
-            renderMod.type("PATIENT_STATE_IRREVERSIBLE");
             renderMod.data("<RenderModification type='PATIENT_STATE_IRREVERSIBLE'/>");
             m_mgr->WriteRenderModification(renderMod);
             m_pe->irreversibleSent = true;
@@ -388,7 +387,6 @@ namespace AMM {
 
             AMM::RenderModification renderMod;
             renderMod.event_id(erID);
-            renderMod.type("PATIENT_STATE_PARALYZED");
             renderMod.data("<RenderModification type='PATIENT_STATE_PARALYZED'/>");
             m_mgr->WriteRenderModification(renderMod);
             m_pe->paralyzedSent = true;
