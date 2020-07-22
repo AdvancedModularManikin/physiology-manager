@@ -343,7 +343,22 @@ namespace AMM {
     void PhysiologyEngineManager::ProcessStates() {
         if (m_pe->irreversible && !m_pe->irreversibleSent) {
             LOG_DEBUG << "Patient has entered an irreversible state, sending render mod.";
+
+            AMM::UUID erID;
+            erID.id(m_mgr->GenerateUuidString());
+
+            FMA_Location fma;
+            AMM::UUID agentID;
+
+            AMM::EventRecord er;
+            er.id(erID);
+            er.location(fma);
+            er.agent_id(agentID);
+            er.type("PATIENT_STATE_IRREVERSIBLE");
+            mgr->WriteEventRecord(er);
+
             AMM::RenderModification renderMod;
+            renderMod.event_id(erID);
             renderMod.type("PATIENT_STATE_IRREVERSIBLE");
             renderMod.data("<RenderModification type='PATIENT_STATE_IRREVERSIBLE'/>");
             m_mgr->WriteRenderModification(renderMod);
@@ -352,7 +367,21 @@ namespace AMM {
 
         if (m_pe->paralyzed && !m_pe->paralyzedSent) {
             LOG_DEBUG << "Patient is paralyzed but we haven't sent the render mod.";
+            AMM::UUID erID;
+            erID.id(m_mgr->GenerateUuidString());
+
+            FMA_Location fma;
+            AMM::UUID agentID;
+
+            AMM::EventRecord er;
+            er.id(erID);
+            er.location(fma);
+            er.agent_id(agentID);
+            er.type("PATIENT_STATE_PARALYZED");
+            mgr->WriteEventRecord(er);
+
             AMM::RenderModification renderMod;
+            renderMod.event_id(erID);
             renderMod.type("PATIENT_STATE_PARALYZED");
             renderMod.data("<RenderModification type='PATIENT_STATE_PARALYZED'/>");
             m_mgr->WriteRenderModification(renderMod);
