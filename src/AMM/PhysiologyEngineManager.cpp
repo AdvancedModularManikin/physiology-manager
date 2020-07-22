@@ -340,12 +340,7 @@ namespace AMM {
 
     void PhysiologyEngineManager::StopSimulation() { m_pe->StopSimulation(); }
 
-    void PhysiologyEngineManager::AdvanceTimeTick() {
-        if (m_pe == nullptr || !running) {
-            LOG_WARNING << "Physiology engine not running, cannot advance time.";
-            return;
-        }
-
+    void PhysiologyEngineManager::ProcessStates() {
         if (m_pe->irreversible && !m_pe->irreversibleSent) {
             LOG_DEBUG << "Patient has entered an irreversible state, sending render mod.";
             AMM::RenderModification renderMod;
@@ -359,10 +354,19 @@ namespace AMM {
             LOG_DEBUG << "Patient is paralyzed but we haven't sent the render mod.";
             AMM::RenderModification renderMod;
             renderMod.type("PATIENT_STATE_PARALYZED");
-            renderMod.data("PATIENT_STATE_PARALYZED");
+            renderMod.data("<RenderModification type='PATIENT_STATE_PARALYZED'/>");
             m_mgr->WriteRenderModification(renderMod);
             m_pe->paralyzedSent = true;
         }
+    }
+
+    void PhysiologyEngineManager::AdvanceTimeTick() {
+        if (m_pe == nullptr || !running) {
+            LOG_WARNING << "Physiology engine not running, cannot advance time.";
+            return;
+        }
+
+        ProcessStates();
 
         m_mutex.lock();
         m_pe->AdvanceTimeTick();

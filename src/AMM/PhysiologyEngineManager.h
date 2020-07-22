@@ -65,6 +65,8 @@ namespace AMM {
 
         void InitializeBiogears();
 
+        void ProcessStates();
+
         bool paused = false;
         bool running = false;
         int lastFrame = 0;
