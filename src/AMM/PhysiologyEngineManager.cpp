@@ -355,7 +355,7 @@ namespace AMM {
             er.location(fma);
             er.agent_id(agentID);
             er.type("PATIENT_STATE_IRREVERSIBLE");
-            mgr->WriteEventRecord(er);
+            m_mgr->WriteEventRecord(er);
 
             AMM::RenderModification renderMod;
             renderMod.event_id(erID);
@@ -378,7 +378,7 @@ namespace AMM {
             er.location(fma);
             er.agent_id(agentID);
             er.type("PATIENT_STATE_PARALYZED");
-            mgr->WriteEventRecord(er);
+            m_mgr->WriteEventRecord(er);
 
             AMM::RenderModification renderMod;
             renderMod.event_id(erID);
