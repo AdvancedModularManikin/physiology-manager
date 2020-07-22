@@ -30,6 +30,9 @@ namespace AMM {
         m_mgr->InitializeSimulationControl();
         m_mgr->InitializePhysiologyModification();
 
+        m_mgr->InitializeEventRecord();
+        m_mgr->InitializeRenderModification();
+
         m_mgr->InitializeOperationalDescription();
         m_mgr->InitializeModuleConfiguration();
         m_mgr->InitializeStatus();
@@ -43,6 +46,9 @@ namespace AMM {
 
         m_mgr->CreatePhysiologyValuePublisher();
         m_mgr->CreatePhysiologyWaveformPublisher();
+
+        m_mgr->CreateEventRecordPublisher();
+        m_mgr->CreateRenderModificationPublisher();
 
         m_mgr->CreateTickSubscriber(this, &AMM::PhysiologyEngineManager::OnNewTick);
         m_mgr->CreateSimulationControlSubscriber(this, &AMM::PhysiologyEngineManager::OnNewSimulationControl);
