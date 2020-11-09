@@ -562,7 +562,7 @@ namespace AMM {
                 authoringMode = true;
                 LOG_INFO << "Loading patient.  Setting patient file to " << value.substr(loadPatient.size());
                 std::string holdPatientFile = patientFile;
-                patientFile = "./patients/" + value.substr(loadPrefix.size()) + "." + patientFilePrefix;
+                patientFile = "./patients/" + value.substr(loadPatient.size()) + "." + patientFilePrefix;
                 std::ifstream infile(patientFile);
                 if (!infile.good()) {
                     LOG_ERROR << "Patient file does not exist: " << patientFile;
