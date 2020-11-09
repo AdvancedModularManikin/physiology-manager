@@ -227,6 +227,120 @@ namespace AMM {
         }
     }
 
+    bool BiogearsThread::LoadPatient(const std::string &patientFile) {
+        if (m_pe == nullptr) {
+            LOG_ERROR << "Unable to load state, Biogears has not been initialized.";
+            return false;
+        }
+
+        LOG_INFO << "Loading patient file " << patientFile;
+        m_mutex.lock();
+        try {
+            if (!m_pe->InitializeEngine(patientFile)) {
+                LOG_ERROR << "Error loading patient";
+                m_mutex.unlock();
+                return false;
+            }
+        }
+        catch (std::exception &e) {
+            LOG_ERROR << "Exception loading patient: " << e.what();
+            m_mutex.unlock();
+            return false;
+        }
+        m_mutex.unlock();
+
+        LOG_DEBUG << "Preloading substances";
+        // preload substances
+        m_mutex.lock();
+        sodium = m_pe->GetSubstanceManager().GetSubstance("Sodium");
+        glucose = m_pe->GetSubstanceManager().GetSubstance("Glucose");
+        creatinine = m_pe->GetSubstanceManager().GetSubstance("Creatinine");
+        calcium = m_pe->GetSubstanceManager().GetSubstance("Calcium");
+        bicarbonate = m_pe->GetSubstanceManager().GetSubstance("Bicarbonate");
+        albumin = m_pe->GetSubstanceManager().GetSubstance("Albumin");
+        CO2 = m_pe->GetSubstanceManager().GetSubstance("CarbonDioxide");
+        N2 = m_pe->GetSubstanceManager().GetSubstance("Nitrogen");
+        O2 = m_pe->GetSubstanceManager().GetSubstance("Oxygen");
+        CO = m_pe->GetSubstanceManager().GetSubstance("CarbonMonoxide");
+        Hb = m_pe->GetSubstanceManager().GetSubstance("Hemoglobin");
+        HbO2 = m_pe->GetSubstanceManager().GetSubstance("Oxyhemoglobin");
+        HbCO2 = m_pe->GetSubstanceManager().GetSubstance("Carbaminohemoglobin");
+        HbCO = m_pe->GetSubstanceManager().GetSubstance("Carboxyhemoglobin");
+        HbO2CO2 = m_pe->GetSubstanceManager().GetSubstance("OxyCarbaminohemoglobin");
+
+        potassium = m_pe->GetSubstanceManager().GetSubstance("Potassium");
+        chloride = m_pe->GetSubstanceManager().GetSubstance("Chloride");
+        lactate = m_pe->GetSubstanceManager().GetSubstance("Lactate");
+
+        // preload compartments
+        carina = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::Trachea);
+        leftLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::LeftLung);
+        rightLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::RightLung);
+        bladder = m_pe->GetCompartments().GetLiquidCompartment(BGE::UrineCompartment::Bladder);
+        m_mutex.unlock();
+
+        startingBloodVolume = 5400.00;
+        currentBloodVolume = startingBloodVolume;
+
+        if (logging_enabled) {
+            std::string logFilename = Utility::getTimestampedFilename("./logs/AMM_Output_", ".csv");
+            LOG_INFO << "Initializing log file: " << logFilename;
+
+            std::fstream fs;
+            fs.open(logFilename, std::ios::out);
+            fs.close();
+
+            m_pe->GetEngineTrack()->GetDataRequestManager().Clear();
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "HeartRate", biogears::FrequencyUnit::Per_min);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "MeanArterialPressure", biogears::PressureUnit::mmHg);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "SystolicArterialPressure", biogears::PressureUnit::mmHg);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "DiastolicArterialPressure", biogears::PressureUnit::mmHg);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "RespirationRate", biogears::FrequencyUnit::Per_min);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "TidalVolume", biogears::VolumeUnit::mL);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "TotalLungVolume", biogears::VolumeUnit::mL);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                    BGE::PulmonaryCompartment::LeftLung, "Volume");
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                    BGE::PulmonaryCompartment::RightLung, "Volume");
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "OxygenSaturation");
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                    BGE::PulmonaryCompartment::Trachea, "InFlow");
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "BloodVolume", biogears::VolumeUnit::mL);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "ArterialBloodPH");
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreateSubstanceDataRequest().Set(
+                    *lactate, "BloodConcentration", biogears::MassPerVolumeUnit::ug_Per_mL);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "UrineProductionRate", biogears::VolumePerTimeUnit::mL_Per_min);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                    BGE::PulmonaryCompartment::Trachea, *O2, "PartialPressure");
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                    BGE::PulmonaryCompartment::Trachea, *CO2, "PartialPressure");
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                    BGE::PulmonaryCompartment::Trachea, "Pressure", biogears::PressureUnit::cmH2O);
+            m_pe->GetEngineTrack()->GetDataRequestManager().SetResultsFilename(logFilename);
+        }
+
+        try {
+            LOG_DEBUG << "Attaching event handler";
+            myEventHandler = new EventHandler(m_pe->GetLogger());
+            m_pe->SetEventHandler(myEventHandler);
+        } catch (std::exception &e) {
+            LOG_ERROR << "Error attaching event handler: " << e.what();
+        }
+
+        return true;
+    }
+
     bool BiogearsThread::LoadState(const std::string &stateFile, double sec) {
         if (m_pe == nullptr) {
             LOG_ERROR << "Unable to load state, Biogears has not been initialized.";
@@ -978,6 +1092,7 @@ namespace AMM {
                 double rateVal, massVal, volVal, conVal;
 
                 if (substance == "Saline" || substance == "Whole Blood" || substance == "WholeBlood" ||
+                    substance == "Antibiotic" ||
                     substance == "Blood" || substance == "RingersLactate" || substance == "PRBC"
                         ) {
                     if (substance == "Whole Blood" || substance == "WholeBlood") {

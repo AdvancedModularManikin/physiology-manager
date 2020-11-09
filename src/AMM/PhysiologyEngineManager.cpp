@@ -23,6 +23,7 @@ namespace AMM {
         static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
 
         stateFile = "./states/StandardMale@0s.xml";
+        patientFile = "./patients/StandardMale.xml";
 
         m_mgr->InitializeTick();
         m_mgr->InitializeCommand();
@@ -307,12 +308,20 @@ namespace AMM {
 
             this->SetLogging(logging_enabled);
 
-            m_mutex.lock();
-            LOG_INFO << "Loading " << stateFile << " at " << startPosition;
-            if (m_pe->LoadState(stateFile.c_str(), startPosition)) {
-                LOG_INFO << "State loaded.";
+            if (authoringMode) {
+                m_mutex.lock();
+                if (m_pe->LoadPatient(patientFile.c_str())) {
+                    LOG_INFO << "Patient loaded";
+                }
+                m_mutex.unlock();
+            } else {
+                m_mutex.lock();
+                LOG_INFO << "Loading " << stateFile << " at " << startPosition;
+                if (m_pe->LoadState(stateFile.c_str(), startPosition)) {
+                    LOG_INFO << "State loaded.";
+                }
+                m_mutex.unlock();
             }
-            m_mutex.unlock();
             nodePathMap = m_pe->GetNodePathTable();
         } else {
             LOG_ERROR << "Initialization failed because the sim is already running";
@@ -531,6 +540,7 @@ namespace AMM {
                     StopTickSimulation();
                 }
 
+                authoringMode = false;
                 LOG_INFO << "Loading state.  Setting state file to " << value.substr(loadPrefix.size());
                 std::string holdStateFile = stateFile;
                 stateFile = "./states/" + value.substr(loadPrefix.size()) + "." + stateFilePrefix;
@@ -539,6 +549,24 @@ namespace AMM {
                     LOG_ERROR << "State file does not exist: " << stateFile;
                     stateFile = holdStateFile;
                     LOG_ERROR << "Returning to last good state: " << stateFile;
+                }
+                infile.close();
+                InitializeBiogears();
+            } else if (!value.compare(0, loadPatient.size(), loadPatient)) {
+                if (running || m_pe != nullptr) {
+                    LOG_INFO << "Loading patient, but shutting down existing sim and physiology engine thread first.";
+                    StopTickSimulation();
+                }
+
+                authoringMode = true;
+                LOG_INFO << "Loading patient.  Setting patient file to " << value.substr(loadPatient.size());
+                std::string holdPatientFile = patientFile;
+                patientFile = "./patients/" + value.substr(loadPrefix.size()) + "." + patientFilePrefix;
+                std::ifstream infile(patientFile);
+                if (!infile.good()) {
+                    LOG_ERROR << "Patient file does not exist: " << patientFile;
+                    patientFile = holdPatientFile;
+                    LOG_ERROR << "Returning to last good patient: " << patientFile;
                 }
                 infile.close();
                 InitializeBiogears();
