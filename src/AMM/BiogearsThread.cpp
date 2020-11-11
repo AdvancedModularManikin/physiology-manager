@@ -227,7 +227,7 @@ namespace AMM {
         }
     }
 
-    bool BiogearsThread::LoadPatient(const std::string &patientFile) {
+        bool BiogearsThread::LoadPatient(const std::string &patientFile) {
         if (m_pe == nullptr) {
             LOG_ERROR << "Unable to load state, Biogears has not been initialized.";
             return false;

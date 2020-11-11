@@ -109,7 +109,9 @@ namespace AMM {
 
         ~BiogearsThread();
 
-        bool LoadPatient(const std::string &stateFile);
+        bool LoadScenario(const std::string &scenarioFile);
+
+        bool LoadPatient(const std::string &patientFile);
 
         bool LoadState(const std::string &stateFile, double sec);
 

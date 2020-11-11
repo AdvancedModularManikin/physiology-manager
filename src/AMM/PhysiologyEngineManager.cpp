@@ -289,11 +289,6 @@ namespace AMM {
     }
 
     void PhysiologyEngineManager::InitializeBiogears() {
-        std::size_t pos = stateFile.find("@");
-        std::string state2 = stateFile.substr(pos);
-        std::size_t pos2 = state2.find("s");
-        std::string state3 = state2.substr(1, pos2 - 1);
-        double startPosition = atof(state3.c_str());
 
         if (!running) {
             LOG_INFO << "Initializing Biogears thread";
@@ -315,6 +310,17 @@ namespace AMM {
                 }
                 m_mutex.unlock();
             } else {
+                std::size_t pos = stateFile.find("@");
+                double startPosition;
+                if (pos!=std::string::npos) {
+                    std::string state2 = stateFile.substr(pos);
+                    std::size_t pos2 = state2.find("s");
+                    std::string state3 = state2.substr(1, pos2 - 1);
+                    startPosition = atof(state3.c_str());
+                } else {
+                    startPosition = 0;
+                }
+
                 m_mutex.lock();
                 LOG_INFO << "Loading " << stateFile << " at " << startPosition;
                 if (m_pe->LoadState(stateFile.c_str(), startPosition)) {

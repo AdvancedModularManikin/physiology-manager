@@ -24,6 +24,7 @@ namespace AMM {
         BiogearsThread *m_pe;
         std::string stateFile;
         std::string patientFile;
+        std::string scenarioFile;
         bool authoringMode = false;
 
         void PublishOperationalDescription();
@@ -89,6 +90,7 @@ namespace AMM {
         std::string sysPrefix = "[SYS]";
         std::string loadPrefix = "LOAD_STATE:";
         std::string loadPatient = "LOAD_PATIENT:";
+        std::string loadScenario = "LOAD_SCENARIO:";
         std::string stateFilePrefix = "xml";
         std::string patientFilePrefix = "xml";
 
