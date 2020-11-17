@@ -111,6 +111,8 @@ namespace AMM {
 
         bool LoadScenario(const std::string &scenarioFile);
 
+        bool LoadScenarioFile(const std::string &scenarioFile);
+
         bool LoadPatient(const std::string &patientFile);
 
         bool LoadState(const std::string &stateFile, double sec);
@@ -243,7 +245,6 @@ namespace AMM {
         EventHandler *myEventHandler;
 
     private:
-        bool LoadScenarioFile(const std::string &scenarioFile);
 
         void PopulateNodePathTable();
 

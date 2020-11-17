@@ -20,7 +20,7 @@ std::string get_filename_date(void) {
 
 namespace AMM {
     PhysiologyEngineManager::PhysiologyEngineManager() {
-        static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+        static plog::ColorConsoleAppender <plog::TxtFormatter> consoleAppender;
 
         stateFile = "./states/StandardMale@0s.xml";
         patientFile = "./patients/StandardMale.xml";
@@ -312,7 +312,7 @@ namespace AMM {
             } else {
                 std::size_t pos = stateFile.find("@");
                 double startPosition;
-                if (pos!=std::string::npos) {
+                if (pos != std::string::npos) {
                     std::string state2 = stateFile.substr(pos);
                     std::size_t pos2 = state2.find("s");
                     std::string state3 = state2.substr(1, pos2 - 1);
@@ -577,6 +577,24 @@ namespace AMM {
                 }
                 infile.close();
                 InitializeBiogears();
+            } else if (!value.compare(0, loadScenarioFile.size(), loadScenarioFile)) {
+                if (running || m_pe != nullptr) {
+                    LOG_INFO << "Loading state, but shutting down existing sim and physiology engine thread first.";
+                    StopTickSimulation();
+                }
+
+                authoringMode = false;
+                LOG_INFO << "Loading scenario.  Setting scenario file to " << value.substr(loadScenarioFile.size());
+                std::string holdStateFile = stateFile;
+                scenarioFile = "./Scenarios/" + value.substr(loadScenarioFile.size()) + ".xml";
+                std::ifstream infile(scenarioFile);
+                if (!infile.good()) {
+                    LOG_ERROR << "Scenario file does not exist: " << scenarioFile;
+                }
+                infile.close();
+
+                m_pe->LoadScenarioFile(stateFile);
+
             } else {
                 LOG_DEBUG << "Unknown system command received: " << cm.message();
             }
