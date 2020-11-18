@@ -585,15 +585,27 @@ namespace AMM {
 
                 authoringMode = false;
                 LOG_INFO << "Loading scenario.  Setting scenario file to " << value.substr(loadScenarioFile.size());
-                std::string holdStateFile = stateFile;
                 scenarioFile = "./Scenarios/" + value.substr(loadScenarioFile.size()) + ".xml";
+		LOG_INFO << "Scenario file is " << scenarioFile;
                 std::ifstream infile(scenarioFile);
                 if (!infile.good()) {
                     LOG_ERROR << "Scenario file does not exist: " << scenarioFile;
                 }
                 infile.close();
 
-                m_pe->LoadScenarioFile(stateFile);
+		LOG_INFO << "Initializing Biogears thread to call LoadScenarioFile";
+		m_mutex.lock();
+		m_pe = new BiogearsThread("logs/biogears.log");
+		m_mutex.unlock();
+		
+		if (m_pe == nullptr) {
+		  LOG_WARNING << "Physiology engine not running, unable to start tick simulation.";
+		  return;
+		}
+		
+		this->SetLogging(logging_enabled);
+
+                m_pe->LoadScenarioFile(scenarioFile);
 
             } else {
                 LOG_DEBUG << "Unknown system command received: " << cm.message();

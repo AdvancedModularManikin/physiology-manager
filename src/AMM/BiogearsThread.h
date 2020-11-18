@@ -32,6 +32,15 @@
 #include <biogears/cdm/system/physiology/SERespiratorySystem.h>
 #include <biogears/cdm/system/physiology/SERenalSystem.h>
 
+#include <biogears/cdm/engine/PhysiologyEngineTrack.h>
+#include <biogears/cdm/scenario/SEScenario.h>
+#include <biogears/cdm/scenario/SEScenarioInitialParameters.h>
+#include <biogears/cdm/scenario/SEAdvanceTime.h>
+#include <biogears/cdm/properties/SEScalarTime.h>
+#include <biogears/cdm/Serializer.h>
+#include <biogears/engine/BioGearsPhysiologyEngine.h>
+
+
 #include <biogears/cdm/compartment/SECompartmentManager.h>
 #include <biogears/cdm/engine/PhysiologyEngineTrack.h>
 #include <biogears/cdm/patient/actions/SEPainStimulus.h>

@@ -513,20 +513,59 @@ namespace AMM {
 // Load a scenario from an XML file, apply conditions and iterate through the actions
 // This bypasses the standard BioGears ExecuteScenario method to avoid resetting the BioGears
 // engine
-    bool BiogearsThread::LoadScenarioFile(const std::string &scenarioFile) {
-        if (m_pe == nullptr) {
-            LOG_ERROR << "Unable to load scenario, Biogears has not been initialized.";
-            return false;
+  bool BiogearsThread::LoadScenarioFile(const std::string &scenarioFile) {
+    if (m_pe == nullptr) {
+      LOG_ERROR << "Unable to load scenario, Biogears has not been initialized.";
+      return false;
+    }
+    
+    if (!file_exists(scenarioFile.c_str())) {
+      LOG_WARNING << "Scenario/action file does not exist: " << scenarioFile;
+      return false;
+    }
+    
+    
+    biogears::SEScenario sce(m_pe->GetSubstanceManager());
+    sce.Load(scenarioFile);
+    
+    if (sce.HasEngineStateFile())
+      {
+	if (!m_pe->LoadState(sce.GetEngineStateFile()))
+            {
+	      LOG_ERROR << "Unable to load state file.";
+	      return false;
+            }
+        }
+        else if (sce.HasInitialParameters())
+        {
+            SEScenarioInitialParameters& sip = sce.GetInitialParameters();
+            if (sip.HasPatientFile())
+            {
+                std::vector<const SECondition*> conditions;
+                for (SECondition* c : sip.GetConditions())
+                    conditions.push_back(c);// Copy to const
+                if (!m_pe->InitializeEngine(sip.GetPatientFile(), &conditions, &sip.GetConfiguration()))
+                {
+		  
+		  LOG_ERROR << "Unable to load patient file.";
+		  return false;
+                }
+            }
+            else if (sip.HasPatient())
+            {
+                std::vector<const SECondition*> conditions;
+                for (SECondition* c : sip.GetConditions())
+                    conditions.push_back(c);// Copy to const
+                if (!m_pe->InitializeEngine(sip.GetPatient(), &conditions, &sip.GetConfiguration()))
+                {
+		    LOG_ERROR << "Unable to load conditions.";
+                    return false;
+                }
+            }
         }
 
-        if (!file_exists(scenarioFile.c_str())) {
-            LOG_WARNING << "Scenario/action file does not exist: " << scenarioFile;
-            return false;
-        }
 
-        biogears::SEScenario sce(m_pe->GetSubstanceManager());
-        sce.Load(scenarioFile);
-
+    LOG_INFO << "Executing actions";
         SEAdvanceTime *adv;
         // Now run the scenario actions
         for (SEAction *a : sce.GetActions()) {
@@ -553,6 +592,7 @@ namespace AMM {
                 m_mutex.unlock();
             }
         }
+	LOG_INFO << "Done loading scenario and executing actions.";
         return true;
     }
 
