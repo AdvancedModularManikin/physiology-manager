@@ -136,6 +136,8 @@ namespace AMM {
                 std::unique_ptr<biogears::PhysiologyEngine> &&)>
                      func);
 
+        bool scenarioLoading = false;
+      
         void Shutdown();
 
         void StartSimulation();

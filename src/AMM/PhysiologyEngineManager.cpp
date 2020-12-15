@@ -336,9 +336,10 @@ namespace AMM {
     }
 
     void PhysiologyEngineManager::StartTickSimulation() {
-        running = true;
-        m_pe->running = true;
-        paused = false;
+      LOG_INFO << "Starting tick simulation";
+      running = true;
+      m_pe->running = true;
+      paused = false;
     }
 
     void PhysiologyEngineManager::StopTickSimulation() {
@@ -485,6 +486,7 @@ namespace AMM {
             case AMM::ControlType::RUN: {
                 LOG_DEBUG << "SimControl recieved: Run sim.";
                 if (!running) {
+		  LOG_INFO << "Not running, calling starttick.";
                     StartTickSimulation();
                 }
                 break;
@@ -602,10 +604,18 @@ namespace AMM {
 		  LOG_WARNING << "Physiology engine not running, unable to start tick simulation.";
 		  return;
 		}
-		
+
 		this->SetLogging(logging_enabled);
 
+		m_pe->scenarioLoading = true;
                 m_pe->LoadScenarioFile(scenarioFile);
+		m_pe->scenarioLoading = false;
+		
+		nodePathMap = m_pe->GetNodePathTable();
+		
+		//		running = true;
+		//		m_pe->running = true;
+		paused = true;	
 
             } else {
                 LOG_DEBUG << "Unknown system command received: " << cm.message();
