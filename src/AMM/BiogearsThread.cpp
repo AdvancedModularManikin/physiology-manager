@@ -8,7 +8,7 @@ namespace AMM {
         // State flags
         bool irreversible = false;
 
-        EventHandler(Logger *logger) : SEEventHandler(logger) {}
+        EventHandler(Logger *logger) : SEEventHandler() {}
 
         virtual void HandleAnesthesiaMachineEvent(CDM::enumAnesthesiaMachineEvent::value type, bool active,
                                                   const SEScalarTime *time = nullptr) {}
@@ -664,7 +664,10 @@ namespace AMM {
             if (adv != nullptr) {
                 m_mutex.lock();
                 try {
-                    m_pe->AdvanceModelTime();
+		  //                     m_pe->AdvanceModelTime();
+		  LOG_INFO << "Simulating " << adv->GetTime(TimeUnit::s) << " seconds...";
+		  m_pe->AdvanceModelTime(adv->GetTime(TimeUnit::s), TimeUnit::s);
+		  LOG_INFO << "Done simulating time advancement.";
                 }
                 catch (std::exception &e) {
                     LOG_ERROR << "Error advancing time: " << e.what();
@@ -904,7 +907,7 @@ namespace AMM {
     }
 
     double BiogearsThread::GetTotalProtein() {
-        biogears::SEComprehensiveMetabolicPanel metabolicPanel(m_pe->GetLogger());
+        biogears::SEComprehensiveMetabolicPanel metabolicPanel;
         m_pe->GetPatientAssessment(metabolicPanel);
         biogears::SEScalarMassPerVolume protein = metabolicPanel.GetTotalProtein();
         return protein.GetValue(biogears::MassPerVolumeUnit::g_Per_dL);
@@ -985,21 +988,21 @@ namespace AMM {
     }
 
     double BiogearsThread::GetCO2() {
-        biogears::SEComprehensiveMetabolicPanel metabolicPanel(m_pe->GetLogger());
+        biogears::SEComprehensiveMetabolicPanel metabolicPanel;
         m_pe->GetPatientAssessment(metabolicPanel);
         biogears::SEScalarAmountPerVolume CO2 = metabolicPanel.GetCO2();
         return CO2.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
     }
 
     double BiogearsThread::GetPotassium() {
-        biogears::SEComprehensiveMetabolicPanel metabolicPanel(m_pe->GetLogger());
+        biogears::SEComprehensiveMetabolicPanel metabolicPanel;
         m_pe->GetPatientAssessment(metabolicPanel);
         biogears::SEScalarAmountPerVolume potassium = metabolicPanel.GetPotassium();
         return potassium.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
     }
 
     double BiogearsThread::GetChloride() {
-        biogears::SEComprehensiveMetabolicPanel metabolicPanel(m_pe->GetLogger());
+        biogears::SEComprehensiveMetabolicPanel metabolicPanel;
         m_pe->GetPatientAssessment(metabolicPanel);
         biogears::SEScalarAmountPerVolume chloride = metabolicPanel.GetChloride();
         return chloride.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
@@ -1007,7 +1010,7 @@ namespace AMM {
 
 // PLT - Platelet Count - ct/uL
     double BiogearsThread::GetPlateletCount() {
-        biogears::SECompleteBloodCount CBC(m_pe->GetLogger());
+      biogears::SECompleteBloodCount CBC;
         m_pe->GetPatientAssessment(CBC);
         biogears::SEScalarAmountPerVolume plateletCount = CBC.GetPlateletCount();
         return plateletCount.GetValue(biogears::AmountPerVolumeUnit::ct_Per_uL) / 1000;
