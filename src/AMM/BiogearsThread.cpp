@@ -188,6 +188,8 @@ namespace AMM {
         nodePathTable["Renal_UrineOsmolarity"] = &BiogearsThread::GetUrineOsmolarity;
         nodePathTable["Renal_BladderGlucose"] = &BiogearsThread::GetBladderGlucose;
 
+        nodePathTable["ShuntFraction"] = &BiogearsThread::GetShuntFraction;
+
         // Label which nodes are high-frequency
         highFrequencyNodes = {"ECG",
                               "Cardiovascular_HeartRate",
@@ -227,7 +229,7 @@ namespace AMM {
         }
     }
 
-        bool BiogearsThread::LoadPatient(const std::string &patientFile) {
+    bool BiogearsThread::LoadPatient(const std::string &patientFile) {
         if (m_pe == nullptr) {
             LOG_ERROR << "Unable to load state, Biogears has not been initialized.";
             return false;
@@ -513,150 +515,141 @@ namespace AMM {
 // Load a scenario from an XML file, apply conditions and iterate through the actions
 // This bypasses the standard BioGears ExecuteScenario method to avoid resetting the BioGears
 // engine
-  bool BiogearsThread::LoadScenarioFile(const std::string &scenarioFile) {
-    if (m_pe == nullptr) {
-      LOG_ERROR << "Unable to load scenario, Biogears has not been initialized.";
-      return false;
-    }
-    
-    if (!file_exists(scenarioFile.c_str())) {
-      LOG_WARNING << "Scenario/action file does not exist: " << scenarioFile;
-      return false;
-    }
-    
-    
-    biogears::SEScenario sce(m_pe->GetSubstanceManager());
-    sce.Load(scenarioFile);
-
-    if (scenarioLoading) {
-    if (sce.HasEngineStateFile())
-      {
-	if (!m_pe->LoadState(sce.GetEngineStateFile()))
-            {
-	      LOG_ERROR << "Unable to load state file.";
-	      return false;
-            }
+    bool BiogearsThread::LoadScenarioFile(const std::string &scenarioFile) {
+        if (m_pe == nullptr) {
+            LOG_ERROR << "Unable to load scenario, Biogears has not been initialized.";
+            return false;
         }
-        else if (sce.HasInitialParameters())
-        {
-            SEScenarioInitialParameters& sip = sce.GetInitialParameters();
-            if (sip.HasPatientFile())
-            {
-                std::vector<const SECondition*> conditions;
-                for (SECondition* c : sip.GetConditions())
-                    conditions.push_back(c);// Copy to const
-                if (!m_pe->InitializeEngine(sip.GetPatientFile(), &conditions, &sip.GetConfiguration()))
-                {
-		  
-		  LOG_ERROR << "Unable to load patient file.";
-		  return false;
-                }
-            }
-            else if (sip.HasPatient())
-            {
-                std::vector<const SECondition*> conditions;
-                for (SECondition* c : sip.GetConditions())
-                    conditions.push_back(c);// Copy to const
-                if (!m_pe->InitializeEngine(sip.GetPatient(), &conditions, &sip.GetConfiguration()))
-                {
-		    LOG_ERROR << "Unable to load conditions.";
+
+        if (!file_exists(scenarioFile.c_str())) {
+            LOG_WARNING << "Scenario/action file does not exist: " << scenarioFile;
+            return false;
+        }
+
+
+        biogears::SEScenario sce(m_pe->GetSubstanceManager());
+        sce.Load(scenarioFile);
+
+        if (scenarioLoading) {
+            if (sce.HasEngineStateFile()) {
+                if (!m_pe->LoadState(sce.GetEngineStateFile())) {
+                    LOG_ERROR << "Unable to load state file.";
                     return false;
                 }
+            } else if (sce.HasInitialParameters()) {
+                SEScenarioInitialParameters &sip = sce.GetInitialParameters();
+                if (sip.HasPatientFile()) {
+                    std::vector<const SECondition *> conditions;
+                    for (SECondition *c : sip.GetConditions())
+                        conditions.push_back(c);// Copy to const
+                    if (!m_pe->InitializeEngine(sip.GetPatientFile(), &conditions, &sip.GetConfiguration())) {
+
+                        LOG_ERROR << "Unable to load patient file.";
+                        return false;
+                    }
+                } else if (sip.HasPatient()) {
+                    std::vector<const SECondition *> conditions;
+                    for (SECondition *c : sip.GetConditions())
+                        conditions.push_back(c);// Copy to const
+                    if (!m_pe->InitializeEngine(sip.GetPatient(), &conditions, &sip.GetConfiguration())) {
+                        LOG_ERROR << "Unable to load conditions.";
+                        return false;
+                    }
+                }
             }
-        }
 
             LOG_DEBUG << "Preloading substances";
-        // preload substances
-        m_mutex.lock();
-        sodium = m_pe->GetSubstanceManager().GetSubstance("Sodium");
-        glucose = m_pe->GetSubstanceManager().GetSubstance("Glucose");
-        creatinine = m_pe->GetSubstanceManager().GetSubstance("Creatinine");
-        calcium = m_pe->GetSubstanceManager().GetSubstance("Calcium");
-        bicarbonate = m_pe->GetSubstanceManager().GetSubstance("Bicarbonate");
-        albumin = m_pe->GetSubstanceManager().GetSubstance("Albumin");
-        CO2 = m_pe->GetSubstanceManager().GetSubstance("CarbonDioxide");
-        N2 = m_pe->GetSubstanceManager().GetSubstance("Nitrogen");
-        O2 = m_pe->GetSubstanceManager().GetSubstance("Oxygen");
-        CO = m_pe->GetSubstanceManager().GetSubstance("CarbonMonoxide");
-        Hb = m_pe->GetSubstanceManager().GetSubstance("Hemoglobin");
-        HbO2 = m_pe->GetSubstanceManager().GetSubstance("Oxyhemoglobin");
-        HbCO2 = m_pe->GetSubstanceManager().GetSubstance("Carbaminohemoglobin");
-        HbCO = m_pe->GetSubstanceManager().GetSubstance("Carboxyhemoglobin");
-        HbO2CO2 = m_pe->GetSubstanceManager().GetSubstance("OxyCarbaminohemoglobin");
+            // preload substances
+            m_mutex.lock();
+            sodium = m_pe->GetSubstanceManager().GetSubstance("Sodium");
+            glucose = m_pe->GetSubstanceManager().GetSubstance("Glucose");
+            creatinine = m_pe->GetSubstanceManager().GetSubstance("Creatinine");
+            calcium = m_pe->GetSubstanceManager().GetSubstance("Calcium");
+            bicarbonate = m_pe->GetSubstanceManager().GetSubstance("Bicarbonate");
+            albumin = m_pe->GetSubstanceManager().GetSubstance("Albumin");
+            CO2 = m_pe->GetSubstanceManager().GetSubstance("CarbonDioxide");
+            N2 = m_pe->GetSubstanceManager().GetSubstance("Nitrogen");
+            O2 = m_pe->GetSubstanceManager().GetSubstance("Oxygen");
+            CO = m_pe->GetSubstanceManager().GetSubstance("CarbonMonoxide");
+            Hb = m_pe->GetSubstanceManager().GetSubstance("Hemoglobin");
+            HbO2 = m_pe->GetSubstanceManager().GetSubstance("Oxyhemoglobin");
+            HbCO2 = m_pe->GetSubstanceManager().GetSubstance("Carbaminohemoglobin");
+            HbCO = m_pe->GetSubstanceManager().GetSubstance("Carboxyhemoglobin");
+            HbO2CO2 = m_pe->GetSubstanceManager().GetSubstance("OxyCarbaminohemoglobin");
 
-        potassium = m_pe->GetSubstanceManager().GetSubstance("Potassium");
-        chloride = m_pe->GetSubstanceManager().GetSubstance("Chloride");
-        lactate = m_pe->GetSubstanceManager().GetSubstance("Lactate");
+            potassium = m_pe->GetSubstanceManager().GetSubstance("Potassium");
+            chloride = m_pe->GetSubstanceManager().GetSubstance("Chloride");
+            lactate = m_pe->GetSubstanceManager().GetSubstance("Lactate");
 
-        // preload compartments
-        carina = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::Trachea);
-        leftLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::LeftLung);
-        rightLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::RightLung);
-        bladder = m_pe->GetCompartments().GetLiquidCompartment(BGE::UrineCompartment::Bladder);
-        m_mutex.unlock();
+            // preload compartments
+            carina = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::Trachea);
+            leftLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::LeftLung);
+            rightLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::RightLung);
+            bladder = m_pe->GetCompartments().GetLiquidCompartment(BGE::UrineCompartment::Bladder);
+            m_mutex.unlock();
 
-        startingBloodVolume = 5400.00;
-        currentBloodVolume = startingBloodVolume;
+            startingBloodVolume = 5400.00;
+            currentBloodVolume = startingBloodVolume;
 
-        if (logging_enabled) {
-            std::string logFilename = Utility::getTimestampedFilename("./logs/AMM_Output_", ".csv");
-            LOG_INFO << "Initializing log file: " << logFilename;
+            if (logging_enabled) {
+                std::string logFilename = Utility::getTimestampedFilename("./logs/AMM_Output_", ".csv");
+                LOG_INFO << "Initializing log file: " << logFilename;
 
-            std::fstream fs;
-            fs.open(logFilename, std::ios::out);
-            fs.close();
+                std::fstream fs;
+                fs.open(logFilename, std::ios::out);
+                fs.close();
 
-            m_pe->GetEngineTrack()->GetDataRequestManager().Clear();
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "HeartRate", biogears::FrequencyUnit::Per_min);
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "MeanArterialPressure", biogears::PressureUnit::mmHg);
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "SystolicArterialPressure", biogears::PressureUnit::mmHg);
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "DiastolicArterialPressure", biogears::PressureUnit::mmHg);
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "RespirationRate", biogears::FrequencyUnit::Per_min);
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "TidalVolume", biogears::VolumeUnit::mL);
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "TotalLungVolume", biogears::VolumeUnit::mL);
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
-                    BGE::PulmonaryCompartment::LeftLung, "Volume");
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
-                    BGE::PulmonaryCompartment::RightLung, "Volume");
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "OxygenSaturation");
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
-                    BGE::PulmonaryCompartment::Trachea, "InFlow");
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "BloodVolume", biogears::VolumeUnit::mL);
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "ArterialBloodPH");
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreateSubstanceDataRequest().Set(
-                    *lactate, "BloodConcentration", biogears::MassPerVolumeUnit::ug_Per_mL);
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
-                    "UrineProductionRate", biogears::VolumePerTimeUnit::mL_Per_min);
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
-                    BGE::PulmonaryCompartment::Trachea, *O2, "PartialPressure");
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
-                    BGE::PulmonaryCompartment::Trachea, *CO2, "PartialPressure");
-            m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
-                    BGE::PulmonaryCompartment::Trachea, "Pressure", biogears::PressureUnit::cmH2O);
-            m_pe->GetEngineTrack()->GetDataRequestManager().SetResultsFilename(logFilename);
+                m_pe->GetEngineTrack()->GetDataRequestManager().Clear();
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "HeartRate", biogears::FrequencyUnit::Per_min);
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "MeanArterialPressure", biogears::PressureUnit::mmHg);
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "SystolicArterialPressure", biogears::PressureUnit::mmHg);
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "DiastolicArterialPressure", biogears::PressureUnit::mmHg);
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "RespirationRate", biogears::FrequencyUnit::Per_min);
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "TidalVolume", biogears::VolumeUnit::mL);
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "TotalLungVolume", biogears::VolumeUnit::mL);
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                        BGE::PulmonaryCompartment::LeftLung, "Volume");
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                        BGE::PulmonaryCompartment::RightLung, "Volume");
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "OxygenSaturation");
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                        BGE::PulmonaryCompartment::Trachea, "InFlow");
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "BloodVolume", biogears::VolumeUnit::mL);
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "ArterialBloodPH");
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreateSubstanceDataRequest().Set(
+                        *lactate, "BloodConcentration", biogears::MassPerVolumeUnit::ug_Per_mL);
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                        "UrineProductionRate", biogears::VolumePerTimeUnit::mL_Per_min);
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                        BGE::PulmonaryCompartment::Trachea, *O2, "PartialPressure");
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                        BGE::PulmonaryCompartment::Trachea, *CO2, "PartialPressure");
+                m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
+                        BGE::PulmonaryCompartment::Trachea, "Pressure", biogears::PressureUnit::cmH2O);
+                m_pe->GetEngineTrack()->GetDataRequestManager().SetResultsFilename(logFilename);
+            }
+
+            try {
+                LOG_DEBUG << "Attaching event handler";
+                myEventHandler = new EventHandler(m_pe->GetLogger());
+                m_pe->SetEventHandler(myEventHandler);
+            } catch (std::exception &e) {
+                LOG_ERROR << "Error attaching event handler: " << e.what();
+            }
+            scenarioLoading = false;
         }
 
-        try {
-            LOG_DEBUG << "Attaching event handler";
-            myEventHandler = new EventHandler(m_pe->GetLogger());
-            m_pe->SetEventHandler(myEventHandler);
-        } catch (std::exception &e) {
-            LOG_ERROR << "Error attaching event handler: " << e.what();
-        }
-    scenarioLoading = false;
-    }
-
-    LOG_INFO << "Executing actions";
+        LOG_INFO << "Executing actions";
         SEAdvanceTime *adv;
         // Now run the scenario actions
         for (SEAction *a : sce.GetActions()) {
@@ -664,10 +657,13 @@ namespace AMM {
             if (adv != nullptr) {
                 m_mutex.lock();
                 try {
-		  //                     m_pe->AdvanceModelTime();
-		  LOG_INFO << "Simulating " << adv->GetTime(TimeUnit::s) << " seconds...";
-		  m_pe->AdvanceModelTime(adv->GetTime(TimeUnit::s), TimeUnit::s);
-		  LOG_INFO << "Done simulating time advancement.";
+                    auto begin = std::chrono::high_resolution_clock::now();
+                    LOG_INFO << "Simulating " << adv->GetTime(TimeUnit::s) << " seconds...";
+                    m_pe->AdvanceModelTime(adv->GetTime(TimeUnit::s), TimeUnit::s);
+                    auto end = std::chrono::high_resolution_clock::now();
+                    auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin);
+                    LOG_INFO << "Done simulating time advancement. Simulated " << adv->GetTime(TimeUnit::s) << "s in "
+                             << elapsed.count() * 1e-9 << "s.";
                 }
                 catch (std::exception &e) {
                     LOG_ERROR << "Error advancing time: " << e.what();
@@ -686,7 +682,7 @@ namespace AMM {
                 m_mutex.unlock();
             }
         }
-	LOG_INFO << "Done loading scenario and executing actions.";
+        LOG_INFO << "Done loading scenario and executing actions.";
         return true;
     }
 
@@ -701,11 +697,11 @@ namespace AMM {
             return;
         }
 
-	if (myEventHandler != nullptr) {
-	  if (myEventHandler->irreversible && !irreversible) {
-            irreversible = true;
-	  }
-	}
+        if (myEventHandler != nullptr) {
+            if (myEventHandler->irreversible && !irreversible) {
+                irreversible = true;
+            }
+        }
 
         m_mutex.lock();
         try {
@@ -1010,7 +1006,7 @@ namespace AMM {
 
 // PLT - Platelet Count - ct/uL
     double BiogearsThread::GetPlateletCount() {
-      biogears::SECompleteBloodCount CBC;
+        biogears::SECompleteBloodCount CBC;
         m_pe->GetPatientAssessment(CBC);
         biogears::SEScalarAmountPerVolume plateletCount = CBC.GetPlateletCount();
         return plateletCount.GetValue(biogears::AmountPerVolumeUnit::ct_Per_uL) / 1000;
@@ -1029,6 +1025,9 @@ namespace AMM {
                 biogears::MassPerVolumeUnit::mg_Per_dL);
     }
 
+    double BiogearsThread::GetShuntFraction() {
+        return m_pe->GetBloodChemistrySystem()->GetShuntFraction();
+    }
 
     double BiogearsThread::GetUrineOsmolality() {
         return m_pe->GetRenalSystem()->GetUrineOsmolality(biogears::OsmolalityUnit::mOsm_Per_kg);

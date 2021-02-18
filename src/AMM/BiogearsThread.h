@@ -7,6 +7,7 @@
 #include <thread>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 #include "AMM/BaseLogger.h"
 
@@ -398,6 +399,8 @@ namespace AMM {
         double GetUrineOsmolarity();
 
         double GetBladderGlucose();
+
+        double GetShuntFraction();
 
         biogears::SESubstance *sodium;
         biogears::SESubstance *glucose;
