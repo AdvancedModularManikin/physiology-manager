@@ -889,7 +889,7 @@ namespace AMM {
         return calcium->GetBloodConcentration(biogears::MassPerVolumeUnit::mg_Per_dL);
     }
 
-    double BioGearsThread::GetIonizedCalcium() {
+    double BiogearsThread::GetIonizedCalcium() {
         double c1 = calcium->GetBloodConcentration(biogears::AmountPerVolumeUnit::mmol_Per_L);
         double a1 = albumin->GetBloodConcentration(biogears::MassPerVolumeUnit::g_Per_dL);
         return c1 + 0.02 * (40 - 10 * a1);
