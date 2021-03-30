@@ -322,6 +322,10 @@ namespace AMM {
 
         double GetCarboxyhemoglobinConcentration();
 
+        double GetIonizedCalcium();
+
+        double GetAnionGap();
+
         double GetHematocrit();
 
         double GetRawBloodPH();

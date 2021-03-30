@@ -167,6 +167,9 @@ namespace AMM {
         nodePathTable["Substance_Carboxyhemoglobin_Concentration"] =
                 &BiogearsThread::GetCarboxyhemoglobinConcentration;
 
+        nodePathTable["Anion_Gap"] = &BiogearsThread::GetAnionGap;
+
+        nodePathTable["Substance_Ionized_Calcium"] = &BiogearsThread::GetIonizedCalcium;
         nodePathTable["Substance_Calcium_Concentration"] = &BiogearsThread::GetCalciumConcentration;
         nodePathTable["Substance_Albumin_Concentration"] = &BiogearsThread::GetAlbuminConcentration;
 
@@ -852,6 +855,10 @@ namespace AMM {
         return HbCO->GetBloodConcentration(biogears::MassPerVolumeUnit::g_Per_dL);
     }
 
+    double BiogearsThread::GetAnionGap() {
+        return GetSodium - (GetChloride() + GetBicarbonate());
+    }
+
 // Na+ - Sodium Concentration - mg/dL
     double BiogearsThread::GetSodiumConcentration() {
         return sodium->GetBloodConcentration(biogears::MassPerVolumeUnit::mg_Per_dL);
@@ -880,6 +887,12 @@ namespace AMM {
 
     double BiogearsThread::GetCalciumConcentration() {
         return calcium->GetBloodConcentration(biogears::MassPerVolumeUnit::mg_Per_dL);
+    }
+
+    double BioGearsThread::GetIonizedCalcium() {
+        double c1 = calcium->GetBloodConcentration(biogears::AmountPerVolumeUnit::mmol_Per_L);
+        double a1 = albumin->GetBloodConcentration(biogears::MassPerVolumeUnit::g_Per_dL);
+        return c1 + 0.02 * (40 - 10 * a1);
     }
 
     double BiogearsThread::GetAlbuminConcentration() {
