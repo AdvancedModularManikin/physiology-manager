@@ -856,7 +856,7 @@ namespace AMM {
     }
 
     double BiogearsThread::GetAnionGap() {
-        return GetSodium - (GetChloride() + GetBicarbonate());
+        return GetSodium() - (GetChloride() + GetBicarbonate());
     }
 
 // Na+ - Sodium Concentration - mg/dL
