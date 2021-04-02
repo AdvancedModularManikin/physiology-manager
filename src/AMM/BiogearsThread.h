@@ -288,6 +288,8 @@ namespace AMM {
 
         double GetOxygenSaturation();
 
+        double GetCarbonMonoxideSaturation();
+
         double GetRawRespirationRate();
 
         double GetRespirationRate();

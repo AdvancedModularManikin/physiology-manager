@@ -131,6 +131,7 @@ namespace AMM {
         nodePathTable["BloodChemistry_RedBloodCell_Count"] = &BiogearsThread::GetRedBloodCellCount;
         nodePathTable["BloodChemistry_BloodUreaNitrogen_Concentration"] = &BiogearsThread::GetBUN;
         nodePathTable["BloodChemistry_Oxygen_Saturation"] = &BiogearsThread::GetOxygenSaturation;
+        nodePathTable["BloodChemistry_CarbonMonoxide_Saturation"] = &BiogearsThread::GetCarbonMonoxideSaturation;
         nodePathTable["BloodChemistry_Hemaocrit"] = &BiogearsThread::GetHematocrit;
         nodePathTable["BloodChemistry_BloodPH_RAW"] = &BiogearsThread::GetRawBloodPH;
         nodePathTable["BloodChemistry_BloodPH_MOD"] = &BiogearsThread::GetBloodPH;
@@ -795,6 +796,11 @@ namespace AMM {
 // SPO2 - Oxygen Saturation - unitless %
     double BiogearsThread::GetOxygenSaturation() {
         return m_pe->GetBloodChemistrySystem()->GetOxygenSaturation() * 100;
+    }
+
+    double BiogearsThread::GetCarbonMonoxideSaturation() {
+        return m_pe->GetBloodChemistrySystem()->GetCarbonMonoxideSaturation() * 100;
+
     }
 
     double BiogearsThread::GetInspiratoryFlow() {
