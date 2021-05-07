@@ -74,6 +74,18 @@ namespace AMM {
         nodePathTable["SIM_TIME"] = &BiogearsThread::GetSimulationTime;
         nodePathTable["LOGGING_STATUS"] = &BiogearsThread::GetLoggingStatus;
 
+        nodePathTable["Patient_Age"] = &BiogearsThread::GetPatientAge;
+        nodePathTable["Patient_Weight"] = &BiogearsThread::GetPatientWeight;
+        nodePathTable["Patient_Gender"] = &BiogearsThread::GetPatientGender;
+        nodePathTable["Patient_Height"] = &BiogearsThread::GetPatientHeight;
+        nodePathTable["Patient_BodyFatFraction"] = &BiogearsThread::GetPatient_BodyFatFraction;
+
+
+        nodePathTable["GCS_Value"] = &BiogearsThread::GetGCSValue;
+        nodePathTable["IntracranialPressure"] = &BiogearsThread::GetIntracranialPressure;
+        nodePathTable["CerebralPerfusionPressure"] = &BiogearsThread::GetCerebralPerfusionPressure;
+        nodePathTable["CerebralBloodFlow"]= &BiogearsThread::GetCerebralBloodFlow;
+
         // Cardiovascular System
         nodePathTable["Cardiovascular_HeartRate"] = &BiogearsThread::GetHeartRate;
         nodePathTable["Cardiovascular_BloodVolume"] = &BiogearsThread::GetBloodVolume;
@@ -145,7 +157,7 @@ namespace AMM {
         nodePathTable["BloodChemistry_VenousCarbonDioxidePressure"] =
                 &BiogearsThread::GetVenousCarbonDioxidePressure;
 
-        nodePathTable["IntracranialPressure"] = &BiogearsThread::GetIntracranialPressure;
+
         // Substances
         nodePathTable["Substance_Sodium"] = &BiogearsThread::GetSodium;
         nodePathTable["Substance_Sodium_Concentration"] = &BiogearsThread::GetSodiumConcentration;
@@ -283,6 +295,9 @@ namespace AMM {
         leftLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::LeftLung);
         rightLung = m_pe->GetCompartments().GetGasCompartment(BGE::PulmonaryCompartment::RightLung);
         bladder = m_pe->GetCompartments().GetLiquidCompartment(BGE::UrineCompartment::Bladder);
+
+        // m_patient = m_pe->GetPatient();
+
         m_mutex.unlock();
 
         startingBloodVolume = 5400.00;
@@ -1559,10 +1574,44 @@ namespace AMM {
         }
     }
 
+    // The Glasgow Coma Scale (GCS) is commonly used to classify patient consciousness after traumatic brain injury.
+// The scale runs from 3 to 15, with brain injury classified as:
+// Severe (GCS < 9)
+// Moderate (GCS 9-12)
+// Mild (GCS > 12)
+    int BiogearsThread::GlasgowEstimator(double cbf) {
+        if (cbf < 116)
+            return 3;
+        else if (cbf < 151)
+            return 4;
+        else if (cbf < 186)
+            return 5;
+        else if (cbf < 220)
+            return 6;
+        else if (cbf < 255)
+            return 7;
+        else if (cbf < 290)
+            return 8;
+        else if (cbf < 363)
+            return 9;
+        else if (cbf < 435)
+            return 10;
+        else if (cbf < 508)
+            return 11;
+        else if (cbf < 580)
+            return 12;
+        else if (cbf < 628)
+            return 13;
+        else if (cbf < 725)
+            return 14;
+        else
+            return 15;
+    }
+
     void BiogearsThread::Status() {
         LOG_INFO << "-------------------------";
-        LOG_INFO << "Biogears Version: " << mil::tatrc::physiology::biogears::Version;
-        LOG_INFO << "-------------------------";
+        //LOG_INFO << "Biogears Version: " << mil::tatrc::physiology::biogears::Version;
+        //LOG_INFO << "-------------------------";
 
         if (running) {
             LOG_INFO << "Running:\t\t\t\tTrue";
@@ -1573,26 +1622,26 @@ namespace AMM {
                     << "Cardiac Output:\t\t\t"
                     << m_pe->GetCardiovascularSystem()->GetCardiacOutput(
                             biogears::VolumePerTimeUnit::mL_Per_min)
-                    << biogears::VolumePerTimeUnit::mL_Per_min;
+                    ;// << biogears::VolumePerTimeUnit::mL_Per_min;
             LOG_INFO
                     << "Blood Volume:\t\t\t"
                     << m_pe->GetCardiovascularSystem()->GetBloodVolume(biogears::VolumeUnit::mL)
-                    << biogears::VolumeUnit::mL;
+                    ;// << biogears::VolumeUnit::mL;
             LOG_INFO
                     << "Mean Arterial Pressure:\t"
                     << m_pe->GetCardiovascularSystem()->GetMeanArterialPressure(
                             biogears::PressureUnit::mmHg)
-                    << biogears::PressureUnit::mmHg;
+                    ;// << biogears::PressureUnit::mmHg;
             LOG_INFO
                     << "Systolic Pressure:\t\t"
                     << m_pe->GetCardiovascularSystem()->GetSystolicArterialPressure(
                             biogears::PressureUnit::mmHg)
-                    << biogears::PressureUnit::mmHg;
+                    ;// << biogears::PressureUnit::mmHg;
             LOG_INFO
                     << "Diastolic Pressure:\t\t"
                     << m_pe->GetCardiovascularSystem()->GetDiastolicArterialPressure(
                             biogears::PressureUnit::mmHg)
-                    << biogears::PressureUnit::mmHg;
+                    ;// << biogears::PressureUnit::mmHg;
             LOG_INFO
                     << "Heart Rate:\t\t\t\t"
                     << m_pe->GetCardiovascularSystem()->GetHeartRate(
@@ -1606,5 +1655,37 @@ namespace AMM {
         } else {
             LOG_INFO << "Running:\t\t\t\tFalse";
         }
+    }
+
+    double BiogearsThread::GetCerebralPerfusionPressure() {
+        return m_pe->GetCardiovascularSystem()->GetCerebralPerfusionPressure(PressureUnit::mmHg);
+    }
+
+    double BiogearsThread::GetCerebralBloodFlow() {
+        return m_pe->GetCardiovascularSystem()->GetCerebralBloodFlow(VolumePerTimeUnit::mL_Per_min);
+    }
+
+    double BiogearsThread::GetPatientAge() {
+        return 0;
+    }
+
+    double BiogearsThread::GetPatientWeight() {
+        return 0;
+    }
+
+    double BiogearsThread::GetPatientGender() {
+        return 0;
+    }
+
+    double BiogearsThread::GetPatientHeight() {
+        return 0;
+    }
+
+    double BiogearsThread::GetPatient_BodyFatFraction() {
+        return 0;
+    }
+
+    double BiogearsThread::GetGCSValue() {
+        return GlasgowEstimator(GetCerebralBloodFlow());
     }
 }

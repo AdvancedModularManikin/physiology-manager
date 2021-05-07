@@ -134,11 +134,11 @@ namespace AMM {
         bool ExecuteCommand(const std::string &cmd);
 
         bool Execute(std::function<std::unique_ptr<biogears::PhysiologyEngine>(
-                std::unique_ptr<biogears::PhysiologyEngine> &&)>
+                std::unique_ptr < biogears::PhysiologyEngine > && )>
                      func);
 
         bool scenarioLoading = false;
-      
+
         void Shutdown();
 
         void StartSimulation();
@@ -247,7 +247,7 @@ namespace AMM {
         bool running = false;
 
         static std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
-        static std::vector<std::string> highFrequencyNodes;
+        static std::vector <std::string> highFrequencyNodes;
 
         bool paralyzed = false;
         bool paralyzedSent = false;
@@ -263,6 +263,22 @@ namespace AMM {
         double GetLoggingStatus();
 
         double GetShutdownMessage();
+
+        double GetPatientAge();
+
+        double GetPatientWeight();
+
+        double GetPatientGender();
+
+        double GetPatientHeight();
+
+        double GetPatient_BodyFatFraction();
+
+        double GetGCSValue();
+
+        double GetCerebralPerfusionPressure();
+
+        double GetCerebralBloodFlow();
 
         double GetBloodLossPercentage();
 
@@ -408,6 +424,8 @@ namespace AMM {
 
         double GetShuntFraction();
 
+        int GlasgowEstimator(double cbf);
+
         biogears::SESubstance *sodium;
         biogears::SESubstance *glucose;
         biogears::SESubstance *creatinine;
@@ -435,7 +453,8 @@ namespace AMM {
 
     protected:
         std::mutex m_mutex;
-        std::unique_ptr<biogears::PhysiologyEngine> m_pe;
+        std::unique_ptr <biogears::PhysiologyEngine> m_pe;
+        // biogears::SEPatient m_patient;
 
         double thresh = 1.0;
 
