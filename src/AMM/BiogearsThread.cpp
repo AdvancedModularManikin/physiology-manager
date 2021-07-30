@@ -25,6 +25,7 @@ namespace AMM {
                         irreversible = true;
                         break;
                     case CDM::enumPatientEvent::StartOfCardiacCycle:
+                        break;
                     case CDM::enumPatientEvent::StartOfExhale:
                         startOfExhale = true;
                         startOfInhale = false;
@@ -35,10 +36,12 @@ namespace AMM {
                         break;
                     default:
                         LOG_INFO << " Patient has entered state : " << type;
+                        break;
                 }
             } else {
                 switch (type) {
                     case CDM::enumPatientEvent::StartOfCardiacCycle:
+                        break;
                     case CDM::enumPatientEvent::StartOfExhale:
                         startOfExhale = false;
                         break;
@@ -47,6 +50,7 @@ namespace AMM {
                         break;
                     default:
                         LOG_INFO << " Patient has exited state : " << type;
+                        break;
                 }
             }
         }
