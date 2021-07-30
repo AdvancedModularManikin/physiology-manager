@@ -100,7 +100,7 @@ void show_menu(AMM::PhysiologyEngineManager *pe) {
       std::string XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><PhysiologyModification type=\"Hemorrhage\"><Location>LeftLeg</Location><Flow unit=\"mL/hr\">1000</Flow></PhysiologyModification>";
       pe->ExecutePhysiologyModification(XML);
    } else if (action == "9") {
-      pe->m_pe->SaveState("./states/test.xml");
+      pe->m_pe->SaveState("test.xml");
       return;
    } else if (action == "0") {
       pe->StopSimulation();
