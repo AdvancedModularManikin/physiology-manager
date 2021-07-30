@@ -533,7 +533,7 @@ namespace AMM {
                     std::ostringstream ss;
                     double simTime = m_pe->GetSimulationTime();
                     std::string filenamedate = get_filename_date();
-                    ss << "./states/SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s."
+                    ss << "SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s."
                        << stateFilePrefix;
                     LOG_INFO << "Saved state to " << ss.str();
                     m_mutex.lock();
