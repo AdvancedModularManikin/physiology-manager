@@ -369,7 +369,7 @@ namespace AMM {
             renderMod.data("<RenderModification type='START_OF_INHALE'/>");
             m_mgr->WriteRenderModification(renderMod);
             m_pe->startOfInhale = false;
-        } elseif (m_pe->startOfExhale) {
+        } else if (m_pe->startOfExhale) {
             LOG_DEBUG << "STart of exhale, sending render mod";
             AMM::RenderModification renderMod;
             renderMod.data("<RenderModification type='START_OF_EXHALE'/>");
