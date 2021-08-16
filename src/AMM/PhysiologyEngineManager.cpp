@@ -364,13 +364,13 @@ namespace AMM {
 
     void PhysiologyEngineManager::ProcessStates() {
         if (m_pe->startOfInhale) {
-            LOG_DEBUG << "Start of inhale, sending render mod";
+            // LOG_DEBUG << "Start of inhale, sending render mod";
             AMM::RenderModification renderMod;
             renderMod.data("<RenderModification type='START_OF_INHALE'/>");
             m_mgr->WriteRenderModification(renderMod);
             m_pe->startOfInhale = false;
         } else if (m_pe->startOfExhale) {
-            LOG_DEBUG << "Start of exhale, sending render mod";
+            // LOG_DEBUG << "Start of exhale, sending render mod";
             AMM::RenderModification renderMod;
             renderMod.data("<RenderModification type='START_OF_EXHALE'/>");
             m_mgr->WriteRenderModification(renderMod);
