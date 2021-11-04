@@ -2,11 +2,14 @@
 
 using namespace biogears;
 
+
 namespace AMM {
     class EventHandler : public SEEventHandler {
     public:
         // State flags
         bool irreversible = false;
+        bool startOfExhale = false;
+        bool startOfInhale = false;
 
         EventHandler(Logger *logger) : SEEventHandler() {}
 
@@ -22,20 +25,32 @@ namespace AMM {
                         irreversible = true;
                         break;
                     case CDM::enumPatientEvent::StartOfCardiacCycle:
+                        break;
                     case CDM::enumPatientEvent::StartOfExhale:
+                        startOfExhale = true;
+                        startOfInhale = false;
+                        break;
                     case CDM::enumPatientEvent::StartOfInhale:
+                        startOfInhale = true;
+                        startOfExhale = false;
                         break;
                     default:
                         LOG_INFO << " Patient has entered state : " << type;
+                        break;
                 }
             } else {
                 switch (type) {
                     case CDM::enumPatientEvent::StartOfCardiacCycle:
+                        break;
                     case CDM::enumPatientEvent::StartOfExhale:
+                        startOfExhale = false;
+                        break;
                     case CDM::enumPatientEvent::StartOfInhale:
+                        startOfInhale = false;
                         break;
                     default:
                         LOG_INFO << " Patient has exited state : " << type;
+                        break;
                 }
             }
         }
@@ -720,6 +735,9 @@ namespace AMM {
             if (myEventHandler->irreversible && !irreversible) {
                 irreversible = true;
             }
+
+            startOfInhale = myEventHandler->startOfInhale;
+            startOfExhale = myEventHandler->startOfExhale;
         }
 
         m_mutex.lock();

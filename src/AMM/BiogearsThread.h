@@ -253,7 +253,8 @@ namespace AMM {
         bool paralyzedSent = false;
         bool irreversible = false;
         bool irreversibleSent = false;
-
+        bool startOfExhale = false;
+        bool startOfInhale = false;
         EventHandler *myEventHandler;
 
     private:

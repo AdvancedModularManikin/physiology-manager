@@ -363,6 +363,20 @@ namespace AMM {
     void PhysiologyEngineManager::StopSimulation() { m_pe->StopSimulation(); }
 
     void PhysiologyEngineManager::ProcessStates() {
+        if (m_pe->startOfInhale) {
+            // LOG_DEBUG << "Start of inhale, sending render mod";
+            AMM::RenderModification renderMod;
+            renderMod.data("<RenderModification type='START_OF_INHALE'/>");
+            m_mgr->WriteRenderModification(renderMod);
+            m_pe->startOfInhale = false;
+        } else if (m_pe->startOfExhale) {
+            // LOG_DEBUG << "Start of exhale, sending render mod";
+            AMM::RenderModification renderMod;
+            renderMod.data("<RenderModification type='START_OF_EXHALE'/>");
+            m_mgr->WriteRenderModification(renderMod);
+            m_pe->startOfExhale = false;
+        }
+
         if (m_pe->irreversible && !m_pe->irreversibleSent) {
             LOG_DEBUG << "Patient has entered an irreversible state, sending render mod.";
 
@@ -519,7 +533,7 @@ namespace AMM {
                     std::ostringstream ss;
                     double simTime = m_pe->GetSimulationTime();
                     std::string filenamedate = get_filename_date();
-                    ss << "./states/SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s."
+                    ss << "SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s."
                        << stateFilePrefix;
                     LOG_INFO << "Saved state to " << ss.str();
                     m_mutex.lock();
