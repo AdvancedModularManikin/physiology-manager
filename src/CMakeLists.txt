@@ -11,6 +11,7 @@ target_link_libraries(${PHYSIOLOGY_MANAGER_EXE}
         PUBLIC Threads::Threads
         PUBLIC Biogears::libbiogears
         PUBLIC Boost::system
+	PUBLIC tinyxml2
         )
 
 install(
