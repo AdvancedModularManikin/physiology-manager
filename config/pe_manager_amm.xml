@@ -7,5 +7,48 @@
             <participantID>15</participantID>
          </rtps>
       </participant>
+      <publisher profile_name="amm_publisher" is_default_profile="true">
+         <qos> <!-- readerQosPoliciesType -->
+            <durability>
+               <kind>VOLATILE</kind>
+            </durability>
+
+            <liveliness>
+               <kind>AUTOMATIC</kind>
+
+               <lease_duration>
+                  <sec>1</sec>
+               </lease_duration>
+
+               <announcement_period>
+                  <sec>1</sec>
+               </announcement_period>
+            </liveliness>
+
+            <reliability>
+               <kind>BEST_EFFORT</kind>
+            </reliability>
+
+            <deadline>
+               <period>
+                  <sec>1</sec>
+               </period>
+            </deadline>
+
+            <lifespan>
+               <duration>
+                  <sec>1</sec>
+               </duration>
+            </lifespan>
+
+            <disablePositiveAcks>
+               <enabled>true</enabled>
+            </disablePositiveAcks>
+         </qos>
+      </publisher>
+
+      <subscriber profile_name="amm_subscriber">
+         <!-- ... -->
+      </subscriber>
    </profiles>
 </dds>

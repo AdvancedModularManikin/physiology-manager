@@ -501,7 +501,8 @@ namespace AMM {
             return false;
         }
         m_mutex.lock();
-        m_pe->SaveState(stateFile);
+        m_pe->SaveStateToFile(stateFile);
+        // m_pe->SaveState(stateFile);
         m_mutex.unlock();
         return true;
     }
