@@ -666,7 +666,7 @@ namespace AMM {
         }
         std::string instrument(i.instrument());
         m_mutex.lock();
-        if (instrument == "ventilator") {
+        if (instrument == "ventilator" || instrument == "erventilator") {
             m_pe->SetVentilator(i.payload());
         } else if (instrument == "bvm_mask") {
             m_pe->SetBVMMask(i.payload());
