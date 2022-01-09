@@ -251,6 +251,7 @@ namespace AMM {
                     tinyxml2::XMLElement *pAR = pRoot->FirstChildElement("AdminRoute")->ToElement();
                     std::string adminRoute = pAR->GetText();
 
+                    m_pe->SetSubstanceBolus(pSub, concentration, cUnit, dose, dUnit, adminRoute);
 
                     return;
                 } else if (pmType == "SubstanceCompoundInfusion") {
@@ -264,6 +265,7 @@ namespace AMM {
                     double rate = stod(pRate->GetText());
                     std::string rUnit = pRate->Attribute("unit");
 
+                    m_pe->SetSubstanceCompoundInfusion(pSub, bagVolume, bvUnit, rate, rUnit);
                     return;
                 } else if (pmType == "SubstanceInfusion") {
                     std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
@@ -275,7 +277,7 @@ namespace AMM {
                     tinyxml2::XMLElement *pRate = pRoot->FirstChildElement("Rate")->ToElement();
                     double rate = stod(pRate->GetText());
                     std::string rUnit = pRate->Attribute("unit");
-
+                    m_pe->SetSubstanceInfusion(pSub, concentration, cUnit, rate, rUnit);
                     return;
                 } else if (pmType == "TensionPneumothorax") {
                 } else if (pmType == "Urinate") {

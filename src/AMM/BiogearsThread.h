@@ -134,7 +134,7 @@ namespace AMM {
         bool ExecuteCommand(const std::string &cmd);
 
         bool Execute(std::function<std::unique_ptr<biogears::PhysiologyEngine>(
-                std::unique_ptr < biogears::PhysiologyEngine > && )>
+                std::unique_ptr<biogears::PhysiologyEngine> &&)>
                      func);
 
         bool scenarioLoading = false;
@@ -220,15 +220,17 @@ namespace AMM {
 
         void SetSubstanceAdministration(const std::string &actionSettings);
 
-        void SetSubstanceBolus(const std::string &actionSettings);
-
         void
         SetSubstanceBolus(const std::string &substance, double concentration, const std::string &concUnit, double dose,
                           const std::string &doseUnit, const std::string &adminRoute);
 
-        void SetSubstanceCompoundInfusion(const std::string &actionSettings);
+        void SetSubstanceCompoundInfusion(const std::string &substance, double bagVolume, const std::string &bvUnit,
+                                          double rate,
+                                          const std::string &rUnit);
 
-        void SetSubstanceInfusion(const std::string &actionSettings);
+        void
+        SetSubstanceInfusion(const std::string &substance, double bagVolume, const std::string &bvUnit, double rate,
+                             const std::string &rUnit);
 
         void SetSubstanceOralDose(const std::string &actionSettings);
 
@@ -247,7 +249,7 @@ namespace AMM {
         bool running = false;
 
         static std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
-        static std::vector <std::string> highFrequencyNodes;
+        static std::vector<std::string> highFrequencyNodes;
 
         bool paralyzed = false;
         bool paralyzedSent = false;
@@ -454,7 +456,7 @@ namespace AMM {
 
     protected:
         std::mutex m_mutex;
-        std::unique_ptr <biogears::PhysiologyEngine> m_pe;
+        std::unique_ptr<biogears::PhysiologyEngine> m_pe;
         // biogears::SEPatient m_patient;
 
         double thresh = 1.0;

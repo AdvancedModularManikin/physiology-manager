@@ -1389,6 +1389,89 @@ namespace AMM {
         }
     }
 
+    void BiogearsThread::SetSubstanceInfusion(const std::string &substance, double conVal,
+                                                      const std::string &conUnit, double rate,
+                                                      const std::string &rUnit) {
+        try {
+            biogears::SESubstance *subs = m_pe->GetSubstanceManager().GetSubstance(substance);
+            biogears::SESubstanceInfusion infuse(*subs);
+
+            LOG_DEBUG << "Infusing with concentration of " << conVal << " " << conUnit;
+
+            // @TODO: Parse out concentration unit
+            infuse.GetConcentration().SetValue(
+                    conVal, biogears::MassPerVolumeUnit::mg_Per_mL);
+
+            // @TODO: Parse out rate unit
+            if (rUnit == "mL/hr") {
+                LOG_DEBUG << "Infusing at " << rate << " mL per hour";
+                infuse.GetRate().SetValue(rate, biogears::VolumePerTimeUnit::mL_Per_hr);
+            } else {
+                LOG_DEBUG << "Infusing at " << rate << " mL per min";
+                infuse.GetRate().SetValue(rate, biogears::VolumePerTimeUnit::mL_Per_min);
+            }
+            m_pe->ProcessAction(infuse);
+        } catch (std::exception &e) {
+            LOG_ERROR << "Error processing substance bolus action: " << e.what();
+        }
+        return;
+    }
+
+    void BiogearsThread::SetSubstanceCompoundInfusion(const std::string &substance, double bagVolume,
+                                           const std::string &bvUnit, double rate,
+                                           const std::string &rUnit) {
+        try {
+            biogears::SESubstanceCompound *subs =
+                    m_pe->GetSubstanceManager().GetCompound(substance);
+            biogears::SESubstanceCompoundInfusion infuse(*subs);
+
+            LOG_DEBUG << "Setting bag volume to " << bagVolume << " / " << bvUnit;
+            if (bvUnit == "mL") {
+                infuse.GetBagVolume().SetValue(bagVolume, biogears::VolumeUnit::mL);
+            } else {
+                infuse.GetBagVolume().SetValue(bagVolume, biogears::VolumeUnit::L);
+            }
+
+            if (rUnit == "mL/hr") {
+                LOG_DEBUG << "Infusing at " << rate << " mL per hour";
+                infuse.GetRate().SetValue(rate, biogears::VolumePerTimeUnit::mL_Per_hr);
+            } else {
+                LOG_DEBUG << "Infusing at " << rate << " mL per min";
+                infuse.GetRate().SetValue(rate, biogears::VolumePerTimeUnit::mL_Per_min);
+            }
+            m_pe->ProcessAction(infuse);
+        } catch (std::exception &e) {
+            LOG_ERROR << "Error processing substance bolus action: " << e.what();
+        }
+        return;
+    }
+
+    void BiogearsThread::SetSubstanceBolus(const std::string &substance, double concentration,
+                                           const std::string &concUnit, double dose,
+                      const std::string &doseUnit, const std::string &adminRoute) {
+        try {
+            const biogears::SESubstance *subs = m_pe->GetSubstanceManager().GetSubstance(substance);
+            biogears::SESubstanceBolus bolus(*subs);
+            LOG_DEBUG << "Bolus with concentration of " << concentration << " " << concUnit;
+            if (concUnit == "mg/mL") {
+                bolus.GetConcentration().SetValue(concentration, biogears::MassPerVolumeUnit::mg_Per_mL);
+            } else {
+                bolus.GetConcentration().SetValue(concentration, biogears::MassPerVolumeUnit::ug_Per_mL);
+            }
+            LOG_DEBUG << "Bolus with a dose of  " << dose << doseUnit;
+            if (doseUnit == "mL") {
+                bolus.GetDose().SetValue(dose, biogears::VolumeUnit::mL);
+            } else {
+                bolus.GetDose().SetValue(dose, biogears::VolumeUnit::uL);
+            }
+            bolus.SetAdminRoute(CDM::enumBolusAdministration::Intravenous);
+            m_pe->ProcessAction(bolus);
+        } catch (std::exception &e) {
+            LOG_ERROR << "Error processing substance bolus action: " << e.what();
+        }
+        return;
+    }
+
     void BiogearsThread::SetAirwayObstruction(double severity) {
         try {
             biogears::SEAirwayObstruction obstruction;
