@@ -20,7 +20,7 @@ std::string get_filename_date(void) {
 
 namespace AMM {
     PhysiologyEngineManager::PhysiologyEngineManager() {
-        static plog::ColorConsoleAppender <plog::TxtFormatter> consoleAppender;
+        static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
 
         stateFile = "./states/StandardMale@0s.xml";
         patientFile = "./patients/StandardMale.xml";
@@ -338,10 +338,10 @@ namespace AMM {
     }
 
     void PhysiologyEngineManager::StartTickSimulation() {
-      LOG_INFO << "Starting tick simulation";
-      running = true;
-      m_pe->running = true;
-      paused = false;
+        LOG_INFO << "Starting tick simulation";
+        running = true;
+        m_pe->running = true;
+        paused = false;
     }
 
     void PhysiologyEngineManager::StopTickSimulation() {
@@ -502,7 +502,7 @@ namespace AMM {
             case AMM::ControlType::RUN: {
                 LOG_DEBUG << "SimControl recieved: Run sim.";
                 if (!running) {
-		  LOG_INFO << "Not running, calling starttick.";
+                    LOG_INFO << "Not running, calling starttick.";
                     StartTickSimulation();
                 }
                 break;
@@ -604,34 +604,34 @@ namespace AMM {
                 authoringMode = false;
                 LOG_INFO << "Loading scenario.  Setting scenario file to " << value.substr(loadScenarioFile.size());
                 scenarioFile = "./Scenarios/" + value.substr(loadScenarioFile.size()) + ".xml";
-		LOG_INFO << "Scenario file is " << scenarioFile;
+                LOG_INFO << "Scenario file is " << scenarioFile;
                 std::ifstream infile(scenarioFile);
                 if (!infile.good()) {
                     LOG_ERROR << "Scenario file does not exist: " << scenarioFile;
                 }
                 infile.close();
 
-		LOG_INFO << "Initializing Biogears thread to call LoadScenarioFile";
-		m_mutex.lock();
-		m_pe = new BiogearsThread("logs/biogears.log");
-		m_mutex.unlock();
-		
-		if (m_pe == nullptr) {
-		  LOG_WARNING << "Physiology engine not running, unable to start tick simulation.";
-		  return;
-		}
+                LOG_INFO << "Initializing Biogears thread to call LoadScenarioFile";
+                m_mutex.lock();
+                m_pe = new BiogearsThread("logs/biogears.log");
+                m_mutex.unlock();
 
-		this->SetLogging(logging_enabled);
+                if (m_pe == nullptr) {
+                    LOG_WARNING << "Physiology engine not running, unable to start tick simulation.";
+                    return;
+                }
 
-		m_pe->scenarioLoading = true;
+                this->SetLogging(logging_enabled);
+
+                m_pe->scenarioLoading = true;
                 m_pe->LoadScenarioFile(scenarioFile);
-		m_pe->scenarioLoading = false;
-		
-		nodePathMap = m_pe->GetNodePathTable();
-		
-		//		running = true;
-		//		m_pe->running = true;
-		paused = true;	
+                m_pe->scenarioLoading = false;
+
+                nodePathMap = m_pe->GetNodePathTable();
+
+                //		running = true;
+                //		m_pe->running = true;
+                paused = true;
 
             } else {
                 LOG_DEBUG << "Unknown system command received: " << cm.message();
