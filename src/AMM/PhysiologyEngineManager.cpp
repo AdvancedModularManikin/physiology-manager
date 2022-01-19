@@ -279,6 +279,14 @@ namespace AMM {
                     std::string rUnit = pRate->Attribute("unit");
                     m_pe->SetSubstanceInfusion(pSub, concentration, cUnit, rate, rUnit);
                     return;
+                } else if (pmType == "SubstanceNasalDose") {
+                    std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
+
+                    tinyxml2::XMLElement *pDose = pRoot->FirstChildElement("Dose")->ToElement();
+                    double dose = stod(pDose->GetText());
+                    std::string dUnit = pDose->Attribute("unit");
+
+                    m_pe->SetSubstanceNasalDose(pSub, dose, dUnit);
                 } else if (pmType == "TensionPneumothorax") {
                 } else if (pmType == "Urinate") {
                 }

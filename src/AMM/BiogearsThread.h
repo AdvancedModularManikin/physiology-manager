@@ -85,6 +85,7 @@
 #include <biogears/cdm/patient/actions/SESubstanceBolus.h>
 #include <biogears/cdm/patient/actions/SESubstanceCompoundInfusion.h>
 #include <biogears/cdm/patient/actions/SESubstanceInfusion.h>
+#include <biogears/cdm/patient/actions/SESubstanceNasalDose.h>
 #include <biogears/cdm/patient/assessments/SECompleteBloodCount.h>
 #include <biogears/cdm/patient/assessments/SEComprehensiveMetabolicPanel.h>
 #include <biogears/cdm/patient/assessments/SEPulmonaryFunctionTest.h>
@@ -134,7 +135,7 @@ namespace AMM {
         bool ExecuteCommand(const std::string &cmd);
 
         bool Execute(std::function<std::unique_ptr<biogears::PhysiologyEngine>(
-                std::unique_ptr<biogears::PhysiologyEngine> &&)>
+                std::unique_ptr < biogears::PhysiologyEngine > && )>
                      func);
 
         bool scenarioLoading = false;
@@ -232,6 +233,8 @@ namespace AMM {
         SetSubstanceInfusion(const std::string &substance, double bagVolume, const std::string &bvUnit, double rate,
                              const std::string &rUnit);
 
+        void SetSubstanceNasalDose(const std::string &substance, double dose, const std::string &doseUnit);
+
         void SetSubstanceOralDose(const std::string &actionSettings);
 
         void SetTensionPneumothorax(const std::string &actionSettings);
@@ -249,7 +252,7 @@ namespace AMM {
         bool running = false;
 
         static std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
-        static std::vector<std::string> highFrequencyNodes;
+        static std::vector <std::string> highFrequencyNodes;
 
         bool paralyzed = false;
         bool paralyzedSent = false;
@@ -456,7 +459,7 @@ namespace AMM {
 
     protected:
         std::mutex m_mutex;
-        std::unique_ptr<biogears::PhysiologyEngine> m_pe;
+        std::unique_ptr <biogears::PhysiologyEngine> m_pe;
         // biogears::SEPatient m_patient;
 
         double thresh = 1.0;

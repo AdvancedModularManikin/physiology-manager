@@ -56,7 +56,7 @@ namespace AMM {
         }
     };
 
-    std::vector<std::string> BiogearsThread::highFrequencyNodes;
+    std::vector <std::string> BiogearsThread::highFrequencyNodes;
     std::map<std::string, double (BiogearsThread::*)()> BiogearsThread::nodePathTable;
 
     BiogearsThread::BiogearsThread(const std::string &logFile) {
@@ -508,7 +508,7 @@ namespace AMM {
     }
 
     bool BiogearsThread::Execute(std::function<std::unique_ptr<biogears::PhysiologyEngine>(
-            std::unique_ptr<biogears::PhysiologyEngine> &&)>
+            std::unique_ptr < biogears::PhysiologyEngine > && )>
                                  func) {
         m_pe = func(std::move(m_pe));
         return true;
@@ -1230,10 +1230,10 @@ namespace AMM {
     void BiogearsThread::SetIVPump(const std::string &pumpSettings) {
         LOG_DEBUG << "Got pump settings: " << pumpSettings;
         std::string type, concentration, rate, dose, substance, bagVolume;
-        std::vector<std::string> strings = Utility::explode("\n", pumpSettings);
+        std::vector <std::string> strings = Utility::explode("\n", pumpSettings);
 
         for (auto str : strings) {
-            std::vector<std::string> strs;
+            std::vector <std::string> strs;
             boost::split(strs, str, boost::is_any_of("="));
             auto strs_size = strs.size();
             // Check if it's not a key value pair
@@ -1288,7 +1288,7 @@ namespace AMM {
                     biogears::SESubstanceCompound *subs =
                             m_pe->GetSubstanceManager().GetCompound(substance);
                     biogears::SESubstanceCompoundInfusion infuse(*subs);
-                    std::vector<std::string> bagvol = Utility::explode(" ", bagVolume);
+                    std::vector <std::string> bagvol = Utility::explode(" ", bagVolume);
                     volVal = std::stod(bagvol[0]);
                     volUnit = bagvol[1];
                     LOG_DEBUG << "Setting bag volume to " << volVal << " / " << volUnit;
@@ -1298,7 +1298,7 @@ namespace AMM {
                         infuse.GetBagVolume().SetValue(volVal, biogears::VolumeUnit::L);
                     }
 
-                    std::vector<std::string> rateb = Utility::explode(" ", rate);
+                    std::vector <std::string> rateb = Utility::explode(" ", rate);
                     rateVal = std::stod(rateb[0]);
                     rateUnit = rateb[1];
 
@@ -1313,14 +1313,14 @@ namespace AMM {
                 } else {
                     biogears::SESubstance *subs = m_pe->GetSubstanceManager().GetSubstance(substance);
                     biogears::SESubstanceInfusion infuse(*subs);
-                    std::vector<std::string> concentrations = Utility::explode("/", concentration);
+                    std::vector <std::string> concentrations = Utility::explode("/", concentration);
                     concentrationsMass = concentrations[0];
                     concentrationsVol = concentrations[1];
 
-                    std::vector<std::string> conmass = Utility::explode(" ", concentrationsMass);
+                    std::vector <std::string> conmass = Utility::explode(" ", concentrationsMass);
                     massVal = std::stod(conmass[0]);
                     massUnit = conmass[1];
-                    std::vector<std::string> convol = Utility::explode(" ", concentrationsVol);
+                    std::vector <std::string> convol = Utility::explode(" ", concentrationsVol);
                     volVal = std::stod(convol[0]);
                     volUnit = convol[1];
                     conVal = massVal / volVal;
@@ -1332,7 +1332,7 @@ namespace AMM {
                             conVal, biogears::MassPerVolumeUnit::mg_Per_mL);
 
 
-                    std::vector<std::string> rateb = Utility::explode(" ", rate);
+                    std::vector <std::string> rateb = Utility::explode(" ", rate);
                     rateVal = std::stod(rateb[0]);
                     rateUnit = rateb[1];
 
@@ -1350,19 +1350,19 @@ namespace AMM {
 
                 std::string concentrationsMass, concentrationsVol, massUnit, volUnit, doseUnit;
                 double massVal, volVal, conVal, doseVal;
-                std::vector<std::string> concentrations = Utility::explode("/", concentration);
+                std::vector <std::string> concentrations = Utility::explode("/", concentration);
                 concentrationsMass = concentrations[0];
                 concentrationsVol = concentrations[1];
 
-                std::vector<std::string> conmass = Utility::explode(" ", concentrationsMass);
+                std::vector <std::string> conmass = Utility::explode(" ", concentrationsMass);
                 massVal = std::stod(conmass[0]);
                 massUnit = conmass[1];
-                std::vector<std::string> convol = Utility::explode(" ", concentrationsVol);
+                std::vector <std::string> convol = Utility::explode(" ", concentrationsVol);
                 volVal = std::stod(convol[0]);
                 volUnit = convol[1];
                 conVal = massVal / volVal;
 
-                std::vector<std::string> doseb = Utility::explode(" ", dose);
+                std::vector <std::string> doseb = Utility::explode(" ", dose);
                 doseVal = std::stod(doseb[0]);
                 doseUnit = doseb[1];
 
@@ -1380,7 +1380,11 @@ namespace AMM {
                 } else {
                     bolus.GetDose().SetValue(doseVal, biogears::VolumeUnit::uL);
                 }
+
+
+                // IV pump only uses IV administration for right now
                 bolus.SetAdminRoute(CDM::enumBolusAdministration::Intravenous);
+
                 m_pe->ProcessAction(bolus);
             }
         }
@@ -1450,6 +1454,24 @@ namespace AMM {
         return;
     }
 
+    void BiogearsThread::SetSubstanceNasalDose(const std::string &substance, double dose,
+                                               const std::string &doseUnit) {
+        try {
+            const biogears::SESubstance *subs = m_pe->GetSubstanceManager().GetSubstance(substance);
+            biogears::SESubstanceNasalDose nd(*subs);
+            LOG_DEBUG << "Nasally administered substance with a dose of  " << dose << doseUnit;
+            if (doseUnit == "mg") {
+               nd.GetDose().SetValue(dose, biogears::MassUnit::mg);
+            } else {
+                nd.GetDose().SetValue(dose, biogears::MassUnit::g);
+            }
+            m_pe->ProcessAction(nd);
+        } catch (std::exception &e) {
+            LOG_ERROR << "Error processing substance nasal dose action: " << e.what();
+        }
+        return;
+    }
+
     void BiogearsThread::SetSubstanceBolus(const std::string &substance, double concentration,
                                            const std::string &concUnit, double dose,
                                            const std::string &doseUnit, const std::string &adminRoute) {
@@ -1468,7 +1490,18 @@ namespace AMM {
             } else {
                 bolus.GetDose().SetValue(dose, biogears::VolumeUnit::uL);
             }
-            bolus.SetAdminRoute(CDM::enumBolusAdministration::Intravenous);
+
+            CDM::enumBolusAdministration aRoute;
+            std::string lAR = boost::algorithm::to_lower_copy(adminRoute);
+            if (lAR == "intraarterial") {
+                aRoute = CDM::enumBolusAdministration::Intraarterial;
+            } else if (lAR == "intramuscular") {
+                aRoute = CDM::enumBolusAdministration::Intramuscular;
+            } else {
+                aRoute = CDM::enumBolusAdministration::Intravenous;
+            }
+
+            bolus.SetAdminRoute(aRoute);
 
             if (substance == "Succinylcholine") {
                 LOG_DEBUG << "Setting paralyzed to TRUE from succs infusion";
@@ -1575,7 +1608,7 @@ namespace AMM {
     }
 
     void BiogearsThread::SetVentilator(const std::string &ventilatorSettings) {
-        std::vector<std::string> strings = Utility::explode("\n", ventilatorSettings);
+        std::vector <std::string> strings = Utility::explode("\n", ventilatorSettings);
 
         biogears::SEAnesthesiaMachineConfiguration AMConfig(m_pe->GetSubstanceManager());
         biogears::SEAnesthesiaMachine &config = AMConfig.GetConfiguration();
@@ -1587,7 +1620,7 @@ namespace AMM {
         config.GetReliefValvePressure().SetValue(20.0, biogears::PressureUnit::cmH2O);
 
         for (auto str : strings) {
-            std::vector<std::string> strs;
+            std::vector <std::string> strs;
             boost::split(strs, str, boost::is_any_of("="));
             auto strs_size = strs.size();
             // Check if it's not a key value pair
@@ -1631,7 +1664,7 @@ namespace AMM {
     }
 
     void BiogearsThread::SetBVMMask(const std::string &ventilatorSettings) {
-        std::vector<std::string> strings = Utility::explode("\n", ventilatorSettings);
+        std::vector <std::string> strings = Utility::explode("\n", ventilatorSettings);
 
         biogears::SEAnesthesiaMachineConfiguration AMConfig(m_pe->GetSubstanceManager());
         biogears::SEAnesthesiaMachine &config = AMConfig.GetConfiguration();
@@ -1643,7 +1676,7 @@ namespace AMM {
         config.GetReliefValvePressure().SetValue(20.0, biogears::PressureUnit::cmH2O);
 
         for (auto str : strings) {
-            std::vector<std::string> strs;
+            std::vector <std::string> strs;
             boost::split(strs, str, boost::is_any_of("="));
             auto strs_size = strs.size();
             // Check if it's not a key value pair
@@ -1728,38 +1761,38 @@ namespace AMM {
         if (running) {
             LOG_INFO << "Running:\t\t\t\tTrue";
             LOG_INFO
-                        << "Simulation Time:\t\t" << m_pe->GetSimulationTime(biogears::TimeUnit::s)
-                        << "s";
+                    << "Simulation Time:\t\t" << m_pe->GetSimulationTime(biogears::TimeUnit::s)
+                    << "s";
             LOG_INFO
-                        << "Cardiac Output:\t\t\t"
-                        << m_pe->GetCardiovascularSystem()->GetCardiacOutput(
-                                biogears::VolumePerTimeUnit::mL_Per_min);// << biogears::VolumePerTimeUnit::mL_Per_min;
+                    << "Cardiac Output:\t\t\t"
+                    << m_pe->GetCardiovascularSystem()->GetCardiacOutput(
+                            biogears::VolumePerTimeUnit::mL_Per_min);// << biogears::VolumePerTimeUnit::mL_Per_min;
             LOG_INFO
-                        << "Blood Volume:\t\t\t"
-                        << m_pe->GetCardiovascularSystem()->GetBloodVolume(
-                                biogears::VolumeUnit::mL);// << biogears::VolumeUnit::mL;
+                    << "Blood Volume:\t\t\t"
+                    << m_pe->GetCardiovascularSystem()->GetBloodVolume(
+                            biogears::VolumeUnit::mL);// << biogears::VolumeUnit::mL;
             LOG_INFO
-                        << "Mean Arterial Pressure:\t"
-                        << m_pe->GetCardiovascularSystem()->GetMeanArterialPressure(
-                                biogears::PressureUnit::mmHg);// << biogears::PressureUnit::mmHg;
+                    << "Mean Arterial Pressure:\t"
+                    << m_pe->GetCardiovascularSystem()->GetMeanArterialPressure(
+                            biogears::PressureUnit::mmHg);// << biogears::PressureUnit::mmHg;
             LOG_INFO
-                        << "Systolic Pressure:\t\t"
-                        << m_pe->GetCardiovascularSystem()->GetSystolicArterialPressure(
-                                biogears::PressureUnit::mmHg);// << biogears::PressureUnit::mmHg;
+                    << "Systolic Pressure:\t\t"
+                    << m_pe->GetCardiovascularSystem()->GetSystolicArterialPressure(
+                            biogears::PressureUnit::mmHg);// << biogears::PressureUnit::mmHg;
             LOG_INFO
-                        << "Diastolic Pressure:\t\t"
-                        << m_pe->GetCardiovascularSystem()->GetDiastolicArterialPressure(
-                                biogears::PressureUnit::mmHg);// << biogears::PressureUnit::mmHg;
+                    << "Diastolic Pressure:\t\t"
+                    << m_pe->GetCardiovascularSystem()->GetDiastolicArterialPressure(
+                            biogears::PressureUnit::mmHg);// << biogears::PressureUnit::mmHg;
             LOG_INFO
-                        << "Heart Rate:\t\t\t\t"
-                        << m_pe->GetCardiovascularSystem()->GetHeartRate(
-                                biogears::FrequencyUnit::Per_min)
-                        << "bpm";
+                    << "Heart Rate:\t\t\t\t"
+                    << m_pe->GetCardiovascularSystem()->GetHeartRate(
+                            biogears::FrequencyUnit::Per_min)
+                    << "bpm";
             LOG_INFO
-                        << "Respiration Rate:\t\t"
-                        << m_pe->GetRespiratorySystem()->GetRespirationRate(
-                                biogears::FrequencyUnit::Per_min)
-                        << "bpm";
+                    << "Respiration Rate:\t\t"
+                    << m_pe->GetRespiratorySystem()->GetRespirationRate(
+                            biogears::FrequencyUnit::Per_min)
+                    << "bpm";
         } else {
             LOG_INFO << "Running:\t\t\t\tFalse";
         }
