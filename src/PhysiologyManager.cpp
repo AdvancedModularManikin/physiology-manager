@@ -97,7 +97,11 @@ void show_menu(AMM::PhysiologyEngineManager *pe) {
          std::cout << " == Simulation not running" << std::endl;
          return;
       }
-      std::string XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><PhysiologyModification type=\"Hemorrhage\"><Location>LeftLeg</Location><Flow unit=\"mL/hr\">1000</Flow></PhysiologyModification>";
+      std::string XML = // "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                        "<PhysiologyModification type=\"SubstanceNasalDose\">\n"
+                        "  <Substance>Naloxone</Substance>\n"
+                        "  <Dose unit=\"mg\">1.6</Dose>\n"
+                        "</PhysiologyModification>";
       pe->ExecutePhysiologyModification(XML);
    } else if (action == "9") {
       pe->m_pe->SaveState("test.xml");

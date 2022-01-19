@@ -287,6 +287,7 @@ namespace AMM {
                     std::string dUnit = pDose->Attribute("unit");
 
                     m_pe->SetSubstanceNasalDose(pSub, dose, dUnit);
+                    return;
                 } else if (pmType == "TensionPneumothorax") {
                 } else if (pmType == "Urinate") {
                 }
