@@ -20,7 +20,7 @@ std::string get_filename_date(void) {
 
 namespace AMM {
     PhysiologyEngineManager::PhysiologyEngineManager() {
-        static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+        static plog::ColorConsoleAppender <plog::TxtFormatter> consoleAppender;
 
         stateFile = "./states/StandardMale@0s.xml";
         patientFile = "./patients/StandardMale.xml";
@@ -242,10 +242,21 @@ namespace AMM {
 
                     tinyxml2::XMLElement *pConc = pRoot->FirstChildElement("Concentration")->ToElement();
                     double concentration = stod(pConc->GetText());
+                    if (pConc->Attribute("value") != NULL) {
+                        concentration = stod(pConc->Attribute("value"));
+                    } else {
+                        concentration = stod(pConc->GetText());
+                    }
+
                     std::string cUnit = pConc->Attribute("unit");
 
                     tinyxml2::XMLElement *pDose = pRoot->FirstChildElement("Dose")->ToElement();
-                    double dose = stod(pDose->GetText());
+                    double dose;
+                    if (pDose->Attribute("value") != NULL) {
+                        dose = stod(pDose->Attribute("value"));
+                    } else {
+                        dose = stod(pDose->GetText());
+                    }
                     std::string dUnit = pDose->Attribute("unit");
 
                     tinyxml2::XMLElement *pAR = pRoot->FirstChildElement("AdminRoute")->ToElement();
@@ -259,10 +270,20 @@ namespace AMM {
 
                     tinyxml2::XMLElement *pVol = pRoot->FirstChildElement("BagVolume")->ToElement();
                     double bagVolume = stod(pVol->GetText());
+                    if (pVol->Attribute("value") != NULL) {
+                        bagVolume = stod(pVol->Attribute("value"));
+                    } else {
+                        bagVolume = stod(pVol->GetText());
+                    }
                     std::string bvUnit = pVol->Attribute("unit");
 
                     tinyxml2::XMLElement *pRate = pRoot->FirstChildElement("Rate")->ToElement();
                     double rate = stod(pRate->GetText());
+                    if (pRate->Attribute("value") != NULL) {
+                        rate = stod(pRate->Attribute("value"));
+                    } else {
+                        rate = stod(pRate->GetText());
+                    }
                     std::string rUnit = pRate->Attribute("unit");
 
                     m_pe->SetSubstanceCompoundInfusion(pSub, bagVolume, bvUnit, rate, rUnit);
@@ -272,10 +293,20 @@ namespace AMM {
 
                     tinyxml2::XMLElement *pConc = pRoot->FirstChildElement("Concentration")->ToElement();
                     double concentration = stod(pConc->GetText());
+                    if (pConc->Attribute("value") != NULL) {
+                        concentration = stod(pConc->Attribute("value"));
+                    } else {
+                        concentration = stod(pConc->GetText());
+                    }
                     std::string cUnit = pConc->Attribute("unit");
 
                     tinyxml2::XMLElement *pRate = pRoot->FirstChildElement("Rate")->ToElement();
                     double rate = stod(pRate->GetText());
+                    if (pRate->Attribute("value") != NULL) {
+                        rate = stod(pRate->Attribute("value"));
+                    } else {
+                        rate = stod(pRate->GetText());
+                    }
                     std::string rUnit = pRate->Attribute("unit");
                     m_pe->SetSubstanceInfusion(pSub, concentration, cUnit, rate, rUnit);
                     return;
@@ -283,7 +314,12 @@ namespace AMM {
                     std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
 
                     tinyxml2::XMLElement *pDose = pRoot->FirstChildElement("Dose")->ToElement();
-                    double dose = stod(pDose->GetText());
+                    double dose;
+                    if (pDose->Attribute("value") != NULL) {
+                        dose = stod(pDose->Attribute("value"));
+                    } else {
+                        dose = stod(pDose->GetText());
+                    }
                     std::string dUnit = pDose->Attribute("unit");
 
                     m_pe->SetSubstanceNasalDose(pSub, dose, dUnit);
