@@ -98,9 +98,11 @@ void show_menu(AMM::PhysiologyEngineManager *pe) {
          return;
       }
       std::string XML = // "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                        "<PhysiologyModification type=\"SubstanceNasalDose\">\n"
-                        "  <Substance>Naloxone</Substance>\n"
-                        "  <Dose value=\"1.6\" unit=\"mg\"/>\n"
+                        "<PhysiologyModification type=\"SubstanceBolus\">\n"
+                        "  <Substance>Succinylcholine</Substance>\n"
+                        "  <Concentration value=\"20\" unit=\"mg/mL\"/>\n"
+                        "  <Dose value=\"5\" unit=\"mL\"/>\n"
+                        "  <AdminRoute>Intravenous</AdminRoute>\n"
                         "</PhysiologyModification>";
       pe->ExecutePhysiologyModification(XML);
    } else if (action == "Z") {

@@ -170,7 +170,8 @@ namespace AMM {
         }
     }
 
-    void PhysiologyEngineManager::ExecutePhysiologyModification(std::string pm) {
+    void PhysiologyEngineManager::
+    ExecutePhysiologyModification(std::string pm) {
         if (m_pe == nullptr) {
             LOG_WARNING << "Physiology engine not running, cannot execute physiology modification.";
             return;
@@ -241,8 +242,8 @@ namespace AMM {
                     std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
 
                     tinyxml2::XMLElement *pConc = pRoot->FirstChildElement("Concentration")->ToElement();
-                    double concentration = stod(pConc->GetText());
-                    if (pConc->Attribute("value") != NULL) {
+                    double concentration;
+                    if (pConc->GetText() == NULL) {
                         concentration = stod(pConc->Attribute("value"));
                     } else {
                         concentration = stod(pConc->GetText());
@@ -269,7 +270,7 @@ namespace AMM {
                     std::string pSub = pRoot->FirstChildElement("SubstanceCompound")->ToElement()->GetText();
 
                     tinyxml2::XMLElement *pVol = pRoot->FirstChildElement("BagVolume")->ToElement();
-                    double bagVolume = stod(pVol->GetText());
+                    double bagVolume;
                     if (pVol->Attribute("value") != NULL) {
                         bagVolume = stod(pVol->Attribute("value"));
                     } else {
@@ -278,7 +279,7 @@ namespace AMM {
                     std::string bvUnit = pVol->Attribute("unit");
 
                     tinyxml2::XMLElement *pRate = pRoot->FirstChildElement("Rate")->ToElement();
-                    double rate = stod(pRate->GetText());
+                    double rate;
                     if (pRate->Attribute("value") != NULL) {
                         rate = stod(pRate->Attribute("value"));
                     } else {
@@ -292,7 +293,7 @@ namespace AMM {
                     std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
 
                     tinyxml2::XMLElement *pConc = pRoot->FirstChildElement("Concentration")->ToElement();
-                    double concentration = stod(pConc->GetText());
+                    double concentration;
                     if (pConc->Attribute("value") != NULL) {
                         concentration = stod(pConc->Attribute("value"));
                     } else {
@@ -301,7 +302,7 @@ namespace AMM {
                     std::string cUnit = pConc->Attribute("unit");
 
                     tinyxml2::XMLElement *pRate = pRoot->FirstChildElement("Rate")->ToElement();
-                    double rate = stod(pRate->GetText());
+                    double rate;
                     if (pRate->Attribute("value") != NULL) {
                         rate = stod(pRate->Attribute("value"));
                     } else {
