@@ -9,7 +9,7 @@
 #include <fstream>
 #include <chrono>
 
-#include "AMM/BaseLogger.h"
+#include "amm/BaseLogger.h"
 
 // Boost dependencies
 #include <boost/algorithm/string.hpp>
@@ -106,7 +106,7 @@
 #include <biogears/cdm/scenario/SEScenario.h>
 #include <biogears/cdm/scenario/SEScenarioExec.h>
 
-#include "AMM/Utility.h"
+#include "amm/Utility.h"
 
 using namespace biogears;
 

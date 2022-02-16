@@ -1,7 +1,7 @@
 
 #include "AMM/PhysiologyEngineManager.h"
 
-#include "AMM/BaseLogger.h"
+#include "amm/BaseLogger.h"
 
 using namespace AMM;
 
