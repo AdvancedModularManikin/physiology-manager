@@ -31,6 +31,7 @@
 #include <biogears/cdm/system/physiology/SECardiovascularSystem.h>
 #include <biogears/cdm/system/physiology/SEEnergySystem.h>
 #include <biogears/cdm/system/physiology/SERespiratorySystem.h>
+
 #include <biogears/cdm/system/physiology/SERenalSystem.h>
 
 #include <biogears/cdm/engine/PhysiologyEngineTrack.h>
@@ -77,6 +78,7 @@
 #include <biogears/cdm/properties/SEScalarTime.h>
 #include <biogears/cdm/properties/SEScalarVolume.h>
 #include <biogears/cdm/properties/SEScalarVolumePerTime.h>
+#include <biogears/cdm/properties/SEScalarFlowResistance.h>
 #include <biogears/cdm/properties/SEScalarOsmolality.h>
 #include <biogears/cdm/properties/SEScalarOsmolarity.h>
 #include <biogears/cdm/properties/SEScalarTypes.h>
@@ -315,6 +317,8 @@ namespace AMM {
         double GetRawRespirationRate();
 
         double GetRespirationRate();
+
+        double GetPulmonaryResistance();
 
         double GetCoreTemperature();
 

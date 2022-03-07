@@ -140,6 +140,7 @@ namespace AMM {
         nodePathTable["Respiratory_RightLung_Tidal_Volume"] =
                 &BiogearsThread::GetRightLungTidalVolume;
 
+        nodePathTable["Respiratory_PulmonaryResistance"] = &BiogearsThread::GetPulmonaryResistance;
 
         nodePathTable["Respiratory_RightAlveoli_BaseCompliance"] =
                 &BiogearsThread::GetRightAlveoliBaselineCompliance;
@@ -843,6 +844,10 @@ namespace AMM {
 
     double BiogearsThread::GetRespiratoryTotalPressure() {
         return carina->GetSubstanceQuantity(*CO2)->GetPartialPressure(biogears::PressureUnit::cmH2O);
+    }
+
+    double BiogearsThread::GetPulmonaryResistance() {
+        return m_pe->GetRespiratorySystem()->GetPulmonaryResistance(biogears::FlowResistanceUnit::cmH2O_s_Per_L);
     }
 
     double BiogearsThread::GetRawRespirationRate() {
