@@ -4,7 +4,6 @@
       <participant profile_name="amm_participant">
          <rtps>
             <name>AMM_PhysiologyEngine_Manager</name>
-            <participantID>15</participantID>
          </rtps>
       </participant>
       <publisher profile_name="amm_publisher" is_default_profile="true">
