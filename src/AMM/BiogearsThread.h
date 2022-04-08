@@ -92,6 +92,7 @@
 #include <biogears/cdm/patient/assessments/SEComprehensiveMetabolicPanel.h>
 #include <biogears/cdm/patient/assessments/SEPulmonaryFunctionTest.h>
 #include <biogears/cdm/patient/assessments/SEUrinalysis.h>
+#include <biogears/cdm/patient/assessments/SEArterialBloodGasAnalysis.h>
 #include <biogears/cdm/substance/SESubstanceCompound.h>
 #include <biogears/cdm/system/physiology/SEDrugSystem.h>
 #include <biogears/cdm/system/physiology/SEEnergySystem.h>
@@ -372,7 +373,11 @@ namespace AMM {
 
         double GetBicarbonate();
 
+        double GetBicarbonateRaw();
+
         double GetBaseExcess();
+
+        double GetBaseExcessRaw();
 
         double GetCO2();
 

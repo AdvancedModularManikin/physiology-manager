@@ -181,6 +181,8 @@ namespace AMM {
         nodePathTable["Substance_Bicarbonate_Concentration"] =
                 &BiogearsThread::GetBicarbonateConcentration;
         nodePathTable["Substance_BaseExcess"] = &BiogearsThread::GetBaseExcess;
+        nodePathTable["Substance_BaseExcess_RAW"] = &BiogearsThread::GetBaseExcessRaw;
+        nodePathTable["Substance_Bicarbonate_RAW"] = &BiogearsThread::GetBicarbonateRaw;
         nodePathTable["Substance_Glucose_Concentration"] = &BiogearsThread::GetGlucoseConcentration;
         nodePathTable["Substance_Creatinine_Concentration"] =
                 &BiogearsThread::GetCreatinineConcentration;
@@ -364,6 +366,8 @@ namespace AMM {
                     BGE::PulmonaryCompartment::Trachea, *CO2, "PartialPressure");
             m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
                     BGE::PulmonaryCompartment::Trachea, "Pressure", biogears::PressureUnit::cmH2O);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "BaseExcess", biogears::AmountPerVolumeUnit::mmol_Per_L);
             m_pe->GetEngineTrack()->GetDataRequestManager().SetResultsFilename(logFilename);
         }
 
@@ -482,6 +486,8 @@ namespace AMM {
                     BGE::PulmonaryCompartment::Trachea, *CO2, "PartialPressure");
             m_pe->GetEngineTrack()->GetDataRequestManager().CreateGasCompartmentDataRequest().Set(
                     BGE::PulmonaryCompartment::Trachea, "Pressure", biogears::PressureUnit::cmH2O);
+            m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
+                    "BaseExcess", biogears::AmountPerVolumeUnit::mmol_Per_L);
             m_pe->GetEngineTrack()->GetDataRequestManager().SetResultsFilename(logFilename);
         }
 
@@ -1038,6 +1044,20 @@ namespace AMM {
 // BE - Base Excess -
     double BiogearsThread::GetBaseExcess() {
         return (0.93 * GetBicarbonate()) + (13.77 * GetBloodPH()) - 124.58;
+    }
+
+    double BiogearsThread::GetBaseExcessRaw() {
+            biogears::SEArterialBloodGasAnalysis abga;
+            m_pe->GetPatientAssessment(abga);
+            biogears::SEScalarAmountPerVolume be = abga.GetBaseExcess();
+            return be.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
+    }
+
+    double BiogearsThread::GetBicarbonateRaw() {
+        biogears::SEArterialBloodGasAnalysis abga;
+        m_pe->GetPatientAssessment(abga);
+        biogears::SEScalarAmountPerVolume bc = abga.GetStandardBicarbonate();
+        return bc.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
     }
 
     double BiogearsThread::GetCO2() {
