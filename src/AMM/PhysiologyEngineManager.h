@@ -12,6 +12,8 @@
 
 #include "BiogearsThread.h"
 
+using namespace tinyxml2;
+
 namespace AMM {
     class BiogearsThread;
 
@@ -74,6 +76,15 @@ namespace AMM {
         bool running = false;
         int lastFrame = 0;
         bool logging_enabled = false;
+        bool moduleEnabled = true;
+
+        void OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info);
+
+        void ParseXML(std::string &xmlConfig);
+
+        void ReadConfig(XMLElement *_root);
+
+        void ReadCapabilities(XMLElement *_root);
 
         void OnNewTick(AMM::Tick &ti, SampleInfo_t *info);
 

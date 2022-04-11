@@ -2,6 +2,7 @@
 
 using namespace std;
 using namespace std::chrono;
+using namespace tinyxml2;
 
 std::string get_filename_date(void) {
     time_t now;
@@ -18,9 +19,12 @@ std::string get_filename_date(void) {
     return std::string(the_date);
 }
 
+std::map <std::string, std::string> config;
+
 namespace AMM {
     PhysiologyEngineManager::PhysiologyEngineManager() {
         static plog::ColorConsoleAppender <plog::TxtFormatter> consoleAppender;
+
 
         stateFile = "./states/StandardMale@0s.xml";
         patientFile = "./patients/StandardMale.xml";
@@ -56,6 +60,7 @@ namespace AMM {
         m_mgr->CreateCommandSubscriber(this, &AMM::PhysiologyEngineManager::OnNewCommand);
         m_mgr->CreatePhysiologyModificationSubscriber(this, &AMM::PhysiologyEngineManager::OnNewPhysiologyModification);
         m_mgr->CreateInstrumentDataSubscriber(this, &AMM::PhysiologyEngineManager::OnNewInstrumentData);
+        m_mgr->CreateModuleConfigurationSubscriber(this, &AMM::PhysiologyEngineManager::OnNewModuleConfiguration);
 
         m_uuid.id(m_mgr->GenerateUuidString());
 
@@ -684,6 +689,87 @@ namespace AMM {
             }
         } else {
             LOG_DEBUG << "Unknown command received: " << cm.message();
+        }
+    }
+
+    void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info) {
+        if (mc.name() == "physiology_engine") {
+            ParseXML(mc.capabilities_configuration());
+        }
+
+        auto it = config.find("state_file");
+        if (it != config.end()) {
+            LOG_INFO << "(find) state_file is " << it->second;
+        } else {
+            // doesn't exist
+        }
+
+        // will segfault if setting1 doesn't exist
+        LOG_INFO << "(direct) state_file is " << config["state_file"];
+    }
+
+    void PhysiologyEngineManager::ParseXML(std::string &xmlConfig) {
+        LOG_INFO << "Loading XML config from string...";
+        XMLDocument doc;
+        doc.Parse(xmlConfig.c_str());
+        XMLElement *root = doc.RootElement();
+
+        if (strcasecmp(root->Value(), "AMMModuleConfiguration") == 0) {
+            ReadCapabilities(root);
+        } else {
+            XMLElement *config = root->FirstChildElement("configuration_data");
+            if (config != nullptr)
+                ReadConfig(config);
+            else LOG_WARNING << "No configuration_data found";
+        }
+    }
+
+    void PhysiologyEngineManager::ReadConfig(XMLElement *_root) {
+        // Grab the first data element
+        XMLElement *node = _root->FirstChildElement("data");
+
+        string tempName = "";
+        string tempValue = "";
+
+        while (node) {
+            tempName = "";
+            tempValue = "";
+
+            if (node->Attribute("name"))
+                tempName = node->Attribute("name");
+
+            if (node->Attribute("value"))
+                tempValue = node->Attribute("value");
+
+            config[tempName] = tempValue;
+
+            // move to the next node
+            node = node->NextSiblingElement();
+        }
+    }
+
+    void PhysiologyEngineManager::ReadCapabilities(XMLElement *_root) {
+        XMLElement *ele = _root->FirstChildElement("capabilities")->FirstChildElement("capability");
+
+        if (ele != nullptr) {
+            // const char *capabilityType = ele->Attribute("type");
+            const char *capEnabled = ele->Attribute("enabled");
+            if (capEnabled != nullptr) {
+                if (strcasecmp(capEnabled, "false") == 0) {
+                    LOG_INFO << "Module is explicitly disabled";
+                    moduleEnabled = false;
+                } else {
+                    LOG_INFO << "Module is enabled";
+                    moduleEnabled = true;
+                }
+            }
+
+            XMLElement *config = ele->FirstChildElement("configuration_data");
+            if (config != nullptr)
+                ReadConfig(config);
+            else LOG_WARNING << "No configuration_data found";
+        } else {
+            LOG_WARNING << "No capabilities found.";
         }
     }
 

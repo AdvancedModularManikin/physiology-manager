@@ -359,6 +359,8 @@ namespace AMM {
 
         double GetRawBloodPH();
 
+        double GetModBloodPH();
+
         double GetBloodPH();
 
         double GetArterialCarbonDioxidePressure();

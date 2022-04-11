@@ -162,7 +162,7 @@ namespace AMM {
         nodePathTable["BloodChemistry_CarbonMonoxide_Saturation"] = &BiogearsThread::GetCarbonMonoxideSaturation;
         nodePathTable["BloodChemistry_Hemaocrit"] = &BiogearsThread::GetHematocrit;
         nodePathTable["BloodChemistry_BloodPH_RAW"] = &BiogearsThread::GetRawBloodPH;
-        nodePathTable["BloodChemistry_BloodPH_MOD"] = &BiogearsThread::GetBloodPH;
+        nodePathTable["BloodChemistry_BloodPH_MOD"] = &BiogearsThread::GetModBloodPH;
         nodePathTable["BloodChemistry_BloodPH"] = &BiogearsThread::GetRawBloodPH;
         nodePathTable["BloodChemistry_Arterial_CarbonDioxide_Pressure"] =
                 &BiogearsThread::GetArterialCarbonDioxidePressure;
@@ -1002,6 +1002,10 @@ namespace AMM {
         return rawBloodPH;
     }
 
+    double BiogearsThread::GetModBloodPH() {
+        return GetRawBloodPH() + 0.2 - 0.2 * sqrt(lactateMMOL);
+    }
+
     double BiogearsThread::GetIntracranialPressure() {
         return m_pe->GetCardiovascularSystem()->GetIntracranialPressure(biogears::PressureUnit::mmHg);
     }
@@ -1043,7 +1047,7 @@ namespace AMM {
 
 // BE - Base Excess -
     double BiogearsThread::GetBaseExcess() {
-        return (0.93 * GetBicarbonate()) + (13.77 * GetBloodPH()) - 124.58;
+        return (0.93 * GetBicarbonate()) + (13.77 * GetModBloodPH()) - 124.58;
     }
 
     double BiogearsThread::GetBaseExcessRaw() {
