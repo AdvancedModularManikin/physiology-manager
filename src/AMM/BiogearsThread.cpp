@@ -163,7 +163,7 @@ namespace AMM {
         nodePathTable["BloodChemistry_Hemaocrit"] = &BiogearsThread::GetHematocrit;
         nodePathTable["BloodChemistry_BloodPH_RAW"] = &BiogearsThread::GetRawBloodPH;
         nodePathTable["BloodChemistry_BloodPH_MOD"] = &BiogearsThread::GetModBloodPH;
-        nodePathTable["BloodChemistry_BloodPH"] = &BiogearsThread::GetRawBloodPH;
+        nodePathTable["BloodChemistry_BloodPH"] = &BiogearsThread::GetModBloodPH;
         nodePathTable["BloodChemistry_Arterial_CarbonDioxide_Pressure"] =
                 &BiogearsThread::GetArterialCarbonDioxidePressure;
         nodePathTable["BloodChemistry_Arterial_Oxygen_Pressure"] =
