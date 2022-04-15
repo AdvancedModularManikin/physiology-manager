@@ -694,20 +694,29 @@ namespace AMM {
 
     void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info) {
         if (mc.name() == "physiology_engine") {
+            LOAD_DEBUG << "Entering ModuleConfiguration for physiology engine.";
             ParseXML(mc.capabilities_configuration());
-        } else {
-            return;
+            auto it = config.find("state_file");
+            if (it != config.end()) {
+                LOG_INFO << "(find) state_file is " << it->second;
+                if (running || m_pe != nullptr) {
+                    LOG_INFO << "Loading state, but shutting down existing sim and physiology engine thread first.";
+                    StopTickSimulation();
+                }
+                authoringMode = false;
+                LOG_INFO << "Loading state.  Setting state file to " << it->second;
+                std::string holdStateFile = stateFile;
+                stateFile = "./states/" + it->second;
+                std::ifstream infile(stateFile);
+                if (!infile.good()) {
+                    LOG_ERROR << "State file does not exist: " << stateFile;
+                    stateFile = holdStateFile;
+                    LOG_ERROR << "Returning to last good state: " << stateFile;
+                }
+                infile.close();
+                InitializeBiogears();
+            }
         }
-
-        auto it = config.find("state_file");
-        if (it != config.end()) {
-            LOG_INFO << "(find) state_file is " << it->second;
-        } else {
-            // doesn't exist
-        }
-
-        // will segfault if setting1 doesn't exist
-        LOG_INFO << "(direct) state_file is " << config["state_file"];
     }
 
     void PhysiologyEngineManager::ParseXML(std::string &xmlConfig) {
