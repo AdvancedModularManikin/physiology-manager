@@ -694,7 +694,7 @@ namespace AMM {
 
     void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info) {
         if (mc.name() == "physiology_engine") {
-            LOAD_DEBUG << "Entering ModuleConfiguration for physiology engine.";
+            LOG_DEBUG << "Entering ModuleConfiguration for physiology engine.";
             ParseXML(mc.capabilities_configuration());
             auto it = config.find("state_file");
             if (it != config.end()) {
