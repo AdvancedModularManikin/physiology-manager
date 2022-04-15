@@ -695,6 +695,8 @@ namespace AMM {
     void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info) {
         if (mc.name() == "physiology_engine") {
             ParseXML(mc.capabilities_configuration());
+        } else {
+            return;
         }
 
         auto it = config.find("state_file");
