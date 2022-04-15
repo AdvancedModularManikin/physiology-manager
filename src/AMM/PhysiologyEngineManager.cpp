@@ -192,58 +192,59 @@ namespace AMM {
 
             while (pRoot) {
                 std::string pmType = pRoot->ToElement()->Attribute("type");
+                boost::algorithm::to_lower(pmType);
                 LOG_INFO << "Physmod type " << pmType;
 
-                if (pmType == "AcuteStress") {
+                if (pmType == "acutestress") {
 
-                } else if (pmType == "AirwayObstruction") {
+                } else if (pmType == "airwayobstruction") {
                     double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
                     m_pe->SetAirwayObstruction(pSev);
                     return;
-                } else if (pmType == "Apnea") {
-                } else if (pmType == "AsthmaAttack") {
+                } else if (pmType == "apnea") {
+                } else if (pmType == "asthmaattack") {
                     double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
                     m_pe->SetAsthmaAttack(pSev);
                     return;
-                } else if (pmType == "BrainInjury") {
+                } else if (pmType == "braininjury") {
                     double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
                     std::string pType = pRoot->FirstChildElement("Type")->ToElement()->GetText();
                     m_pe->SetBrainInjury(pSev, pType);
                     return;
-                } else if (pmType == "Bronchoconstriction") {
-                } else if (pmType == "Burn") {
-                } else if (pmType == "CardiacArrest") {
-                } else if (pmType == "ChestCompression") {
-                } else if (pmType == "ConsciousRespiration") {
-                } else if (pmType == "ConsumeNutrients") {
-                } else if (pmType == "Exercise") {
-                } else if (pmType == "Hemorrhage") {
+                } else if (pmType == "bronchoconstriction") {
+                } else if (pmType == "burn") {
+                } else if (pmType == "bardiacarrest") {
+                } else if (pmType == "chestcompression") {
+                } else if (pmType == "consciousrespiration") {
+                } else if (pmType == "consumenutrients") {
+                } else if (pmType == "exercise") {
+                } else if (pmType == "hemorrhage") {
                     std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
                     tinyxml2::XMLElement *pFlow = pRoot->FirstChildElement("Flow")->ToElement();
                     double flow = stod(pFlow->GetText());
                     std::string flowUnit = pFlow->Attribute("unit");
                     m_pe->SetHemorrhage(pLoc, flow);
                     return;
-                } else if (pmType == "Infection") {
-                } else if (pmType == "Intubation") {
-                } else if (pmType == "MechanicalVentilation") {
-                } else if (pmType == "NeedleDecompression") {
+                } else if (pmType == "infection") {
+                } else if (pmType == "intubation") {
+                } else if (pmType == "mechanicalventilation") {
+                } else if (pmType == "needledecompression") {
                     std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
                     m_pe->SetNeedleDecompression(pLoc);
                     return;
-                } else if (pmType == "OcclusiveDressing") {
-                } else if (pmType == "PainStimulus") {
+                } else if (pmType == "occlusivedressing") {
+                } else if (pmType == "painstimulus") {
                     double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
                     std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
                     m_pe->SetPain(pLoc, pSev);
                     return;
-                } else if (pmType == "PericardialEffusion") {
-                } else if (pmType == "Sepsis") {
+                } else if (pmType == "pericardialeffusion") {
+                } else if (pmType == "sepsis") {
                     double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
                     std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
                     m_pe->SetSepsis(pLoc, pSev);
                     return;
-                } else if (pmType == "SubstanceBolus") {
+                } else if (pmType == "substancebolus") {
                     std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
 
                     tinyxml2::XMLElement *pConc = pRoot->FirstChildElement("Concentration")->ToElement();
@@ -271,7 +272,7 @@ namespace AMM {
                     m_pe->SetSubstanceBolus(pSub, concentration, cUnit, dose, dUnit, adminRoute);
 
                     return;
-                } else if (pmType == "SubstanceCompoundInfusion") {
+                } else if (pmType == "substancecompoundinfusion") {
                     std::string pSub = pRoot->FirstChildElement("SubstanceCompound")->ToElement()->GetText();
 
                     tinyxml2::XMLElement *pVol = pRoot->FirstChildElement("BagVolume")->ToElement();
@@ -294,7 +295,7 @@ namespace AMM {
 
                     m_pe->SetSubstanceCompoundInfusion(pSub, bagVolume, bvUnit, rate, rUnit);
                     return;
-                } else if (pmType == "SubstanceInfusion") {
+                } else if (pmType == "substanceinfusion") {
                     std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
 
                     tinyxml2::XMLElement *pConc = pRoot->FirstChildElement("Concentration")->ToElement();
@@ -316,7 +317,7 @@ namespace AMM {
                     std::string rUnit = pRate->Attribute("unit");
                     m_pe->SetSubstanceInfusion(pSub, concentration, cUnit, rate, rUnit);
                     return;
-                } else if (pmType == "SubstanceNasalDose") {
+                } else if (pmType == "substancenasaldose") {
                     std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
 
                     tinyxml2::XMLElement *pDose = pRoot->FirstChildElement("Dose")->ToElement();
@@ -330,10 +331,12 @@ namespace AMM {
 
                     m_pe->SetSubstanceNasalDose(pSub, dose, dUnit);
                     return;
-                } else if (pmType == "TensionPneumothorax") {
-                } else if (pmType == "Urinate") {
+                } else if (pmType == "tensionpneumothorax") {
+                } else if (pmType == "urinate") {
+                } else {
+                    LOG_INFO << "Unknown phys mod type: " << pmType;
+                    return;
                 }
-
             }
         } else {
             LOG_ERROR << "Document parsing error, ID: " << doc.ErrorID();
