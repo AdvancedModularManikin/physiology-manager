@@ -1,34 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CapabilitiesSchema xmlns="urn:AdvancedModularManikin"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="urn:AdvancedModularManikin schema/CapabilitiesSchema.xsd">
-   <Capability type="control_sim">
-      <Subscriptions>
-         <ModuleConfiguration/>
-         <SimulationControl/>
-      </Subscriptions>
-      <Publications>
-         <OperationalDescription/>
-         <ModuleConfiguration/>
-         <SimulationControl/>
-      </Publications>
-   </Capability>
-   <Configuration>
-      <Capability type="control_sim">
-         <!-- Minimal example showing a simple 'enable' flag -->
-         <xs:schema targetNamespace="urn:AdvancedModularManikin"
-                    xmlns="urn:AdvancedModularManikin"
-                    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-                    elementFormDefault="qualified">
-            <xs:element name="enable" type="xs:boolean" default="true">
-               <xs:annotation>
-                  <xs:appinfo>Usage:</xs:appinfo>
-                  <xs:documentation xml:lang="en">
-                     Enable control of simulation
-                  </xs:documentation>
-               </xs:annotation>
-            </xs:element>
-         </xs:schema>
-      </Capability>
-   </Configuration>
-</CapabilitiesSchema>
+<AMMModuleConfiguration xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <module name="physiology_engine" manufacturer="Vcom3D" model="BG-7.5.0" serial_number="0" module_version="1.2.0">
+      <capabilities>
+         <capability name="physiology_engine" required="true" enabled="true">
+            <published_topics>
+               <PhysiologyValue/>
+               <PhysiologyWaveForm/>
+               <RenderModification/>
+            </published_topics>
+            <subscribed_topics>
+               <Command/>
+               <SimulationControl/>
+               <PhysiologyModification/>
+            </subscribed_topics>
+            <configuration_data>
+               <data name="state_file" type="string" default="StandardMale@0s.xml"/>
+            </configuration_data>
+         </capability>
+      </capabilities>
+   </module>
+</AMMModuleConfiguration>

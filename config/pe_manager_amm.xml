@@ -1,53 +1,54 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <dds xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
-   <profiles>
-      <participant profile_name="amm_participant">
-         <rtps>
-            <name>AMM_PhysiologyEngine_Manager</name>
-         </rtps>
-      </participant>
-      <publisher profile_name="amm_publisher" is_default_profile="true">
-         <qos> <!-- readerQosPoliciesType -->
-            <durability>
-               <kind>VOLATILE</kind>
-            </durability>
+    <profiles>
+        <participant profile_name="amm_participant">
+            <domainId>1</domainId>
+            <rtps>
+                <name>AMM_PhysiologyEngine_Manager</name>
+            </rtps>
+        </participant>
+        <publisher profile_name="amm_publisher" is_default_profile="true">
+            <qos> <!-- readerQosPoliciesType -->
+                <durability>
+                    <kind>VOLATILE</kind>
+                </durability>
 
-            <liveliness>
-               <kind>AUTOMATIC</kind>
+                <liveliness>
+                    <kind>AUTOMATIC</kind>
 
-               <lease_duration>
-                  <sec>1</sec>
-               </lease_duration>
+                    <lease_duration>
+                        <sec>1</sec>
+                    </lease_duration>
 
-               <announcement_period>
-                  <sec>1</sec>
-               </announcement_period>
-            </liveliness>
+                    <announcement_period>
+                        <sec>1</sec>
+                    </announcement_period>
+                </liveliness>
 
-            <reliability>
-               <kind>BEST_EFFORT</kind>
-            </reliability>
+                <reliability>
+                    <kind>BEST_EFFORT</kind>
+                </reliability>
 
-            <deadline>
-               <period>
-                  <sec>1</sec>
-               </period>
-            </deadline>
+                <deadline>
+                    <period>
+                        <sec>1</sec>
+                    </period>
+                </deadline>
 
-            <lifespan>
-               <duration>
-                  <sec>1</sec>
-               </duration>
-            </lifespan>
+                <lifespan>
+                    <duration>
+                        <sec>1</sec>
+                    </duration>
+                </lifespan>
 
-            <disablePositiveAcks>
-               <enabled>true</enabled>
-            </disablePositiveAcks>
-         </qos>
-      </publisher>
+                <disablePositiveAcks>
+                    <enabled>true</enabled>
+                </disablePositiveAcks>
+            </qos>
+        </publisher>
 
-      <subscriber profile_name="amm_subscriber">
-         <!-- ... -->
-      </subscriber>
-   </profiles>
+        <subscriber profile_name="amm_subscriber">
+
+        </subscriber>
+    </profiles>
 </dds>
