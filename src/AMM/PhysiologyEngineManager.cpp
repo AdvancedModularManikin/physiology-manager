@@ -547,7 +547,11 @@ namespace AMM {
                 return;
             }
             LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
-            ExecutePhysiologyModification(pm.data());
+            try {
+                ExecutePhysiologyModification(pm.data());
+            }  catch (std::exception &e) {
+                LOG_ERROR << "Unable to apply physiology modification: " << e.what();
+            }
         }
     }
 
