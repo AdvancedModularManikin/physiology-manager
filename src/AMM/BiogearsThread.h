@@ -310,7 +310,9 @@ namespace AMM {
 
         double GetEndTidalCarbonDioxideFraction();
 
-        double GetOxygenSaturation();
+	double GetEndTidalCarbonDioxidePressure();
+
+	double GetOxygenSaturation();
 
         double GetCarbonMonoxideSaturation();
 
