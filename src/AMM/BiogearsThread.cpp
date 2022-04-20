@@ -2,7 +2,6 @@
 
 using namespace biogears;
 
-
 namespace AMM {
     class EventHandler : public SEEventHandler {
     public:
@@ -124,6 +123,8 @@ namespace AMM {
                 &BiogearsThread::GetInspiratoryFlow;
         nodePathTable["Respiratory_TotalPressure"] = &BiogearsThread::GetRespiratoryTotalPressure;
         nodePathTable["Respiration_EndTidalCarbonDioxide"] =
+                &BiogearsThread::GetEndTidalCarbonDioxidePressure;
+        nodePathTable["Respiration_EndTidalCarbonDioxideFraction"] =
                 &BiogearsThread::GetEndTidalCarbonDioxideFraction;
         nodePathTable["Respiratory_Tidal_Volume"] = &BiogearsThread::GetTidalVolume;
         nodePathTable["Respiratory_LungTotal_Volume"] = &BiogearsThread::GetTotalLungVolume;
@@ -828,10 +829,15 @@ namespace AMM {
                 biogears::PressureUnit::mmHg);
     }
 
-// MCO2 - End Tidal Carbon Dioxide Fraction - unitless %
+// MCO2 - End Tidal Carbon Dioxide Fraction - unitless % roughly scaled to mmHg
     double BiogearsThread::GetEndTidalCarbonDioxideFraction() {
         return (m_pe->GetRespiratorySystem()->GetEndTidalCarbonDioxideFraction() * 762);
 
+    }
+
+// EtCO2 - End-Tidal Carbon Dioxide - mmHg
+    double BiogearsThread::GetEndTidalCarbonDioxidePressure() {
+        return m_pe->GetRespiratorySystem()->GetEndTidalCarbonDioxidePressure(biogears::PressureUnit::mmHg);
     }
 
 // SPO2 - Oxygen Saturation - unitless %
