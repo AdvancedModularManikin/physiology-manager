@@ -1678,7 +1678,7 @@ namespace AMM {
                 } else if (kvp_k == "TidalVolume") {
                     // empty
                 } else if (kvp_k == "VentilatorPressure") {
-                    config.GetVentilatorPressure().SetValue(kvp_v * 100, biogears::PressureUnit::cmH2O);
+                    config.GetVentilatorPressure().SetValue(kvp_v, biogears::PressureUnit::cmH2O);
                 } else if (kvp_k == " ") {
                     // empty
                 } else {
@@ -1734,7 +1734,7 @@ namespace AMM {
                 } else if (kvp_k == "TidalVolume") {
                     // empty
                 } else if (kvp_k == "VentilatorPressure") {
-                    config.GetVentilatorPressure().SetValue(kvp_v * 100, biogears::PressureUnit::cmH2O);
+                    config.GetVentilatorPressure().SetValue(kvp_v, biogears::PressureUnit::cmH2O);
                 } else if (kvp_k == " ") {
                     // empty
                 } else {

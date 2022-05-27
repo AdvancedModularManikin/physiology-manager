@@ -706,10 +706,7 @@ namespace AMM {
             auto it = config.find("state_file");
             if (it != config.end()) {
                 LOG_INFO << "(find) state_file is " << it->second;
-                if (running || m_pe != nullptr) {
-                    LOG_INFO << "Loading state, but shutting down existing sim and physiology engine thread first.";
-                    StopTickSimulation();
-                }
+                StopTickSimulation();
                 authoringMode = false;
                 LOG_INFO << "Loading state.  Setting state file to " << it->second;
                 std::string holdStateFile = stateFile;
