@@ -773,7 +773,8 @@ namespace AMM {
     }
 
     double BiogearsThread::GetPatientTime() {
-        return m_pe->GetSimulationTime(biogears::TimeUnit::s);
+        return 0.0;
+        // return m_pe->GetSimulationTime(biogears::TimeUnit::s);
     }
 
     double BiogearsThread::GetNodePath(const std::string &nodePath) {
