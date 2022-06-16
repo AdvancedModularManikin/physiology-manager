@@ -220,9 +220,11 @@ namespace AMM {
                 } else if (pmType == "exercise") {
                 } else if (pmType == "hemorrhage") {
                     std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
+                    LOG_TRACE << "Location is " << pLoc;
                     tinyxml2::XMLElement *pFlow = pRoot->FirstChildElement("Flow")->ToElement();
                     double flow = stod(pFlow->GetText());
-                    std::string flowUnit = pFlow->Attribute("unit");
+                    LOG_TRACE << "Flow is " << flow;
+                    // std::string flowUnit = pFlow->Attribute("unit");
                     m_pe->SetHemorrhage(pLoc, flow);
                     return;
                 } else if (pmType == "infection") {
@@ -707,6 +709,13 @@ namespace AMM {
             if (it != config.end()) {
                 LOG_INFO << "(find) state_file is " << it->second;
                 StopTickSimulation();
+                
+                AMM::SimulationControl simControl;
+                auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+                simControl.timestamp(ms);
+                simControl.type(AMM::ControlType::RESET);
+                mgr->WriteSimulationControl(simControl);
+
                 authoringMode = false;
                 LOG_INFO << "Loading state.  Setting state file to " << it->second;
                 std::string holdStateFile = stateFile;
