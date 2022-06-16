@@ -709,7 +709,7 @@ namespace AMM {
             if (it != config.end()) {
                 LOG_INFO << "(find) state_file is " << it->second;
                 StopTickSimulation();
-                
+
                 AMM::SimulationControl simControl;
                 auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
                 simControl.timestamp(ms);
