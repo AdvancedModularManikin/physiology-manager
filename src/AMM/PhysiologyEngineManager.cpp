@@ -714,7 +714,7 @@ namespace AMM {
                 auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
                 simControl.timestamp(ms);
                 simControl.type(AMM::ControlType::RESET);
-                mgr->WriteSimulationControl(simControl);
+                m_mgr->WriteSimulationControl(simControl);
 
                 authoringMode = false;
                 LOG_INFO << "Loading state.  Setting state file to " << it->second;
