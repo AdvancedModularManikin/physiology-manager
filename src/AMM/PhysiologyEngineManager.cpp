@@ -551,7 +551,7 @@ namespace AMM {
             LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
             try {
                 ExecutePhysiologyModification(pm.data());
-            }  catch (std::exception &e) {
+            } catch (std::exception &e) {
                 LOG_ERROR << "Unable to apply physiology modification: " << e.what();
             }
         }
@@ -655,6 +655,20 @@ namespace AMM {
                 }
                 infile.close();
                 InitializeBiogears();
+            } else if (!value.compare(0, saveState.size(), saveState)) {
+                LOG_INFO << "Saving patient state: " << value.substr(saveState.size());
+                if (m_pe != nullptr) {
+                    std::ostringstream ss;
+                    double simTime = m_pe->GetSimulationTime();
+                    ss << value.substr(saveState.size()) << "@" << (int) std::round(simTime) << "s."
+                       << stateFilePrefix;
+                    LOG_INFO << "Saved state to " << ss.str();
+                    m_mutex.lock();
+                    m_pe->SaveState(ss.str());
+                    m_mutex.unlock();
+                } else {
+                    LOG_ERROR << "Simulation has not been run, no state to save.";
+                }
             } else if (!value.compare(0, loadScenarioFile.size(), loadScenarioFile)) {
                 if (running || m_pe != nullptr) {
                     LOG_INFO << "Loading state, but shutting down existing sim and physiology engine thread first.";
@@ -709,12 +723,6 @@ namespace AMM {
             if (it != config.end()) {
                 LOG_INFO << "(find) state_file is " << it->second;
                 StopTickSimulation();
-
-                AMM::SimulationControl simControl;
-                auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-                simControl.timestamp(ms);
-                simControl.type(AMM::ControlType::RESET);
-                m_mgr->WriteSimulationControl(simControl);
 
                 authoringMode = false;
                 LOG_INFO << "Loading state.  Setting state file to " << it->second;
