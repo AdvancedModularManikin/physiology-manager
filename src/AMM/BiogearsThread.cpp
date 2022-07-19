@@ -409,6 +409,13 @@ namespace AMM {
         }
         m_mutex.unlock();
 
+        //check for actions
+        LOG_INFO << "Iterating over action data" ;
+        m_mutex.lock();
+        
+
+        m_pe->GetStateData()
+
         LOG_DEBUG << "Preloading substances";
         // preload substances
         m_mutex.lock();
