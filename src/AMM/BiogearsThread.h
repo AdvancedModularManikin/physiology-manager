@@ -21,6 +21,10 @@
 // BioGears core
 #include <biogears/cdm/CommonDataModel.h>
 #include <biogears/engine/BioGearsPhysiologyEngine.h>
+#include <biogears/engine/Controller/BioGearsEngine.h>
+#include <biogears/engine/Controller/BioGears.h>
+
+
 
 #include <biogears/cdm/compartment/SECompartmentManager.h>
 #include <biogears/cdm/compartment/SECompartmentManager.h>
@@ -40,7 +44,6 @@
 #include <biogears/cdm/scenario/SEAdvanceTime.h>
 #include <biogears/cdm/properties/SEScalarTime.h>
 #include <biogears/cdm/Serializer.h>
-#include <biogears/engine/BioGearsPhysiologyEngine.h>
 
 
 #include <biogears/cdm/compartment/SECompartmentManager.h>
@@ -110,6 +113,7 @@
 #include <biogears/cdm/scenario/SEScenarioExec.h>
 
 #include "amm/Utility.h"
+#include "PhysiologyEngineManager.h"
 
 using namespace biogears;
 
@@ -473,6 +477,9 @@ namespace AMM {
     protected:
         std::mutex m_mutex;
         std::unique_ptr <biogears::PhysiologyEngine> m_pe;
+        std::unique_ptr <biogears::BioGears> m_bgePtr;
+        //biogears::SEPatientActionCollection actions = m_bgePtr->GetActions().GetPatientActions();
+        //std::unique_ptr m_bgePtr = dynamic_cast<BioGearsEngine*>(m_pe.get());
         // biogears::SEPatient m_patient;
 
         double thresh = 1.0;

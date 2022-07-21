@@ -319,7 +319,7 @@ namespace AMM {
 
         m_mutex.unlock();
 
-        startingBloodVolume = 5400.00;
+        startingBloodVolume = m_pe->GetCardiovascularSystem()->GetBloodVolume(biogears::VolumeUnit::mL);
         currentBloodVolume = startingBloodVolume;
 
         if (logging_enabled) {
@@ -412,9 +412,14 @@ namespace AMM {
         //check for actions
         LOG_INFO << "Iterating over action data" ;
         m_mutex.lock();
-        
 
-        m_pe->GetStateData()
+        //get state data
+        if (m_bgePtr->GetActions().GetPatientActions().HasLeftOpenTensionPneumothorax())  {
+            //configure message
+        }
+
+        m_mutex.unlock();
+
 
         LOG_DEBUG << "Preloading substances";
         // preload substances
