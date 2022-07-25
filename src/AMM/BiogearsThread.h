@@ -477,8 +477,9 @@ namespace AMM {
     protected:
         std::mutex m_mutex;
         std::unique_ptr <biogears::PhysiologyEngine> m_pe;
-        std::unique_ptr <biogears::BioGears> m_bgePtr;
-        //biogears::SEPatientActionCollection actions = m_bgePtr->GetActions().GetPatientActions();
+        biogears::BioGearsEngine *m_bge = dynamic_cast<biogears::BioGearsEngine*>(m_pe.get());
+        biogears::BioGears *m_bg = dynamic_cast<biogears::BioGears*>(m_bge);
+        //biogears::BioGears* m_bgePtr;
         //std::unique_ptr m_bgePtr = dynamic_cast<BioGearsEngine*>(m_pe.get());
         // biogears::SEPatient m_patient;
 

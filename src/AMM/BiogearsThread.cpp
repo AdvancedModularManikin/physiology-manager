@@ -388,7 +388,7 @@ namespace AMM {
             LOG_ERROR << "Unable to load state, Biogears has not been initialized.";
             return false;
         }
-
+        auto& actions = m_bg->GetActions().GetPatientActions();
         auto *startTime = new biogears::SEScalarTime();
         startTime->SetValue(sec, biogears::TimeUnit::s);
 
@@ -409,14 +409,27 @@ namespace AMM {
         }
         m_mutex.unlock();
 
-        //check for actions
+        //check for actions and send appropriate render mods 
+        AMM::RenderModification renderMod;
+
         LOG_INFO << "Iterating over action data" ;
         m_mutex.lock();
 
         //get state data
-        if (m_bgePtr->GetActions().GetPatientActions().HasLeftOpenTensionPneumothorax())  {
+        ///\todo: add other actions to this and determine how to handle mild/moderate/severe cases separately
+        // PNEUMOTHORAX
+        if (actions.HasLeftOpenTensionPneumothorax()) {
             //configure message
+        } else if (actions.HasLeftClosedTensionPneumothorax()) {
+
+        } else if (actions.HasRightOpenTensionPneumothorax()) {
+
+        } else if (actions.HasRightClosedTensionPneumothorax()) {
+
+        } else {
+            //clear
         }
+        
 
         m_mutex.unlock();
 
@@ -451,7 +464,7 @@ namespace AMM {
         bladder = m_pe->GetCompartments().GetLiquidCompartment(BGE::UrineCompartment::Bladder);
         m_mutex.unlock();
 
-        startingBloodVolume = 5400.00;
+        startingBloodVolume = m_pe->GetCardiovascularSystem()->GetBloodVolume(biogears::VolumeUnit::mL);
         currentBloodVolume = startingBloodVolume;
 
         if (logging_enabled) {
