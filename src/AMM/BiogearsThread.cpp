@@ -420,14 +420,19 @@ namespace AMM {
         // PNEUMOTHORAX
         if (actions.HasLeftOpenTensionPneumothorax()) {
             //configure message
+            renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
+            m_mgr->WriteRenderModification(renderMod);
         } else if (actions.HasLeftClosedTensionPneumothorax()) {
-
+            renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_L_SEVERE'/>");
+            m_mgr->WriteRenderModification(renderMod);
         } else if (actions.HasRightOpenTensionPneumothorax()) {
-
+            renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_R_SEVERE'/>");
+            m_mgr->WriteRenderModification(renderMod);
         } else if (actions.HasRightClosedTensionPneumothorax()) {
-
+            renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_R_SEVERE'/>");
+            m_mgr->WriteRenderModification(renderMod);
         } else {
-            //clear
+            LOG_INFO << "No active actions";
         }
         
 

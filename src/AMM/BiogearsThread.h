@@ -479,9 +479,14 @@ namespace AMM {
         std::unique_ptr <biogears::PhysiologyEngine> m_pe;
         biogears::BioGearsEngine *m_bge = dynamic_cast<biogears::BioGearsEngine*>(m_pe.get());
         biogears::BioGears *m_bg = dynamic_cast<biogears::BioGears*>(m_bge);
-        //biogears::BioGears* m_bgePtr;
-        //std::unique_ptr m_bgePtr = dynamic_cast<BioGearsEngine*>(m_pe.get());
         // biogears::SEPatient m_patient;
+
+        //AMM
+        AMM::UUID m_uuid;
+        std::string moduleName = "AMM_BioGearsThread";
+        std::string configFile = "config/pe_manager_amm.xml";
+        AMM::DDSManager<BiogearsThread> *m_mgr = new DDSManager<BiogearsThread>(configFile);
+
 
         double thresh = 1.0;
 
