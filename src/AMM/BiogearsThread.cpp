@@ -388,7 +388,10 @@ namespace AMM {
             LOG_ERROR << "Unable to load state, Biogears has not been initialized.";
             return false;
         }
-        auto& actions = m_bg->GetActions().GetPatientActions();
+        LOG_INFO << "We are in loadstate function";
+        auto* actions = new biogears::SEPatientActionCollection(m_pe->GetSubstanceManager());
+        //auto& actions = m_bg->GetActions().GetPatientActions();
+        LOG_INFO << "We have created our patient action object";
         auto *startTime = new biogears::SEScalarTime();
         startTime->SetValue(sec, biogears::TimeUnit::s);
 
@@ -418,17 +421,17 @@ namespace AMM {
         //get state data
         ///\todo: add other actions to this and determine how to handle mild/moderate/severe cases separately
         // PNEUMOTHORAX
-        if (actions.HasLeftOpenTensionPneumothorax()) {
+        if (actions->HasLeftOpenTensionPneumothorax()) {
             //configure message
             renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
             m_mgr->WriteRenderModification(renderMod);
-        } else if (actions.HasLeftClosedTensionPneumothorax()) {
+        } else if (actions->HasLeftClosedTensionPneumothorax()) {
             renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_L_SEVERE'/>");
             m_mgr->WriteRenderModification(renderMod);
-        } else if (actions.HasRightOpenTensionPneumothorax()) {
+        } else if (actions->HasRightOpenTensionPneumothorax()) {
             renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_R_SEVERE'/>");
             m_mgr->WriteRenderModification(renderMod);
-        } else if (actions.HasRightClosedTensionPneumothorax()) {
+        } else if (actions->HasRightClosedTensionPneumothorax()) {
             renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_R_SEVERE'/>");
             m_mgr->WriteRenderModification(renderMod);
         } else {
