@@ -389,7 +389,7 @@ namespace AMM {
             return false;
         }
         LOG_INFO << "We are in loadstate function";
-        auto* actions = new biogears::SEPatientActionCollection(m_pe->GetSubstanceManager());
+
         //auto& actions = m_bg->GetActions().GetPatientActions();
         LOG_INFO << "We have created our patient action object";
         auto *startTime = new biogears::SEScalarTime();
@@ -413,30 +413,39 @@ namespace AMM {
         m_mutex.unlock();
 
         //check for actions and send appropriate render mods 
+        //auto* actions = new biogears::SEPatientActionCollection(m_pe->GetSubstanceManager());
         AMM::RenderModification renderMod;
-
+        biogears::SEPatientActionCollection actions(m_pe->GetSubstanceManager());
         LOG_INFO << "Iterating over action data" ;
         m_mutex.lock();
-
         //get state data
         ///\todo: add other actions to this and determine how to handle mild/moderate/severe cases separately
         // PNEUMOTHORAX
-        if (actions->HasLeftOpenTensionPneumothorax()) {
+        if (actions.HasLeftClosedTensionPneumothorax()) {
             //configure message
             renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
             m_mgr->WriteRenderModification(renderMod);
-        } else if (actions->HasLeftClosedTensionPneumothorax()) {
+            LOG_INFO << "active actions";
+        }
+                // PNEUMOTHORAX
+        if (!actions.HasLeftClosedTensionPneumothorax()) {
+            //configure message
             renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_L_SEVERE'/>");
             m_mgr->WriteRenderModification(renderMod);
-        } else if (actions->HasRightOpenTensionPneumothorax()) {
-            renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_R_SEVERE'/>");
-            m_mgr->WriteRenderModification(renderMod);
-        } else if (actions->HasRightClosedTensionPneumothorax()) {
-            renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_R_SEVERE'/>");
-            m_mgr->WriteRenderModification(renderMod);
-        } else {
             LOG_INFO << "No active actions";
         }
+        // } else if (actions->HasLeftClosedTensionPneumothorax()) {
+        //     renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_L_SEVERE'/>");
+        //     m_mgr->WriteRenderModification(renderMod);
+        // } else if (actions->HasRightOpenTensionPneumothorax()) {
+        //     renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_R_SEVERE'/>");
+        //     m_mgr->WriteRenderModification(renderMod);
+        // } else if (actions->HasRightClosedTensionPneumothorax()) {
+        //     renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_R_SEVERE'/>");
+        //     m_mgr->WriteRenderModification(renderMod);
+        // } else {
+        //     LOG_INFO << "No active actions";
+        // }
         
 
         m_mutex.unlock();
