@@ -65,7 +65,7 @@ BiogearsThread::BiogearsThread(const std::string& logFile)
 {
   try {
     m_pe = std::make_unique<BioGearsEngine>("biogears.log");
-    auto biogears = dynamic_cast<BioGears*>(m_pe.get());
+    bg = dynamic_cast<BioGears*>(m_pe.get());
   } catch (std::exception& e) {
     LOG_ERROR << "Error starting engine: " << e.what();
   }
@@ -372,7 +372,7 @@ bool BiogearsThread::LoadState(const std::string& stateFile, double sec)
     return false;
   }
   LOG_INFO << "We are in loadstate function";
-  auto& patientactions = biogears->GetActions().GetPatientActions();
+  auto& patientactions = bg->GetActions().GetPatientActions();
   // auto& actions = m_bg->GetActions().GetPatientActions();
   LOG_INFO << "We have created our patient action object";
   auto* startTime = new biogears::SEScalarTime();
@@ -560,13 +560,13 @@ bool BiogearsThread::SaveState(const std::string& stateFile)
   return true;
 }
 
-bool BiogearsThread::Execute(std::function<std::unique_ptr<biogears::PhysiologyEngine>(
-                               std::unique_ptr<biogears::PhysiologyEngine>&&)>
-                               func)
-{
-  m_pe = func(std::move(m_pe));
-  return true;
-}
+// bool BiogearsThread::Execute(std::function<std::unique_ptr<biogears::PhysiologyEngine>(
+//                                std::unique_ptr<biogears::PhysiologyEngine>&&)>
+//                                func)
+// {
+//   m_pe = func(std::move(m_pe));
+//   return true;
+// }
 
 void BiogearsThread::SetLastFrame(int lF)
 {
