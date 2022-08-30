@@ -145,6 +145,10 @@ public:
 
   bool scenarioLoading = false;
 
+  bool InitializeBioGearsSubstances();
+
+  bool BioGearsLogging();
+
   void Shutdown();
 
   void StartSimulation();
@@ -152,6 +156,7 @@ public:
   void StopSimulation();
 
   void AdvanceTimeTick();
+
 
   double GetSimulationTime();
 
@@ -476,10 +481,6 @@ protected:
   std::unique_ptr<biogears::BioGearsEngine> m_pe;
   biogears::BioGears* bg;
   biogears::SEPatientActionCollection* action;
-  // std::unique_ptr <biogears::BioGears> m_bg;
-  // biogears::BioGearsEngine *m_bge = dynamic_cast<biogears::BioGearsEngine*>(m_pe.get());
-  // biogears::BioGears *m_bg = dynamic_cast<biogears::BioGears*>(m_pe.get());
-  //  biogears::SEPatient m_patient;
 
   // AMM
   AMM::UUID m_uuid;
