@@ -271,14 +271,21 @@ public:
   bool startOfExhale = false;
   bool startOfInhale = false;
   bool pneumothoraxLClosed = false;
+  bool pneumothoraxLClosedSent = false;
   bool pneumothoraxRClosed = false;
+  bool pneumothoraxRClosedSent = false;
   bool pneumothoraxLOpen = false;
+  bool pneumothoraxLOpenSent = false;
   bool pneumothoraxROpen = false;
+  bool pneumothoraxROpenSent = false;
   bool hemorrhage = false;
   bool hemorrhageSent = false;
   bool acuteStress = false;
+  bool acuteStressSent = false;
   bool asthmaAttack = false;
+  bool asthmaAttackSent = false;
   bool brainInjury = false; 
+  bool brainInjurySent = false;
   EventHandler* myEventHandler;
 
 private:
