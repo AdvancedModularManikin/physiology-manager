@@ -9,6 +9,15 @@ public:
   bool irreversible = false;
   bool startOfExhale = false;
   bool startOfInhale = false;
+  bool pneumothoraxLClosed = false;
+  bool pneumothoraxRClosed = false;
+  bool pneumothoraxLOpen = false;
+  bool pneumothoraxROpen = false;
+  bool hemorrhage = false;
+  bool acuteStress = false;
+  bool asthmaAttack = false;
+  bool brainInjury = false; 
+
 
   EventHandler(Logger* logger)
     : SEEventHandler()
@@ -370,31 +379,57 @@ bool BiogearsThread::LoadState(const std::string& stateFile, double sec)
   // PNEUMOTHORAX
   if (patientactions.HasLeftClosedTensionPneumothorax()) {
     // configure message
+    pneumothoraxLClosed = true;
+    renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_L_SEVERE'/>");
+    m_mgr->WriteRenderModification(renderMod);
+    LOG_INFO << "active actions";
+  }
+  if (patientactions.HasLeftOpenTensionPneumothorax()) {
+    // configure message
+    pneumothoraxLOpen = true;
     renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
+    m_mgr->WriteRenderModification(renderMod);
+    LOG_INFO << "active actions";
+  }
+  if (patientactions.HasRightClosedTensionPneumothorax()) {
+    // configure message
+    pneumothoraxRClosed = true;
+    renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_R_SEVERE'/>");
+    m_mgr->WriteRenderModification(renderMod);
+    LOG_INFO << "active actions";
+  }
+  if (patientactions.HasRightOpenTensionPneumothorax()) {
+    // configure message
+    pneumothoraxROpen = true;
+    renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_R_SEVERE'/>");
     m_mgr->WriteRenderModification(renderMod);
     LOG_INFO << "active actions";
   }
   if (patientactions.HasHemorrhage()) {
     // configure message
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
+    hemorrhage = true;
+    renderMod.data("<RenderModification type='HEMORRHAGE'/>");
     m_mgr->WriteRenderModification(renderMod);
     LOG_INFO << "hemorrhage actions";
   }
   if (patientactions.HasAcuteStress()) {
     // configure message
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
+    acuteStress = true;
+    renderMod.data("<RenderModification type='ACUTE_STRESS'/>");
     m_mgr->WriteRenderModification(renderMod);
     LOG_INFO << "stress actions";
   }
   if (patientactions.HasAsthmaAttack()) {
     // configure message
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
+    asthmaAttack = true;
+    renderMod.data("<RenderModification type='ASTHMA_ATTACK'/>");
     m_mgr->WriteRenderModification(renderMod);
     LOG_INFO << "Asthma actions";
   }
   if (patientactions.HasBrainInjury()) {
     // configure message
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
+    brainInjury = true;
+    renderMod.data("<RenderModification type='BRAIN_INJURY'/>");
     m_mgr->WriteRenderModification(renderMod);
     LOG_INFO << "brain actions";
   }

@@ -270,6 +270,15 @@ public:
   bool irreversibleSent = false;
   bool startOfExhale = false;
   bool startOfInhale = false;
+  bool pneumothoraxLClosed = false;
+  bool pneumothoraxRClosed = false;
+  bool pneumothoraxLOpen = false;
+  bool pneumothoraxROpen = false;
+  bool hemorrhage = false;
+  bool hemorrhageSent = false;
+  bool acuteStress = false;
+  bool asthmaAttack = false;
+  bool brainInjury = false; 
   EventHandler* myEventHandler;
 
 private:
