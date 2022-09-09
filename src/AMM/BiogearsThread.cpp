@@ -26,7 +26,7 @@ public:
   bool acuteStressSent = false;
   bool asthmaAttack = false;
   bool asthmaAttackSent = false;
-  bool brainInjury = false; 
+  bool brainInjury = false;
   bool brainInjurySent = false;
 
   EventHandler(Logger* logger)
@@ -114,6 +114,7 @@ BiogearsThread::~BiogearsThread()
 {
   running = false;
   m_pe = nullptr;
+  bg = nullptr;
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
@@ -253,9 +254,6 @@ void BiogearsThread::PopulateNodePathTable()
                          "Respiratory_Respiration_Rate" };
 }
 
-
-
-
 /**
  * @brief return 1 or 0 if logging is enabled or disabled
  *
@@ -328,8 +326,8 @@ bool BiogearsThread::LoadPatient(const std::string& patientFile)
     LOG_DEBUG << "Preloading substances";
   }
 
-  //logging
-  if (BioGearsLogging())  {
+  // logging
+  if (BioGearsLogging()) {
     LOG_DEBUG << "Set up logging";
   }
 
@@ -359,7 +357,6 @@ bool BiogearsThread::LoadState(const std::string& stateFile, double sec)
     LOG_ERROR << "Unable to load state, Biogears has not been initialized.";
     return false;
   }
-  auto& patientactions = bg->GetActions().GetPatientActions();
   LOG_INFO << "We have created our patient action object";
   auto* startTime = new biogears::SEScalarTime();
   startTime->SetValue(sec, biogears::TimeUnit::s);
@@ -379,90 +376,22 @@ bool BiogearsThread::LoadState(const std::string& stateFile, double sec)
     return false;
   }
   m_mutex.unlock();
+  auto& patientactions = bg->GetActions().GetPatientActions();
 
   // check for actions and send appropriate render mods
-  AMM::RenderModification renderMod;
   LOG_INFO << "Iterating over action data";
   m_mutex.lock();
   // get state data
   ///\todo: add other actions to this and determine how to handle mild/moderate/severe cases separately
   // PNEUMOTHORAX
-  if (patientactions.HasLeftClosedTensionPneumothorax()) {
-    // configure message
-    pneumothoraxLClosed = true;
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_L_SEVERE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    LOG_INFO << "active actions";
-  }
-  if (patientactions.HasLeftOpenTensionPneumothorax()) {
-    // configure message
-    pneumothoraxLOpen = true;
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    LOG_INFO << "active actions";
-  }
-  if (patientactions.HasRightClosedTensionPneumothorax()) {
-    // configure message
-    pneumothoraxRClosed = true;
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_R_SEVERE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    LOG_INFO << "active actions";
-  }
-  if (patientactions.HasRightOpenTensionPneumothorax()) {
-    // configure message
-    pneumothoraxROpen = true;
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_R_SEVERE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    LOG_INFO << "active actions";
-  }
-  if (patientactions.HasHemorrhage()) {
-    // configure message
-    hemorrhage = true;
-    renderMod.data("<RenderModification type='HEMORRHAGE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    LOG_INFO << "hemorrhage actions";
-  }
-  if (patientactions.HasAcuteStress()) {
-    // configure message
-    acuteStress = true;
-    renderMod.data("<RenderModification type='ACUTE_STRESS'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    LOG_INFO << "stress actions";
-  }
-  if (patientactions.HasAsthmaAttack()) {
-    // configure message
-    asthmaAttack = true;
-    renderMod.data("<RenderModification type='ASTHMA_ATTACK'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    LOG_INFO << "Asthma actions";
-  }
-  if (patientactions.HasBrainInjury()) {
-    // configure message
-    brainInjury = true;
-    renderMod.data("<RenderModification type='BRAIN_INJURY'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    LOG_INFO << "brain actions";
-  }
-  // PNEUMOTHORAX
-  if (!patientactions.HasLeftClosedTensionPneumothorax()) {
-    // configure message
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_L_SEVERE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    LOG_INFO << "No active actions";
-  }
-  // } else if (actions->HasLeftClosedTensionPneumothorax()) {
-  //     renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_L_SEVERE'/>");
-  //     m_mgr->WriteRenderModification(renderMod);
-  // } else if (actions->HasRightOpenTensionPneumothorax()) {
-  //     renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_R_SEVERE'/>");
-  //     m_mgr->WriteRenderModification(renderMod);
-  // } else if (actions->HasRightClosedTensionPneumothorax()) {
-  //     renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_R_SEVERE'/>");
-  //     m_mgr->WriteRenderModification(renderMod);
-  // } else {
-  //     LOG_INFO << "No active actions";
-  // }
-
+  pneumothoraxLClosed = patientactions.HasLeftClosedTensionPneumothorax();
+  pneumothoraxLOpen = patientactions.HasLeftOpenTensionPneumothorax();
+  pneumothoraxRClosed = patientactions.HasRightClosedTensionPneumothorax();
+  pneumothoraxROpen = patientactions.HasRightOpenTensionPneumothorax();
+  hemorrhage = patientactions.HasHemorrhage();
+  acuteStress = patientactions.HasAcuteStress();
+  asthmaAttack = patientactions.HasAsthmaAttack();
+  brainInjury = patientactions.HasBrainInjury();
   m_mutex.unlock();
 
   // preload substances
@@ -470,8 +399,8 @@ bool BiogearsThread::LoadState(const std::string& stateFile, double sec)
     LOG_DEBUG << "Preloading substances";
   }
 
-  //logging
-  if (BioGearsLogging())  {
+  // logging
+  if (BioGearsLogging()) {
     LOG_DEBUG << "Set up logging";
   }
 
@@ -607,10 +536,10 @@ bool BiogearsThread::LoadScenarioFile(const std::string& scenarioFile)
       LOG_DEBUG << "Preloading substances";
     }
 
-  //logging
-  if (BioGearsLogging())  {
-    LOG_DEBUG << "Set up logging";
-  }
+    // logging
+    if (BioGearsLogging()) {
+      LOG_DEBUG << "Set up logging";
+    }
 
     try {
       LOG_DEBUG << "Attaching event handler";
@@ -746,7 +675,7 @@ bool BiogearsThread::InitializeBioGearsSubstances()
 
 /**
  * @brief set up csv file for logging, uses a generic collection of data requests
- * 
+ *
  * @return true if successful
  * @return false if logging is not enabled
  */
