@@ -23,6 +23,9 @@
 #include <biogears/engine/BioGearsPhysiologyEngine.h>
 #include <biogears/engine/Controller/BioGearsEngine.h>
 #include <biogears/engine/Controller/BioGears.h>
+#include <biogears/engine/Controller/SEPatientActionCollection.h>
+#include <biogears/engine/Controller/SEActionManager.h>
+
 
 
 
@@ -476,7 +479,8 @@ namespace AMM {
 
     protected:
         std::mutex m_mutex;
-        std::unique_ptr <biogears::PhysiologyEngine> m_pe;
+        std::unique_ptr <biogears::BioGearsEngine> m_pe;
+        biogears::SEPatientActionCollection* action;
         //std::unique_ptr <biogears::BioGears> m_bg;
         //biogears::BioGearsEngine *m_bge = dynamic_cast<biogears::BioGearsEngine*>(m_pe.get());
         //biogears::BioGears *m_bg = dynamic_cast<biogears::BioGears*>(m_pe.get());
