@@ -1299,56 +1299,6 @@ void PhysiologyEngineManager::ProcessStates()
     m_mgr->WriteRenderModification(renderMod);
     m_pe->paralyzedSent = true;
   }
-
-    ///\todo: add other actions to this and determine how to handle mild/moderate/severe cases separately
-  if (m_pe->pneumothoraxLClosed && !m_pe->pneumothoraxLClosedSent) {
-    AMM::RenderModification renderMod;
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_L_SEVERE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    m_pe->pneumothoraxLClosedSent = true;
-  }
-  if (m_pe->pneumothoraxLOpen && !m_pe->pneumothoraxLOpenSent) {
-    AMM::RenderModification renderMod;
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    m_pe->pneumothoraxLOpenSent = true;
-  }
-  if (m_pe->pneumothoraxRClosed && !m_pe->pneumothoraxRClosedSent) {
-    AMM::RenderModification renderMod;
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_R_SEVERE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    m_pe->pneumothoraxRClosedSent = true;
-  }
-  if (m_pe->pneumothoraxROpen && !m_pe->pneumothoraxROpenSent) {
-    AMM::RenderModification renderMod;
-    renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_R_SEVERE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    m_pe->pneumothoraxROpenSent = true;
-  }
-  if (m_pe->hemorrhage && !m_pe->hemorrhageSent) {
-    AMM::RenderModification renderMod;
-    renderMod.data("<RenderModification type='HEMORRHAGE'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    m_pe->hemorrhageSent = true;
-  }
-  if (m_pe->acuteStress && m_pe->acuteStressSent) {
-    AMM::RenderModification renderMod;
-    renderMod.data("<RenderModification type='ACUTE_STRESS'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    m_pe->acuteStressSent = true;
-  }
-  if (m_pe->asthmaAttack && !m_pe->asthmaAttackSent) {
-    AMM::RenderModification renderMod;
-    renderMod.data("<RenderModification type='ASTHMA_ATTACK'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    m_pe->asthmaAttackSent = true;
-  }
-  if (m_pe->brainInjury && !m_pe->brainInjurySent) {
-    AMM::RenderModification renderMod;
-    renderMod.data("<RenderModification type='BRAIN_INJURY'/>");
-    m_mgr->WriteRenderModification(renderMod);
-    m_pe->brainInjurySent = true;
-  }
 }
 
 /**
