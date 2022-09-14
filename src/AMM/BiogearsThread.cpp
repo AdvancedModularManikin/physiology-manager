@@ -95,37 +95,23 @@ namespace AMM {
         nodePathTable["Patient_BodyFatFraction"] = &BiogearsThread::GetPatient_BodyFatFraction;
 
 
+#ifndef MINIMAL_PUB
         nodePathTable["GCS_Value"] = &BiogearsThread::GetGCSValue;
         nodePathTable["IntracranialPressure"] = &BiogearsThread::GetIntracranialPressure;
         nodePathTable["CerebralPerfusionPressure"] = &BiogearsThread::GetCerebralPerfusionPressure;
         nodePathTable["CerebralBloodFlow"] = &BiogearsThread::GetCerebralBloodFlow;
-
-        // Cardiovascular System
-        nodePathTable["Cardiovascular_HeartRate"] = &BiogearsThread::GetHeartRate;
-        nodePathTable["Cardiovascular_BloodVolume"] = &BiogearsThread::GetBloodVolume;
-        nodePathTable["Cardiovascular_BloodLossPercentage"] = &BiogearsThread::GetBloodLossPercentage;
-        nodePathTable["Cardiovascular_Arterial_Pressure"] = &BiogearsThread::GetArterialPressure;
-        nodePathTable["Cardiovascular_Arterial_Mean_Pressure"] =
-                &BiogearsThread::GetMeanArterialPressure;
-        nodePathTable["Cardiovascular_Arterial_Systolic_Pressure"] =
-                &BiogearsThread::GetArterialSystolicPressure;
-        nodePathTable["Cardiovascular_Arterial_Diastolic_Pressure"] =
-                &BiogearsThread::GetArterialDiastolicPressure;
-        nodePathTable["Cardiovascular_CentralVenous_Mean_Pressure"] =
-                &BiogearsThread::GetMeanCentralVenousPressure;
-        nodePathTable["Cardiovascular_CardiacOutput"] = &BiogearsThread::GetCardiacOutput;
-
-        //  Respiratory System
         nodePathTable["Respiratory_Respiration_Rate_RAW"] = &BiogearsThread::GetRawRespirationRate;
         nodePathTable["Respiratory_Respiration_Rate_MOD"] = &BiogearsThread::GetRespirationRate;
-        nodePathTable["Respiratory_Respiration_Rate"] = &BiogearsThread::GetRawRespirationRate;
-        nodePathTable["Respiratory_Inspiratory_Flow"] =
-                &BiogearsThread::GetInspiratoryFlow;
-        nodePathTable["Respiratory_TotalPressure"] = &BiogearsThread::GetRespiratoryTotalPressure;
-        nodePathTable["Respiration_EndTidalCarbonDioxide"] =
-                &BiogearsThread::GetEndTidalCarbonDioxidePressure;
-        nodePathTable["Respiration_EndTidalCarbonDioxideFraction"] =
-                &BiogearsThread::GetEndTidalCarbonDioxideFraction;
+        nodePathTable["BloodChemistry_WhiteBloodCell_Count"] =
+                &BiogearsThread::GetWhiteBloodCellCount;
+        nodePathTable["BloodChemistry_RedBloodCell_Count"] = &BiogearsThread::GetRedBloodCellCount;
+        nodePathTable["BloodChemistry_BloodUreaNitrogen_Concentration"] = &BiogearsThread::GetBUN;
+        nodePathTable["BloodChemistry_Oxygen_Saturation"] = &BiogearsThread::GetOxygenSaturation;
+        nodePathTable["BloodChemistry_CarbonMonoxide_Saturation"] = &BiogearsThread::GetCarbonMonoxideSaturation;
+        nodePathTable["BloodChemistry_Hemaocrit"] = &BiogearsThread::GetHematocrit;
+        nodePathTable["BloodChemistry_BloodPH_RAW"] = &BiogearsThread::GetRawBloodPH;
+        nodePathTable["BloodChemistry_BloodPH_MOD"] = &BiogearsThread::GetModBloodPH;
+
         nodePathTable["Respiratory_Tidal_Volume"] = &BiogearsThread::GetTidalVolume;
         nodePathTable["Respiratory_LungTotal_Volume"] = &BiogearsThread::GetTotalLungVolume;
         nodePathTable["Respiratory_LeftPleuralCavity_Volume"] =
@@ -136,44 +122,12 @@ namespace AMM {
         nodePathTable["Respiratory_RightPleuralCavity_Volume"] =
                 &BiogearsThread::GetRightPleuralCavityVolume;
         nodePathTable["Respiratory_RightLung_Volume"] = &BiogearsThread::GetRightLungVolume;
-
         nodePathTable["Respiratory_LeftLung_Tidal_Volume"] = &BiogearsThread::GetLeftLungTidalVolume;
         nodePathTable["Respiratory_RightLung_Tidal_Volume"] =
                 &BiogearsThread::GetRightLungTidalVolume;
-
         nodePathTable["Respiratory_PulmonaryResistance"] = &BiogearsThread::GetPulmonaryResistance;
-
         nodePathTable["Respiratory_RightAlveoli_BaseCompliance"] =
                 &BiogearsThread::GetRightAlveoliBaselineCompliance;
-        nodePathTable["Respiratory_CarbonDioxide_Exhaled"] = &BiogearsThread::GetExhaledCO2;
-
-        // Energy system
-        nodePathTable["Energy_Core_Temperature"] = &BiogearsThread::GetCoreTemperature;
-
-        // Nervous
-        nodePathTable["Nervous_GetPainVisualAnalogueScale"] =
-                &BiogearsThread::GetPainVisualAnalogueScale;
-
-        // Blood chemistry system
-        nodePathTable["BloodChemistry_WhiteBloodCell_Count"] =
-                &BiogearsThread::GetWhiteBloodCellCount;
-        nodePathTable["BloodChemistry_RedBloodCell_Count"] = &BiogearsThread::GetRedBloodCellCount;
-        nodePathTable["BloodChemistry_BloodUreaNitrogen_Concentration"] = &BiogearsThread::GetBUN;
-        nodePathTable["BloodChemistry_Oxygen_Saturation"] = &BiogearsThread::GetOxygenSaturation;
-        nodePathTable["BloodChemistry_CarbonMonoxide_Saturation"] = &BiogearsThread::GetCarbonMonoxideSaturation;
-        nodePathTable["BloodChemistry_Hemaocrit"] = &BiogearsThread::GetHematocrit;
-        nodePathTable["BloodChemistry_BloodPH_RAW"] = &BiogearsThread::GetRawBloodPH;
-        nodePathTable["BloodChemistry_BloodPH_MOD"] = &BiogearsThread::GetModBloodPH;
-        nodePathTable["BloodChemistry_BloodPH"] = &BiogearsThread::GetModBloodPH;
-        nodePathTable["BloodChemistry_Arterial_CarbonDioxide_Pressure"] =
-                &BiogearsThread::GetArterialCarbonDioxidePressure;
-        nodePathTable["BloodChemistry_Arterial_Oxygen_Pressure"] =
-                &BiogearsThread::GetArterialOxygenPressure;
-        nodePathTable["BloodChemistry_VenousOxygenPressure"] =
-                &BiogearsThread::GetVenousOxygenPressure;
-        nodePathTable["BloodChemistry_VenousCarbonDioxidePressure"] =
-                &BiogearsThread::GetVenousCarbonDioxidePressure;
-
 
         // Substances
         nodePathTable["Substance_Sodium"] = &BiogearsThread::GetSodium;
@@ -224,15 +178,62 @@ namespace AMM {
         nodePathTable["Renal_BladderGlucose"] = &BiogearsThread::GetBladderGlucose;
 
         nodePathTable["ShuntFraction"] = &BiogearsThread::GetShuntFraction;
+#endif
+
+        // Cardiovascular System
+        nodePathTable["Cardiovascular_HeartRate"] = &BiogearsThread::GetHeartRate;
+        nodePathTable["Cardiovascular_BloodVolume"] = &BiogearsThread::GetBloodVolume;
+        nodePathTable["Cardiovascular_BloodLossPercentage"] = &BiogearsThread::GetBloodLossPercentage;
+        nodePathTable["Cardiovascular_Arterial_Pressure"] = &BiogearsThread::GetArterialPressure;
+        nodePathTable["Cardiovascular_Arterial_Mean_Pressure"] =
+                &BiogearsThread::GetMeanArterialPressure;
+        nodePathTable["Cardiovascular_Arterial_Systolic_Pressure"] =
+                &BiogearsThread::GetArterialSystolicPressure;
+        nodePathTable["Cardiovascular_Arterial_Diastolic_Pressure"] =
+                &BiogearsThread::GetArterialDiastolicPressure;
+        nodePathTable["Cardiovascular_CentralVenous_Mean_Pressure"] =
+                &BiogearsThread::GetMeanCentralVenousPressure;
+        nodePathTable["Cardiovascular_CardiacOutput"] = &BiogearsThread::GetCardiacOutput;
+
+        //  Respiratory System
+        nodePathTable["Respiratory_Respiration_Rate"] = &BiogearsThread::GetRawRespirationRate;
+        nodePathTable["Respiratory_Inspiratory_Flow"] =
+                &BiogearsThread::GetInspiratoryFlow;
+        nodePathTable["Respiratory_TotalPressure"] = &BiogearsThread::GetRespiratoryTotalPressure;
+        nodePathTable["Respiration_EndTidalCarbonDioxide"] =
+                &BiogearsThread::GetEndTidalCarbonDioxidePressure;
+        nodePathTable["Respiration_EndTidalCarbonDioxideFraction"] =
+                &BiogearsThread::GetEndTidalCarbonDioxideFraction;
+
+        nodePathTable["Respiratory_CarbonDioxide_Exhaled"] = &BiogearsThread::GetExhaledCO2;
+
+        // Energy system
+        nodePathTable["Energy_Core_Temperature"] = &BiogearsThread::GetCoreTemperature;
+
+        // Nervous
+        nodePathTable["Nervous_GetPainVisualAnalogueScale"] =
+                &BiogearsThread::GetPainVisualAnalogueScale;
+
+        // Blood chemistry system
+        nodePathTable["BloodChemistry_BloodPH"] = &BiogearsThread::GetModBloodPH;
+        nodePathTable["BloodChemistry_Arterial_CarbonDioxide_Pressure"] =
+                &BiogearsThread::GetArterialCarbonDioxidePressure;
+        nodePathTable["BloodChemistry_Arterial_Oxygen_Pressure"] =
+                &BiogearsThread::GetArterialOxygenPressure;
+        nodePathTable["BloodChemistry_VenousOxygenPressure"] =
+                &BiogearsThread::GetVenousOxygenPressure;
+        nodePathTable["BloodChemistry_VenousCarbonDioxidePressure"] =
+                &BiogearsThread::GetVenousCarbonDioxidePressure;
+
 
         // Label which nodes are high-frequency
         highFrequencyNodes = {"ECG",
                               "Cardiovascular_HeartRate",
                               "Respiratory_TotalPressure",
-                              "Respiratory_Inspiratory_Flow",
+                              // "Respiratory_Inspiratory_Flow",
                               "Cardiovascular_Arterial_Pressure",
                               "Respiratory_CarbonDioxide_Exhaled",
-                              "Respiratory_LungTotal_Volume",
+                              // "Respiratory_LungTotal_Volume",
                               "Respiratory_Respiration_Rate"};
     }
 

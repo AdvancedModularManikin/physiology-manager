@@ -1,5 +1,7 @@
 #pragma once
 
+#define MINIMAL_PUB
+
 #include <ctime>
 #include <mutex>
 #include <sstream>
