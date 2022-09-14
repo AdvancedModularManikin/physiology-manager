@@ -101,7 +101,6 @@ namespace AMM {
         std::string sysPrefix = "[SYS]";
         std::string loadPrefix = "LOAD_STATE:";
         std::string loadPatient = "LOAD_PATIENT:";
-        std::string saveState = "SAVE_STATE:";
         std::string loadScenarioFile = "LOAD_SCENARIOFILE:";
         std::string stateFilePrefix = "xml";
         std::string patientFilePrefix = "xml";

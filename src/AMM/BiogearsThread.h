@@ -496,7 +496,6 @@ protected:
   std::mutex m_mutex;
   std::unique_ptr<biogears::BioGearsEngine> m_pe;
   biogears::BioGears* bg;
-  biogears::SEPatientActionCollection* action;
 
   // AMM
   AMM::UUID m_uuid;
