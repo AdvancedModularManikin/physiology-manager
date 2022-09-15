@@ -1,7 +1,5 @@
 #pragma once
 
-#define MINIMAL_PUB
-
 #include <ctime>
 #include <mutex>
 #include <sstream>
@@ -256,6 +254,8 @@ namespace AMM {
 
         bool running = false;
 
+        bool minimal = false;
+
         static std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
         static std::vector <std::string> highFrequencyNodes;
 
@@ -313,9 +313,9 @@ namespace AMM {
 
         double GetEndTidalCarbonDioxideFraction();
 
-	double GetEndTidalCarbonDioxidePressure();
+        double GetEndTidalCarbonDioxidePressure();
 
-	double GetOxygenSaturation();
+        double GetOxygenSaturation();
 
         double GetCarbonMonoxideSaturation();
 

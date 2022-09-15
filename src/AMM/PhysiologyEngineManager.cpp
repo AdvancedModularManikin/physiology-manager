@@ -19,7 +19,7 @@ std::string get_filename_date(void) {
     return std::string(the_date);
 }
 
-std::map <std::string, std::string> config;
+std::map<std::string, std::string> config;
 
 namespace AMM {
     PhysiologyEngineManager::PhysiologyEngineManager() {
@@ -67,6 +67,9 @@ namespace AMM {
         InitializeBiogears();
     }
 
+    void PhysiologyEngineManager::SetMinimalPublishing() {
+        minimal = true;
+    }
 
     void PhysiologyEngineManager::PublishOperationalDescription() {
         AMM::OperationalDescription od;
@@ -167,16 +170,17 @@ namespace AMM {
             if ((lastFrame % 10) == 0 || force) {
                 WriteNodeData(it->first);
             }
-            if ((std::find(m_pe->highFrequencyNodes.begin(), m_pe->highFrequencyNodes.end(), it->first) !=
-                 m_pe->highFrequencyNodes.end())) {
-                WriteHighFrequencyNodeData(it->first);
+            if (!minimal) {
+                if ((std::find(m_pe->highFrequencyNodes.begin(), m_pe->highFrequencyNodes.end(), it->first) !=
+                     m_pe->highFrequencyNodes.end())) {
+                    WriteHighFrequencyNodeData(it->first);
+                }
             }
             ++it;
         }
     }
 
-    void PhysiologyEngineManager::
-    ExecutePhysiologyModification(std::string pm) {
+    void PhysiologyEngineManager::ExecutePhysiologyModification(std::string pm) {
         if (m_pe == nullptr) {
             LOG_WARNING << "Physiology engine not running, cannot execute physiology modification.";
             return;
@@ -397,6 +401,7 @@ namespace AMM {
         LOG_INFO << "Starting tick simulation";
         running = true;
         m_pe->running = true;
+        m_pe->minimal = minimal;
         paused = false;
     }
 

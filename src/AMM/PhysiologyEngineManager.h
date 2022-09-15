@@ -72,10 +72,13 @@ namespace AMM {
 
         void ProcessStates();
 
+        void SetMinimalPublishing();
+
         bool paused = false;
         bool running = false;
         int lastFrame = 0;
         bool logging_enabled = false;
+        bool minimal = false;
         bool moduleEnabled = true;
 
         void OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info);

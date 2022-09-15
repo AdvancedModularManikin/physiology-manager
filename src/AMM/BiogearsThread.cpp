@@ -95,89 +95,89 @@ namespace AMM {
         nodePathTable["Patient_BodyFatFraction"] = &BiogearsThread::GetPatient_BodyFatFraction;
 
 
-#ifndef MINIMAL_PUB
-        nodePathTable["GCS_Value"] = &BiogearsThread::GetGCSValue;
-        nodePathTable["IntracranialPressure"] = &BiogearsThread::GetIntracranialPressure;
-        nodePathTable["CerebralPerfusionPressure"] = &BiogearsThread::GetCerebralPerfusionPressure;
-        nodePathTable["CerebralBloodFlow"] = &BiogearsThread::GetCerebralBloodFlow;
-        nodePathTable["Respiratory_Respiration_Rate_RAW"] = &BiogearsThread::GetRawRespirationRate;
-        nodePathTable["Respiratory_Respiration_Rate_MOD"] = &BiogearsThread::GetRespirationRate;
-        nodePathTable["BloodChemistry_WhiteBloodCell_Count"] =
-                &BiogearsThread::GetWhiteBloodCellCount;
-        nodePathTable["BloodChemistry_RedBloodCell_Count"] = &BiogearsThread::GetRedBloodCellCount;
-        nodePathTable["BloodChemistry_BloodUreaNitrogen_Concentration"] = &BiogearsThread::GetBUN;
-                nodePathTable["BloodChemistry_CarbonMonoxide_Saturation"] = &BiogearsThread::GetCarbonMonoxideSaturation;
-        nodePathTable["BloodChemistry_Hemaocrit"] = &BiogearsThread::GetHematocrit;
-        nodePathTable["BloodChemistry_BloodPH_RAW"] = &BiogearsThread::GetRawBloodPH;
-        nodePathTable["BloodChemistry_BloodPH_MOD"] = &BiogearsThread::GetModBloodPH;
+        if (!minimal) {
+            nodePathTable["GCS_Value"] = &BiogearsThread::GetGCSValue;
+            nodePathTable["IntracranialPressure"] = &BiogearsThread::GetIntracranialPressure;
+            nodePathTable["CerebralPerfusionPressure"] = &BiogearsThread::GetCerebralPerfusionPressure;
+            nodePathTable["CerebralBloodFlow"] = &BiogearsThread::GetCerebralBloodFlow;
+            nodePathTable["Respiratory_Respiration_Rate_RAW"] = &BiogearsThread::GetRawRespirationRate;
+            nodePathTable["Respiratory_Respiration_Rate_MOD"] = &BiogearsThread::GetRespirationRate;
+            nodePathTable["BloodChemistry_WhiteBloodCell_Count"] =
+                    &BiogearsThread::GetWhiteBloodCellCount;
+            nodePathTable["BloodChemistry_RedBloodCell_Count"] = &BiogearsThread::GetRedBloodCellCount;
+            nodePathTable["BloodChemistry_BloodUreaNitrogen_Concentration"] = &BiogearsThread::GetBUN;
+            nodePathTable["BloodChemistry_CarbonMonoxide_Saturation"] = &BiogearsThread::GetCarbonMonoxideSaturation;
+            nodePathTable["BloodChemistry_Hemaocrit"] = &BiogearsThread::GetHematocrit;
+            nodePathTable["BloodChemistry_BloodPH_RAW"] = &BiogearsThread::GetRawBloodPH;
+            nodePathTable["BloodChemistry_BloodPH_MOD"] = &BiogearsThread::GetModBloodPH;
 
-        nodePathTable["Respiratory_Tidal_Volume"] = &BiogearsThread::GetTidalVolume;
-        nodePathTable["Respiratory_LungTotal_Volume"] = &BiogearsThread::GetTotalLungVolume;
-        nodePathTable["Respiratory_LeftPleuralCavity_Volume"] =
-                &BiogearsThread::GetLeftPleuralCavityVolume;
-        nodePathTable["Respiratory_LeftLung_Volume"] = &BiogearsThread::GetLeftLungVolume;
-        nodePathTable["Respiratory_LeftAlveoli_BaseCompliance"] =
-                &BiogearsThread::GetLeftAlveoliBaselineCompliance;
-        nodePathTable["Respiratory_RightPleuralCavity_Volume"] =
-                &BiogearsThread::GetRightPleuralCavityVolume;
-        nodePathTable["Respiratory_RightLung_Volume"] = &BiogearsThread::GetRightLungVolume;
-        nodePathTable["Respiratory_LeftLung_Tidal_Volume"] = &BiogearsThread::GetLeftLungTidalVolume;
-        nodePathTable["Respiratory_RightLung_Tidal_Volume"] =
-                &BiogearsThread::GetRightLungTidalVolume;
-        nodePathTable["Respiratory_PulmonaryResistance"] = &BiogearsThread::GetPulmonaryResistance;
-        nodePathTable["Respiratory_RightAlveoli_BaseCompliance"] =
-                &BiogearsThread::GetRightAlveoliBaselineCompliance;
+            nodePathTable["Respiratory_Tidal_Volume"] = &BiogearsThread::GetTidalVolume;
+            nodePathTable["Respiratory_LungTotal_Volume"] = &BiogearsThread::GetTotalLungVolume;
+            nodePathTable["Respiratory_LeftPleuralCavity_Volume"] =
+                    &BiogearsThread::GetLeftPleuralCavityVolume;
+            nodePathTable["Respiratory_LeftLung_Volume"] = &BiogearsThread::GetLeftLungVolume;
+            nodePathTable["Respiratory_LeftAlveoli_BaseCompliance"] =
+                    &BiogearsThread::GetLeftAlveoliBaselineCompliance;
+            nodePathTable["Respiratory_RightPleuralCavity_Volume"] =
+                    &BiogearsThread::GetRightPleuralCavityVolume;
+            nodePathTable["Respiratory_RightLung_Volume"] = &BiogearsThread::GetRightLungVolume;
+            nodePathTable["Respiratory_LeftLung_Tidal_Volume"] = &BiogearsThread::GetLeftLungTidalVolume;
+            nodePathTable["Respiratory_RightLung_Tidal_Volume"] =
+                    &BiogearsThread::GetRightLungTidalVolume;
+            nodePathTable["Respiratory_PulmonaryResistance"] = &BiogearsThread::GetPulmonaryResistance;
+            nodePathTable["Respiratory_RightAlveoli_BaseCompliance"] =
+                    &BiogearsThread::GetRightAlveoliBaselineCompliance;
 
-        // Substances
-        nodePathTable["Substance_Sodium"] = &BiogearsThread::GetSodium;
-        nodePathTable["Substance_Sodium_Concentration"] = &BiogearsThread::GetSodiumConcentration;
-        nodePathTable["Substance_Bicarbonate"] = &BiogearsThread::GetBicarbonate;
-        nodePathTable["Substance_Bicarbonate_Concentration"] =
-                &BiogearsThread::GetBicarbonateConcentration;
-        nodePathTable["Substance_BaseExcess"] = &BiogearsThread::GetBaseExcess;
-        nodePathTable["Substance_BaseExcess_RAW"] = &BiogearsThread::GetBaseExcessRaw;
-        nodePathTable["Substance_Bicarbonate_RAW"] = &BiogearsThread::GetBicarbonateRaw;
-        nodePathTable["Substance_Glucose_Concentration"] = &BiogearsThread::GetGlucoseConcentration;
-        nodePathTable["Substance_Creatinine_Concentration"] =
-                &BiogearsThread::GetCreatinineConcentration;
+            // Substances
+            nodePathTable["Substance_Sodium"] = &BiogearsThread::GetSodium;
+            nodePathTable["Substance_Sodium_Concentration"] = &BiogearsThread::GetSodiumConcentration;
+            nodePathTable["Substance_Bicarbonate"] = &BiogearsThread::GetBicarbonate;
+            nodePathTable["Substance_Bicarbonate_Concentration"] =
+                    &BiogearsThread::GetBicarbonateConcentration;
+            nodePathTable["Substance_BaseExcess"] = &BiogearsThread::GetBaseExcess;
+            nodePathTable["Substance_BaseExcess_RAW"] = &BiogearsThread::GetBaseExcessRaw;
+            nodePathTable["Substance_Bicarbonate_RAW"] = &BiogearsThread::GetBicarbonateRaw;
+            nodePathTable["Substance_Glucose_Concentration"] = &BiogearsThread::GetGlucoseConcentration;
+            nodePathTable["Substance_Creatinine_Concentration"] =
+                    &BiogearsThread::GetCreatinineConcentration;
 
-        nodePathTable["Substance_Hemoglobin_Concentration"] =
-                &BiogearsThread::GetHemoglobinConcentration;
-        nodePathTable["Substance_Oxyhemoglobin_Concentration"] =
-                &BiogearsThread::GetOxyhemoglobinConcentration;
-        nodePathTable["Substance_Carbaminohemoglobin_Concentration"] =
-                &BiogearsThread::GetCarbaminohemoglobinConcentration;
-        nodePathTable["Substance_OxyCarbaminohemoglobin_Concentration"] =
-                &BiogearsThread::GetOxyCarbaminohemoglobinConcentration;
-        nodePathTable["Substance_Carboxyhemoglobin_Concentration"] =
-                &BiogearsThread::GetCarboxyhemoglobinConcentration;
+            nodePathTable["Substance_Hemoglobin_Concentration"] =
+                    &BiogearsThread::GetHemoglobinConcentration;
+            nodePathTable["Substance_Oxyhemoglobin_Concentration"] =
+                    &BiogearsThread::GetOxyhemoglobinConcentration;
+            nodePathTable["Substance_Carbaminohemoglobin_Concentration"] =
+                    &BiogearsThread::GetCarbaminohemoglobinConcentration;
+            nodePathTable["Substance_OxyCarbaminohemoglobin_Concentration"] =
+                    &BiogearsThread::GetOxyCarbaminohemoglobinConcentration;
+            nodePathTable["Substance_Carboxyhemoglobin_Concentration"] =
+                    &BiogearsThread::GetCarboxyhemoglobinConcentration;
 
-        nodePathTable["Anion_Gap"] = &BiogearsThread::GetAnionGap;
+            nodePathTable["Anion_Gap"] = &BiogearsThread::GetAnionGap;
 
-        nodePathTable["Substance_Ionized_Calcium"] = &BiogearsThread::GetIonizedCalcium;
-        nodePathTable["Substance_Calcium_Concentration"] = &BiogearsThread::GetCalciumConcentration;
-        nodePathTable["Substance_Albumin_Concentration"] = &BiogearsThread::GetAlbuminConcentration;
+            nodePathTable["Substance_Ionized_Calcium"] = &BiogearsThread::GetIonizedCalcium;
+            nodePathTable["Substance_Calcium_Concentration"] = &BiogearsThread::GetCalciumConcentration;
+            nodePathTable["Substance_Albumin_Concentration"] = &BiogearsThread::GetAlbuminConcentration;
 
-        nodePathTable["Substance_Lactate_Concentration"] = &BiogearsThread::GetLactateConcentration;
-        nodePathTable["Substance_Lactate_Concentration_mmol"] =
-                &BiogearsThread::GetLactateConcentrationMMOL;
+            nodePathTable["Substance_Lactate_Concentration"] = &BiogearsThread::GetLactateConcentration;
+            nodePathTable["Substance_Lactate_Concentration_mmol"] =
+                    &BiogearsThread::GetLactateConcentrationMMOL;
 
-        nodePathTable["MetabolicPanel_Bilirubin"] = &BiogearsThread::GetTotalBilirubin;
-        nodePathTable["MetabolicPanel_Protein"] = &BiogearsThread::GetTotalProtein;
-        nodePathTable["MetabolicPanel_CarbonDioxide"] = &BiogearsThread::GetCO2;
-        nodePathTable["MetabolicPanel_Potassium"] = &BiogearsThread::GetPotassium;
-        nodePathTable["MetabolicPanel_Chloride"] = &BiogearsThread::GetChloride;
+            nodePathTable["MetabolicPanel_Bilirubin"] = &BiogearsThread::GetTotalBilirubin;
+            nodePathTable["MetabolicPanel_Protein"] = &BiogearsThread::GetTotalProtein;
+            nodePathTable["MetabolicPanel_CarbonDioxide"] = &BiogearsThread::GetCO2;
+            nodePathTable["MetabolicPanel_Potassium"] = &BiogearsThread::GetPotassium;
+            nodePathTable["MetabolicPanel_Chloride"] = &BiogearsThread::GetChloride;
 
-        nodePathTable["CompleteBloodCount_Platelet"] = &BiogearsThread::GetPlateletCount;
+            nodePathTable["CompleteBloodCount_Platelet"] = &BiogearsThread::GetPlateletCount;
 
-        nodePathTable["Renal_UrineProductionRate"] = &BiogearsThread::GetUrineProductionRate;
-        nodePathTable["Urinalysis_SpecificGravity"] = &BiogearsThread::GetUrineSpecificGravity;
-        nodePathTable["Renal_UrineOsmolality"] = &BiogearsThread::GetUrineOsmolality;
-        nodePathTable["Renal_UrineOsmolarity"] = &BiogearsThread::GetUrineOsmolarity;
-        nodePathTable["Renal_BladderGlucose"] = &BiogearsThread::GetBladderGlucose;
+            nodePathTable["Renal_UrineProductionRate"] = &BiogearsThread::GetUrineProductionRate;
+            nodePathTable["Urinalysis_SpecificGravity"] = &BiogearsThread::GetUrineSpecificGravity;
+            nodePathTable["Renal_UrineOsmolality"] = &BiogearsThread::GetUrineOsmolality;
+            nodePathTable["Renal_UrineOsmolarity"] = &BiogearsThread::GetUrineOsmolarity;
+            nodePathTable["Renal_BladderGlucose"] = &BiogearsThread::GetBladderGlucose;
 
-        nodePathTable["ShuntFraction"] = &BiogearsThread::GetShuntFraction;
-#endif
+            nodePathTable["ShuntFraction"] = &BiogearsThread::GetShuntFraction;
+        }
 
         // Cardiovascular System
         nodePathTable["Cardiovascular_HeartRate"] = &BiogearsThread::GetHeartRate;
@@ -231,10 +231,10 @@ namespace AMM {
         highFrequencyNodes = {"ECG",
                               "Cardiovascular_HeartRate",
                               "Respiratory_TotalPressure",
-                              // "Respiratory_Inspiratory_Flow",
+                // "Respiratory_Inspiratory_Flow",
                               "Cardiovascular_Arterial_Pressure",
                               "Respiratory_CarbonDioxide_Exhaled",
-                              // "Respiratory_LungTotal_Volume",
+                // "Respiratory_LungTotal_Volume",
                               "Respiratory_Respiration_Rate"};
     }
 
@@ -585,7 +585,7 @@ namespace AMM {
                 SEScenarioInitialParameters &sip = sce.GetInitialParameters();
                 if (sip.HasPatientFile()) {
                     std::vector<const SECondition *> conditions;
-                    for (SECondition *c : sip.GetConditions())
+                    for (SECondition *c: sip.GetConditions())
                         conditions.push_back(c);// Copy to const
                     if (!m_pe->InitializeEngine(sip.GetPatientFile(), &conditions, &sip.GetConfiguration())) {
 
@@ -594,7 +594,7 @@ namespace AMM {
                     }
                 } else if (sip.HasPatient()) {
                     std::vector<const SECondition *> conditions;
-                    for (SECondition *c : sip.GetConditions())
+                    for (SECondition *c: sip.GetConditions())
                         conditions.push_back(c);// Copy to const
                     if (!m_pe->InitializeEngine(sip.GetPatient(), &conditions, &sip.GetConfiguration())) {
                         LOG_ERROR << "Unable to load conditions.";
@@ -697,7 +697,7 @@ namespace AMM {
         LOG_INFO << "Executing actions";
         SEAdvanceTime *adv;
         // Now run the scenario actions
-        for (SEAction *a : sce.GetActions()) {
+        for (SEAction *a: sce.GetActions()) {
             adv = dynamic_cast<SEAdvanceTime *>(a);
             if (adv != nullptr) {
                 m_mutex.lock();
@@ -1060,10 +1060,10 @@ namespace AMM {
     }
 
     double BiogearsThread::GetBaseExcessRaw() {
-            biogears::SEArterialBloodGasAnalysis abga;
-            m_pe->GetPatientAssessment(abga);
-            biogears::SEScalarAmountPerVolume be = abga.GetBaseExcess();
-            return be.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
+        biogears::SEArterialBloodGasAnalysis abga;
+        m_pe->GetPatientAssessment(abga);
+        biogears::SEScalarAmountPerVolume be = abga.GetBaseExcess();
+        return be.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
     }
 
     double BiogearsThread::GetBicarbonateRaw() {
@@ -1270,7 +1270,7 @@ namespace AMM {
         std::string type, concentration, rate, dose, substance, bagVolume;
         std::vector <std::string> strings = Utility::explode("\n", pumpSettings);
 
-        for (auto str : strings) {
+        for (auto str: strings) {
             std::vector <std::string> strs;
             boost::split(strs, str, boost::is_any_of("="));
             auto strs_size = strs.size();
@@ -1499,7 +1499,7 @@ namespace AMM {
             biogears::SESubstanceNasalDose nd(*subs);
             LOG_DEBUG << "Nasally administered substance with a dose of  " << dose << doseUnit;
             if (doseUnit == "mg") {
-               nd.GetDose().SetValue(dose, biogears::MassUnit::mg);
+                nd.GetDose().SetValue(dose, biogears::MassUnit::mg);
             } else {
                 nd.GetDose().SetValue(dose, biogears::MassUnit::g);
             }
@@ -1657,7 +1657,7 @@ namespace AMM {
         config.SetOxygenSource(CDM::enumAnesthesiaMachineOxygenSource::Wall);
         config.GetReliefValvePressure().SetValue(20.0, biogears::PressureUnit::cmH2O);
 
-        for (auto str : strings) {
+        for (auto str: strings) {
             std::vector <std::string> strs;
             boost::split(strs, str, boost::is_any_of("="));
             auto strs_size = strs.size();
@@ -1713,7 +1713,7 @@ namespace AMM {
         config.SetOxygenSource(CDM::enumAnesthesiaMachineOxygenSource::Wall);
         config.GetReliefValvePressure().SetValue(20.0, biogears::PressureUnit::cmH2O);
 
-        for (auto str : strings) {
+        for (auto str: strings) {
             std::vector <std::string> strs;
             boost::split(strs, str, boost::is_any_of("="));
             auto strs_size = strs.size();
