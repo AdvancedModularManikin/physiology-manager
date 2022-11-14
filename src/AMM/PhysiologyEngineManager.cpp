@@ -462,12 +462,14 @@ void PhysiologyEngineManager::ProcessStates()
   if (m_pe->startOfInhale) {
     // LOG_DEBUG << "Start of inhale, sending render mod";
     AMM::RenderModification renderMod;
+    renderMod.type("START_OF_INHALE");
     renderMod.data("<RenderModification type='START_OF_INHALE'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->startOfInhale = false;
   } else if (m_pe->startOfExhale) {
     // LOG_DEBUG << "Start of exhale, sending render mod";
     AMM::RenderModification renderMod;
+    renderMod.type("START_OF_EXHALE");
     renderMod.data("<RenderModification type='START_OF_EXHALE'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->startOfExhale = false;
@@ -478,7 +480,6 @@ void PhysiologyEngineManager::ProcessStates()
 
     AMM::UUID erID;
     erID.id(m_mgr->GenerateUuidString());
-
     FMA_Location fma;
     AMM::UUID agentID;
 
@@ -491,6 +492,7 @@ void PhysiologyEngineManager::ProcessStates()
 
     AMM::RenderModification renderMod;
     renderMod.event_id(erID);
+    renderMod.type("PATIENT_STATE_IRREVERSIBLE");
     renderMod.data("<RenderModification type='PATIENT_STATE_IRREVERSIBLE'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->irreversibleSent = true;
@@ -500,7 +502,6 @@ void PhysiologyEngineManager::ProcessStates()
     LOG_DEBUG << "Patient is paralyzed but we haven't sent the render mod.";
     AMM::UUID erID;
     erID.id(m_mgr->GenerateUuidString());
-
     FMA_Location fma;
     AMM::UUID agentID;
 
@@ -513,6 +514,7 @@ void PhysiologyEngineManager::ProcessStates()
 
     AMM::RenderModification renderMod;
     renderMod.event_id(erID);
+    renderMod.type("PATIENT_STATE_PARALYZED");
     renderMod.data("<RenderModification type='PATIENT_STATE_PARALYZED'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->paralyzedSent = true;
@@ -520,49 +522,185 @@ void PhysiologyEngineManager::ProcessStates()
 
     ///\todo: add other actions to this and determine how to handle mild/moderate/severe cases separately
   if (m_pe->pneumothoraxLClosed && !m_pe->pneumothoraxLClosedSent) {
+    LOG_DEBUG << "Patient has left closed pneumothorax, sending render mod.";
+
+    AMM::UUID erID;
+    erID.id(m_mgr->GenerateUuidString());
+    FMA_Location fma;
+    AMM::UUID agentID;
+
+    AMM::EventRecord er;
+    er.id(erID);
+    er.location(fma);
+    er.agent_id(agentID);
+    er.type("PNEUMOTHORAX_CLOSED_L_SEVERE");
+    m_mgr->WriteEventRecord(er);
+
     AMM::RenderModification renderMod;
+    renderMod.event_id(erID);
+    renderMod.type("PNEUMOTHORAX_CLOSED_L_SEVERE");
     renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_L_SEVERE'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->pneumothoraxLClosedSent = true;
   }
+
   if (m_pe->pneumothoraxLOpen && !m_pe->pneumothoraxLOpenSent) {
+    LOG_DEBUG << "Patient  has left open pneumothorax, sending render mod.";
+
+    AMM::UUID erID;
+    erID.id(m_mgr->GenerateUuidString());
+    FMA_Location fma;
+    AMM::UUID agentID;
+
+    AMM::EventRecord er;
+    er.id(erID);
+    er.location(fma);
+    er.agent_id(agentID);
+    er.type("PATIENT_STATE_IRREVERSIBLE");
+    m_mgr->WriteEventRecord(er);
+
     AMM::RenderModification renderMod;
+    renderMod.event_id(erID);
+    renderMod.type("PNEUMOTHORAX_OPEN_L_SEVERE");
     renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_L_SEVERE'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->pneumothoraxLOpenSent = true;
   }
+
   if (m_pe->pneumothoraxRClosed && !m_pe->pneumothoraxRClosedSent) {
+    LOG_DEBUG << "Patient has  has right closed pneumothorax, sending render mod.";
+
+    AMM::UUID erID;
+    erID.id(m_mgr->GenerateUuidString());
+    FMA_Location fma;
+    AMM::UUID agentID;
+
+    AMM::EventRecord er;
+    er.id(erID);
+    er.location(fma);
+    er.agent_id(agentID);
+    er.type("PNEUMOTHORAX_CLOSED_R_SEVERE");
+    m_mgr->WriteEventRecord(er);
+
     AMM::RenderModification renderMod;
+    renderMod.event_id(erID);
+    renderMod.type("PNEUMOTHORAX_CLOSED_R_SEVERE");
     renderMod.data("<RenderModification type='PNEUMOTHORAX_CLOSED_R_SEVERE'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->pneumothoraxRClosedSent = true;
   }
+
   if (m_pe->pneumothoraxROpen && !m_pe->pneumothoraxROpenSent) {
+    LOG_DEBUG << "Patient  has right open pneumothorax, sending render mod.";
+
+    AMM::UUID erID;
+    erID.id(m_mgr->GenerateUuidString());
+    FMA_Location fma;
+    AMM::UUID agentID;
+
+    AMM::EventRecord er;
+    er.id(erID);
+    er.location(fma);
+    er.agent_id(agentID);
+    er.type("PNEUMOTHORAX_OPEN_R_SEVERE");
+    m_mgr->WriteEventRecord(er);
+
     AMM::RenderModification renderMod;
+    renderMod.event_id(erID);
+    renderMod.type("PNEUMOTHORAX_OPEN_R_SEVERE");
     renderMod.data("<RenderModification type='PNEUMOTHORAX_OPEN_R_SEVERE'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->pneumothoraxROpenSent = true;
   }
+
   if (m_pe->hemorrhage && !m_pe->hemorrhageSent) {
+    LOG_DEBUG << "Patient has a hemmorrhage, sending render mod.";
+
+    AMM::UUID erID;
+    erID.id(m_mgr->GenerateUuidString());
+    FMA_Location fma;
+    AMM::UUID agentID;
+
+    AMM::EventRecord er;
+    er.id(erID);
+    er.location(fma);
+    er.agent_id(agentID);
+    er.type("HEMORRHAGE");
+    m_mgr->WriteEventRecord(er);
+
     AMM::RenderModification renderMod;
+    renderMod.event_id(erID);
+    renderMod.type("HEMORRHAGE");
     renderMod.data("<RenderModification type='HEMORRHAGE'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->hemorrhageSent = true;
   }
+
   if (m_pe->acuteStress && m_pe->acuteStressSent) {
+    LOG_DEBUG << "Patient has accute stress, sending render mod.";
+
+    AMM::UUID erID;
+    erID.id(m_mgr->GenerateUuidString());
+
+    FMA_Location fma;
+    AMM::UUID agentID;
+
+    AMM::EventRecord er;
+    er.id(erID);
+    er.location(fma);
+    er.agent_id(agentID);
+    er.type("ACUTE_STRESS");
+    m_mgr->WriteEventRecord(er);
+
     AMM::RenderModification renderMod;
+    renderMod.event_id(erID);
+    renderMod.type("ACUTE_STRESS");
     renderMod.data("<RenderModification type='ACUTE_STRESS'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->acuteStressSent = true;
   }
+
   if (m_pe->asthmaAttack && !m_pe->asthmaAttackSent) {
+    LOG_DEBUG << "Patient has an asthma attack, sending render mod.";
+
+    AMM::UUID erID;
+    erID.id(m_mgr->GenerateUuidString());
+    FMA_Location fma;
+    AMM::UUID agentID;
+
+    AMM::EventRecord er;
+    er.id(erID);
+    er.location(fma);
+    er.agent_id(agentID);
+    er.type("ASTHMA_ATTACK");
+    m_mgr->WriteEventRecord(er);
+
     AMM::RenderModification renderMod;
+    renderMod.event_id(erID);
+    renderMod.type("ASTHMA_ATTACK");
     renderMod.data("<RenderModification type='ASTHMA_ATTACK'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->asthmaAttackSent = true;
   }
+
   if (m_pe->brainInjury && !m_pe->brainInjurySent) {
+    LOG_DEBUG << "Patient has a brain injury, sending render mod.";
+
+    AMM::UUID erID;
+    erID.id(m_mgr->GenerateUuidString());
+    FMA_Location fma;
+    AMM::UUID agentID;
+
+    AMM::EventRecord er;
+    er.id(erID);
+    er.location(fma);
+    er.agent_id(agentID);
+    er.type("BRAIN_INJURY");
+    m_mgr->WriteEventRecord(er);
+
     AMM::RenderModification renderMod;
+    renderMod.event_id(erID);
+    renderMod.type("BRAIN_INJURY");
     renderMod.data("<RenderModification type='BRAIN_INJURY'/>");
     m_mgr->WriteRenderModification(renderMod);
     m_pe->brainInjurySent = true;
