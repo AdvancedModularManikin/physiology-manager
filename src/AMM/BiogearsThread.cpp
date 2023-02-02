@@ -1909,27 +1909,28 @@ double BiogearsThread::GetCerebralBloodFlow()
 
 double BiogearsThread::GetPatientAge()
 {
-  return 0;
+  return m_pe->GetPatient().GetAge(TimeUnit::yr);
 }
 
 double BiogearsThread::GetPatientWeight()
 {
-  return 0;
+  return m_pe->GetPatient().GetWeight(MassUnit::kg);
 }
 
 double BiogearsThread::GetPatientGender()
 {
+  // CDM::enumSex::value gender = m_pe->GetPatient().GetGender();
   return 0;
 }
 
 double BiogearsThread::GetPatientHeight()
 {
-  return 0;
+  return m_pe->GetPatient().GetHeight(LengthUnit::cm);
 }
 
 double BiogearsThread::GetPatient_BodyFatFraction()
 {
-  return 0;
+  return m_pe->GetPatient().GetBodyFatFraction();
 }
 
 double BiogearsThread::GetGCSValue()
