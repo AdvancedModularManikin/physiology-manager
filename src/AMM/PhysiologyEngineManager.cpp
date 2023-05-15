@@ -249,10 +249,17 @@ void PhysiologyEngineManager::
       } else if (pmType == "intubation") {
       } else if (pmType == "mechanicalventilation") {
       } else if (pmType == "needledecompression") {
-        std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-        m_pe->SetNeedleDecompression(pLoc);
+        std::string pState = pRoot->FirstChildElement("State")->ToElement()->GetText();
+        std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
+
+        m_pe->SetNeedleDecompression(pState, pSide);
         return;
       } else if (pmType == "occlusivedressing") {
+        std::string pState = pRoot->FirstChildElement("State")->ToElement()->GetText();
+        std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
+
+        m_pe->SetChestOcclusiveDressing(pState, pSide);
+        return;
       } else if (pmType == "painstimulus") {
         double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
         std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
@@ -352,6 +359,12 @@ void PhysiologyEngineManager::
         m_pe->SetSubstanceNasalDose(pSub, dose, dUnit);
         return;
       } else if (pmType == "tensionpneumothorax") {
+        std::string pType = pRoot->FirstChildElement("Type")->ToElement()->GetText();
+        std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
+        double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+        
+        m_pe->SetTensionPneumothorax(pType, pSide, pSev);
+        return;
       } else if (pmType == "urinate") {
       } else {
         LOG_INFO << "Unknown phys mod type: " << pmType;

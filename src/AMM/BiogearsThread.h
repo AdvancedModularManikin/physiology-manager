@@ -193,7 +193,7 @@ public:
 
   void SetChestCompression(const std::string& actionSettings);
 
-  void SetChestOcclusiveDressing(const std::string& actionSettings);
+  void SetChestOcclusiveDressing(const std::string& state, const std::string& side);
 
   void SetConsciousRespiration(const std::string& actionSettings);
 
@@ -217,7 +217,7 @@ public:
 
   void SetMechanicalVentilation(const std::string& actionSettings);
 
-  void SetNeedleDecompression(const std::string& location);
+  void SetNeedleDecompression(const std::string& state, const std::string& side);
 
   void SetPain(const std::string& location, double severity);
 
@@ -249,7 +249,7 @@ public:
 
   void SetSubstanceOralDose(const std::string& actionSettings);
 
-  void SetTensionPneumothorax(const std::string& actionSettings);
+  void SetTensionPneumothorax(const std::string& type, const std::string& side, double severity);
 
   void SetUrinate(const std::string& actionSettings);
 
