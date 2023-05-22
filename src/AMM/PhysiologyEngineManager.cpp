@@ -249,10 +249,17 @@ void PhysiologyEngineManager::
       } else if (pmType == "intubation") {
       } else if (pmType == "mechanicalventilation") {
       } else if (pmType == "needledecompression") {
-        std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-        m_pe->SetNeedleDecompression(pLoc);
+        std::string pState = pRoot->FirstChildElement("State")->ToElement()->GetText();
+        std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
+
+        m_pe->SetNeedleDecompression(pState, pSide);
         return;
       } else if (pmType == "occlusivedressing") {
+        std::string pState = pRoot->FirstChildElement("State")->ToElement()->GetText();
+        std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
+
+        m_pe->SetChestOcclusiveDressing(pState, pSide);
+        return;
       } else if (pmType == "painstimulus") {
         double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
         std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
@@ -352,6 +359,12 @@ void PhysiologyEngineManager::
         m_pe->SetSubstanceNasalDose(pSub, dose, dUnit);
         return;
       } else if (pmType == "tensionpneumothorax") {
+        std::string pType = pRoot->FirstChildElement("Type")->ToElement()->GetText();
+        std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
+        double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+        
+        m_pe->SetTensionPneumothorax(pType, pSide, pSev);
+        return;
       } else if (pmType == "urinate") {
       } else {
         LOG_INFO << "Unknown phys mod type: " << pmType;
@@ -780,7 +793,8 @@ void PhysiologyEngineManager::OnNewPhysiologyModification(AMM::PhysiologyModific
 
   // If the payload is empty, use the type to execute an XML file.
   // Otherwise, the payload is considered to be XML to execute.
-  if (pm.data().empty()) {
+  std::string pmData = pm.data().to_string();
+  if (pmData.empty()) {
     LOG_INFO << "Executing scenario file: " << pm.type();
     m_mutex.lock();
     m_pe->ExecuteCommand(pm.type());
@@ -790,13 +804,13 @@ void PhysiologyEngineManager::OnNewPhysiologyModification(AMM::PhysiologyModific
     if (pm.type().empty() || pm.type() == "biogears") {
       LOG_INFO << "Executing Biogears PhysMod XML patient action";
       m_mutex.lock();
-      m_pe->ExecuteXMLCommand(pm.data());
+      m_pe->ExecuteXMLCommand(pmData);
       m_mutex.unlock();
       return;
     }
     LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
     try {
-      ExecutePhysiologyModification(pm.data());
+      ExecutePhysiologyModification(pmData);
     } catch (std::exception& e) {
       LOG_ERROR << "Unable to apply physiology modification: " << e.what();
     }
@@ -970,7 +984,8 @@ void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration&
 {
   if (mc.name() == "physiology_engine") {
     LOG_DEBUG << "Entering ModuleConfiguration for physiology engine.";
-    ParseXML(mc.capabilities_configuration());
+    std::string capabilities = mc.capabilities_configuration().to_string();
+    ParseXML(capabilities);
     auto it = config.find("state_file");
     if (it != config.end()) {
       LOG_INFO << "(find) state_file is " << it->second;
@@ -1113,13 +1128,14 @@ void PhysiologyEngineManager::OnNewInstrumentData(AMM::InstrumentData& i, Sample
     return;
   }
   std::string instrument(i.instrument());
+  std::string payload = i.payload().to_string();
   m_mutex.lock();
   if (instrument == "ventilator" || instrument == "erventilator") {
-    m_pe->SetVentilator(i.payload());
+    m_pe->SetVentilator(payload);
   } else if (instrument == "bvm_mask") {
-    m_pe->SetBVMMask(i.payload());
+    m_pe->SetBVMMask(payload);
   } else if (instrument == "ivpump") {
-    m_pe->SetIVPump(i.payload());
+    m_pe->SetIVPump(payload);
   }
   m_mutex.unlock();
 }
