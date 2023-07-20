@@ -55,6 +55,7 @@
 #include <biogears/cdm/patient/actions/SEPainStimulus.h>
 #include <biogears/cdm/patient/actions/SEPupillaryResponse.h>
 #include <biogears/cdm/patient/actions/SESubstanceBolus.h>
+#include <biogears/cdm/patient/actions/SENasalCannula.h>
 
 #include <biogears/cdm/substance/SESubstanceManager.h>
 #include <biogears/cdm/system/physiology/SEBloodChemistrySystem.h>
@@ -216,6 +217,8 @@ public:
   void SetIntubation(const std::string& actionSettings);
 
   void SetMechanicalVentilation(const std::string& actionSettings);
+
+  void SetNasalCannula(double flowRate, const std::string& unit);
 
   void SetNeedleDecompression(const std::string& state, const std::string& side);
 

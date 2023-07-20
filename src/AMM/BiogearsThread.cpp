@@ -1709,6 +1709,19 @@ void BiogearsThread::SetHemorrhage(const std::string& location, double flow)
   }
 }
 
+void BiogearsThread::SetNasalCannula(double flowRate, const std::string& unit)
+{
+  try {
+    biogears::SENasalCannula nasalcannula;
+    if (unit == "L/min") {
+      nasalcannula.GetFlowRate().SetValue(flowRate, biogears::VolumePerTimeUnit::L_Per_min);
+      m_pe->ProcessAction(nasalcannula);
+    }
+  } catch (std::exception& e) {
+    LOG_ERROR << "Error processing nasal cannula action: " << e.what();
+  }
+}
+
 void BiogearsThread::SetNeedleDecompression(const std::string& state, const std::string& side)
 {
   try {

@@ -248,6 +248,18 @@ void PhysiologyEngineManager::
       } else if (pmType == "infection") {
       } else if (pmType == "intubation") {
       } else if (pmType == "mechanicalventilation") {
+      } else if (pmType == "nasalcannula") {
+        tinyxml2::XMLElement* pRate = pRoot->FirstChildElement("Rate")->ToElement();
+        double rate;
+        if (pRate->Attribute("value") != NULL) {
+          rate = stod(pRate->Attribute("value"));
+        } else {
+          rate = stod(pRate->GetText());
+        }
+        std::string pUnit = pRate->Attribute("unit");
+
+        m_pe->SetNasalCannula(rate, pUnit);
+        return;
       } else if (pmType == "needledecompression") {
         std::string pState = pRoot->FirstChildElement("State")->ToElement()->GetText();
         std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
