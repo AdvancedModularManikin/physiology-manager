@@ -479,6 +479,32 @@ void PhysiologyEngineManager::StartSimulation() { m_pe->StartSimulation(); }
 void PhysiologyEngineManager::StopSimulation() { m_pe->StopSimulation(); }
 
 /**
+ * @brief send patient states rendermod
+ * 
+ */
+
+void PhysiologyEngineManager::SendPatientStateRendMod(std::string rendModType)
+{
+  AMM::UUID erID;
+  erID.id(m_mgr->GenerateUuidString());
+  FMA_Location fma;
+  AMM::UUID agentID;
+
+  AMM::EventRecord er;
+  er.id(erID);
+  er.location(fma);
+  er.agent_id(agentID);
+  er.type(rendModType);
+  m_mgr->WriteEventRecord(er);
+
+  AMM::RenderModification renderMod;
+  renderMod.event_id(erID);
+  renderMod.type(rendModType);
+  renderMod.data("<RenderModification type='" + rendModType + "'/>");
+  m_mgr->WriteRenderModification(renderMod);
+}
+
+/**
  * @brief processes patient states in biogears (defined by the biogears physiology)
  * 
  */
@@ -523,8 +549,20 @@ void PhysiologyEngineManager::ProcessStates()
     m_pe->irreversibleSent = true;
   }
 
+  if (m_pe->tachypnea && !m_pe->tachypneaSent) {
+    LOG_DEBUG << "Patient has entered state Tachypnea, sending render mod.";
+    SendPatientStateRendMod("PATIENT_STATE_TACHYPNEA");
+    m_pe->tachypneaSent = true;
+  }
+
+  if (m_pe->tachycardia && !m_pe->tachycardiaSent) {
+    LOG_DEBUG << "Patient has entered state Tachycardia, sending render mod.";
+    SendPatientStateRendMod("PATIENT_STATE_TACHYCARDIA");
+    m_pe->tachycardiaSent = true;
+  }
+
   if (m_pe->paralyzed && !m_pe->paralyzedSent) {
-    LOG_DEBUG << "Patient is paralyzed but we haven't sent the render mod.";
+    LOG_DEBUG << "Patient is paralyzed, sending render mod.";
     AMM::UUID erID;
     erID.id(m_mgr->GenerateUuidString());
     FMA_Location fma;
@@ -581,7 +619,7 @@ void PhysiologyEngineManager::ProcessStates()
     er.id(erID);
     er.location(fma);
     er.agent_id(agentID);
-    er.type("PATIENT_STATE_IRREVERSIBLE");
+    er.type("PNEUMOTHORAX_OPEN_L_SEVERE");
     m_mgr->WriteEventRecord(er);
 
     AMM::RenderModification renderMod;

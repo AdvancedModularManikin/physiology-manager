@@ -10,6 +10,10 @@ public:
   bool paralyzedSent = false;
   bool irreversible = false;
   bool irreversibleSent = false;
+  bool tachypnea = false;
+  bool tachypneaSent = false;
+  bool tachycardia = false;
+  bool tachycardiaSent = false;
   bool startOfExhale = false;
   bool startOfInhale = false;
   bool pneumothoraxLClosed = false;
@@ -49,8 +53,16 @@ public:
     if (active) {
       switch (type) {
       case CDM::enumPatientEvent::IrreversibleState:
-        LOG_INFO << " Patient has entered irreversible state";
+        LOG_INFO << " Patient has entered irreversible state.";
         irreversible = true;
+        break;
+      case CDM::enumPatientEvent::Tachypnea:
+        LOG_INFO << " Patient has entered state: Tachypnea.";
+        tachypnea = true;
+        break;
+      case CDM::enumPatientEvent::Tachycardia:
+        LOG_INFO << " Patient has entered state: Tachycardia.";
+        tachycardia = true;
         break;
       case CDM::enumPatientEvent::StartOfCardiacCycle:
         break;
@@ -607,6 +619,8 @@ void BiogearsThread::AdvanceTimeTick()
       irreversible = true;
     }
 
+    tachypnea = myEventHandler->tachypnea;
+    tachycardia = myEventHandler->tachycardia;
     startOfInhale = myEventHandler->startOfInhale;
     startOfExhale = myEventHandler->startOfExhale;
   }

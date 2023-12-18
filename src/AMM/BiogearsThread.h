@@ -273,6 +273,10 @@ public:
   bool paralyzedSent = false;
   bool irreversible = false;
   bool irreversibleSent = false;
+  bool tachypnea = false;
+  bool tachypneaSent = false;
+  bool tachycardia = false;
+  bool tachycardiaSent = false;
   bool startOfExhale = false;
   bool startOfInhale = false;
   bool pneumothoraxLClosed = false;
