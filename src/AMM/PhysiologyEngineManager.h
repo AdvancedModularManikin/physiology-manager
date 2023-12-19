@@ -70,6 +70,8 @@ namespace AMM {
 
         void InitializeBiogears();
 
+        void SendPatientStateRendMod(std::string rendModType);
+
         void ProcessStates();
 
         bool paused = false;

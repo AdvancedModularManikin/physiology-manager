@@ -55,6 +55,7 @@
 #include <biogears/cdm/patient/actions/SEPainStimulus.h>
 #include <biogears/cdm/patient/actions/SEPupillaryResponse.h>
 #include <biogears/cdm/patient/actions/SESubstanceBolus.h>
+#include <biogears/cdm/patient/actions/SENasalCannula.h>
 
 #include <biogears/cdm/substance/SESubstanceManager.h>
 #include <biogears/cdm/system/physiology/SEBloodChemistrySystem.h>
@@ -217,6 +218,8 @@ public:
 
   void SetMechanicalVentilation(const std::string& actionSettings);
 
+  void SetNasalCannula(double flowRate, const std::string& unit);
+
   void SetNeedleDecompression(const std::string& state, const std::string& side);
 
   void SetPain(const std::string& location, double severity);
@@ -270,6 +273,10 @@ public:
   bool paralyzedSent = false;
   bool irreversible = false;
   bool irreversibleSent = false;
+  bool tachypnea = false;
+  bool tachypneaSent = false;
+  bool tachycardia = false;
+  bool tachycardiaSent = false;
   bool startOfExhale = false;
   bool startOfInhale = false;
   bool pneumothoraxLClosed = false;

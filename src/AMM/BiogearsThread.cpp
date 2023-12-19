@@ -10,6 +10,10 @@ public:
   bool paralyzedSent = false;
   bool irreversible = false;
   bool irreversibleSent = false;
+  bool tachypnea = false;
+  bool tachypneaSent = false;
+  bool tachycardia = false;
+  bool tachycardiaSent = false;
   bool startOfExhale = false;
   bool startOfInhale = false;
   bool pneumothoraxLClosed = false;
@@ -49,8 +53,16 @@ public:
     if (active) {
       switch (type) {
       case CDM::enumPatientEvent::IrreversibleState:
-        LOG_INFO << " Patient has entered irreversible state";
+        LOG_INFO << " Patient has entered irreversible state.";
         irreversible = true;
+        break;
+      case CDM::enumPatientEvent::Tachypnea:
+        LOG_INFO << " Patient has entered state: Tachypnea.";
+        tachypnea = true;
+        break;
+      case CDM::enumPatientEvent::Tachycardia:
+        LOG_INFO << " Patient has entered state: Tachycardia.";
+        tachycardia = true;
         break;
       case CDM::enumPatientEvent::StartOfCardiacCycle:
         break;
@@ -607,6 +619,8 @@ void BiogearsThread::AdvanceTimeTick()
       irreversible = true;
     }
 
+    tachypnea = myEventHandler->tachypnea;
+    tachycardia = myEventHandler->tachycardia;
     startOfInhale = myEventHandler->startOfInhale;
     startOfExhale = myEventHandler->startOfExhale;
   }
@@ -1706,6 +1720,19 @@ void BiogearsThread::SetHemorrhage(const std::string& location, double flow)
     // m_mutex.unlock();
   } catch (std::exception& e) {
     LOG_ERROR << "Error processing hemorrhage action: " << e.what();
+  }
+}
+
+void BiogearsThread::SetNasalCannula(double flowRate, const std::string& unit)
+{
+  try {
+    biogears::SENasalCannula nasalcannula;
+    if (unit == "L/min") {
+      nasalcannula.GetFlowRate().SetValue(flowRate, biogears::VolumePerTimeUnit::L_Per_min);
+      m_pe->ProcessAction(nasalcannula);
+    }
+  } catch (std::exception& e) {
+    LOG_ERROR << "Error processing nasal cannula action: " << e.what();
   }
 }
 
