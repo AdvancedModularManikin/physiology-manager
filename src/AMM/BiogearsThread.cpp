@@ -1430,6 +1430,47 @@ namespace AMM {
         return;
     }
 
+    void BiogearsThread::SetTensionPneumothorax(const std::string &type, const std::string &side, double severity) {
+        try {
+            biogears::SETensionPneumothorax pneumo;
+            if (type == "Open") {
+                pneumo.SetType(SEPneumothoraxType::Open);
+            } else if (type == "Closed") {
+                pneumo.SetType(SEPneumothoraxType::Closed);
+            }
+            if (side == "Left") {
+                pneumo.SetSide(SESide::Left);
+            } else if (side == "Right") {
+                pneumo.SetSide(SESide::Right);
+            }
+            pneumo.GetSeverity().SetValue(severity);
+            m_pe->ProcessAction(pneumo);
+        } catch (std::exception &e) {
+            LOG_ERROR << "Error processing tension pneumothorax action: " << e.what();
+        }
+    }
+
+    void BiogearsThread::SetChestOcclusiveDressing(const std::string &state, const std::string &side) {
+        try {
+            biogears::SEChestOcclusiveDressing dressing;
+            if (state == "On") {
+                dressing.SetActive(true);
+            } else if (state == "Off") {
+                dressing.SetActive(false);
+            }
+            if (side == "Left") {
+                dressing.SetSide(SESide::Left);
+            } else if (side == "Right") {
+                dressing.SetSide(SESide::Right);
+            }
+
+            m_pe->ProcessAction(dressing);
+        } catch (std::exception &e) {
+            LOG_ERROR << "Error processing occlusive dressing action: " << e.what();
+        }
+
+    }
+
     void BiogearsThread::SetAirwayObstruction(double severity) {
         try {
             biogears::SEAirwayObstruction obstruction;
@@ -1484,7 +1525,25 @@ namespace AMM {
         }
     }
 
-    void BiogearsThread::SetNeedleDecompression(const std::string &location) {
+    void BiogearsThread::SetNeedleDecompression(const std::string &state, const std::string &side) {
+        try {
+            biogears::SENeedleDecompression ncd;
+            if (state == "On") {
+                ncd.SetActive(true);
+            } else if (state == "Off") {
+                ncd.SetActive(false);
+            }
+            if (side == "Left") {
+                ncd.SetSide(SESide::Left);
+            } else if (side == "Right") {
+                ncd.SetSide(SESide::Right);
+            }
+
+            m_pe->ProcessAction(ncd);
+        } catch (std::exception &e) {
+            LOG_ERROR << "Error processing occlusive dressing action: " << e.what();
+        }
+
     }
 
     void BiogearsThread::SetPain(const std::string &location, double severity) {

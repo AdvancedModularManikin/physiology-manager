@@ -205,57 +205,64 @@ namespace AMM {
 
                 if (pmType == "acutestress") {
 
-                } else if (pmType == "airwayobstruction") {
-                    double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-                    m_pe->SetAirwayObstruction(pSev);
-                    return;
-                } else if (pmType == "apnea") {
-                } else if (pmType == "asthmaattack") {
-                    double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-                    m_pe->SetAsthmaAttack(pSev);
-                    return;
-                } else if (pmType == "braininjury") {
-                    double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-                    std::string pType = pRoot->FirstChildElement("Type")->ToElement()->GetText();
-                    m_pe->SetBrainInjury(pSev, pType);
-                    return;
-                } else if (pmType == "bronchoconstriction") {
-                } else if (pmType == "burn") {
-                } else if (pmType == "bardiacarrest") {
-                } else if (pmType == "chestcompression") {
-                } else if (pmType == "consciousrespiration") {
-                } else if (pmType == "consumenutrients") {
-                } else if (pmType == "exercise") {
-                } else if (pmType == "hemorrhage") {
-                    std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-                    LOG_TRACE << "Location is " << pLoc;
-                    tinyxml2::XMLElement *pFlow = pRoot->FirstChildElement("Flow")->ToElement();
-                    double flow = stod(pFlow->GetText());
-                    LOG_TRACE << "Flow is " << flow;
-                    // std::string flowUnit = pFlow->Attribute("unit");
-                    m_pe->SetHemorrhage(pLoc, flow);
-                    return;
-                } else if (pmType == "infection") {
-                } else if (pmType == "intubation") {
-                } else if (pmType == "mechanicalventilation") {
-                } else if (pmType == "needledecompression") {
-                    std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-                    m_pe->SetNeedleDecompression(pLoc);
-                    return;
-                } else if (pmType == "occlusivedressing") {
-                } else if (pmType == "painstimulus") {
-                    double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-                    std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-                    m_pe->SetPain(pLoc, pSev);
-                    return;
-                } else if (pmType == "pericardialeffusion") {
-                } else if (pmType == "sepsis") {
-                    double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-                    std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-                    m_pe->SetSepsis(pLoc, pSev);
-                    return;
-                } else if (pmType == "substancebolus") {
-                    std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
+      } else if (pmType == "airwayobstruction") {
+        double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+        m_pe->SetAirwayObstruction(pSev);
+        return;
+      } else if (pmType == "apnea") {
+      } else if (pmType == "asthmaattack") {
+        double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+        m_pe->SetAsthmaAttack(pSev);
+        return;
+      } else if (pmType == "braininjury") {
+        double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+        std::string pType = pRoot->FirstChildElement("Type")->ToElement()->GetText();
+        m_pe->SetBrainInjury(pSev, pType);
+        return;
+      } else if (pmType == "bronchoconstriction") {
+      } else if (pmType == "burn") {
+      } else if (pmType == "bardiacarrest") {
+      } else if (pmType == "chestcompression") {
+      } else if (pmType == "consciousrespiration") {
+      } else if (pmType == "consumenutrients") {
+      } else if (pmType == "exercise") {
+      } else if (pmType == "hemorrhage") {
+        std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
+        LOG_TRACE << "Location is " << pLoc;
+        tinyxml2::XMLElement* pFlow = pRoot->FirstChildElement("Flow")->ToElement();
+        double flow = stod(pFlow->GetText());
+        LOG_TRACE << "Flow is " << flow;
+        // std::string flowUnit = pFlow->Attribute("unit");
+        m_pe->SetHemorrhage(pLoc, flow);
+        return;
+      } else if (pmType == "infection") {
+      } else if (pmType == "intubation") {
+      } else if (pmType == "mechanicalventilation") {
+      } else if (pmType == "needledecompression") {
+        std::string pState = pRoot->FirstChildElement("State")->ToElement()->GetText();
+        std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
+
+        m_pe->SetNeedleDecompression(pState, pSide);
+        return;
+      } else if (pmType == "occlusivedressing") {
+        std::string pState = pRoot->FirstChildElement("State")->ToElement()->GetText();
+        std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
+
+        m_pe->SetChestOcclusiveDressing(pState, pSide);
+        return;
+      } else if (pmType == "painstimulus") {
+        double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+        std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
+        m_pe->SetPain(pLoc, pSev);
+        return;
+      } else if (pmType == "pericardialeffusion") {
+      } else if (pmType == "sepsis") {
+        double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+        std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
+        m_pe->SetSepsis(pLoc, pSev);
+        return;
+      } else if (pmType == "substancebolus") {
+        std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
 
                     tinyxml2::XMLElement *pConc = pRoot->FirstChildElement("Concentration")->ToElement();
                     double concentration;
@@ -339,20 +346,26 @@ namespace AMM {
                     }
                     std::string dUnit = pDose->Attribute("unit");
 
-                    m_pe->SetSubstanceNasalDose(pSub, dose, dUnit);
-                    return;
-                } else if (pmType == "tensionpneumothorax") {
-                } else if (pmType == "urinate") {
-                } else {
-                    LOG_INFO << "Unknown phys mod type: " << pmType;
-                    return;
-                }
-            }
-        } else {
-            LOG_ERROR << "Document parsing error, ID: " << doc.ErrorID();
-            doc.PrintError();
-        }
+        m_pe->SetSubstanceNasalDose(pSub, dose, dUnit);
+        return;
+      } else if (pmType == "tensionpneumothorax") {
+        std::string pType = pRoot->FirstChildElement("Type")->ToElement()->GetText();
+        std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
+        double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
+
+        m_pe->SetTensionPneumothorax(pType, pSide, pSev);
+        return;
+      } else if (pmType == "urinate") {
+      } else {
+        LOG_INFO << "Unknown phys mod type: " << pmType;
+        return;
+      }
     }
+  } else {
+    LOG_ERROR << "Document parsing error, ID: " << doc.ErrorID();
+    doc.PrintError();
+  }
+}
 
 /**
  * @brief creates the biogears thread and inializes engine
@@ -829,31 +842,31 @@ namespace AMM {
             return;
         }
 
-        // If the payload is empty, use the type to execute an XML file.
-        // Otherwise, the payload is considered to be XML to execute.
-        std::string payload = pm.data().to_string();
-        if (payload != "") {
-            LOG_INFO << "Executing scenario file: " << pm.type();
-            m_mutex.lock();
-            m_pe->ExecuteCommand(pm.type());
-            m_mutex.unlock();
-            return;
-        } else {
-            if (pm.type() == "" || pm.type() == "biogears") {
-                LOG_INFO << "Executing Biogears PhysMod XML patient action";
-                m_mutex.lock();
-                m_pe->ExecuteXMLCommand(payload);
-                m_mutex.unlock();
-                return;
-            }
-            LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
-            try {
-                ExecutePhysiologyModification(payload);
-            } catch (std::exception &e) {
-                LOG_ERROR << "Unable to apply physiology modification: " << e.what();
-            }
-        }
+  // If the payload is empty, use the type to execute an XML file.
+  // Otherwise, the payload is considered to be XML to execute.
+  std::string pmData = pm.data().to_string();
+  if (pmData.empty()) {
+    LOG_INFO << "Executing scenario file: " << pm.type();
+    m_mutex.lock();
+    m_pe->ExecuteCommand(pm.type());
+    m_mutex.unlock();
+    return;
+  } else {
+    if (pm.type().empty() || pm.type() == "biogears") {
+      LOG_INFO << "Executing Biogears PhysMod XML patient action";
+      m_mutex.lock();
+      m_pe->ExecuteXMLCommand(pmData);
+      m_mutex.unlock();
+      return;
     }
+    LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
+    try {
+      ExecutePhysiologyModification(pmData);
+    } catch (std::exception& e) {
+      LOG_ERROR << "Unable to apply physiology modification: " << e.what();
+    }
+  }
+}
 
 /**
  * @brief checks for changes in the simulation controller and adjusts simulation
@@ -1016,15 +1029,16 @@ namespace AMM {
  * @param mc module configuration defined by idl file
  * @param info 
  */
-    void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info) {
-        if (mc.name() == "physiology_engine") {
-            LOG_DEBUG << "Entering ModuleConfiguration for physiology engine.";
-            std::string config_xml = mc.capabilities_configuration().to_string();
-            ParseXML(config_xml);
-            auto it = config.find("state_file");
-            if (it != config.end()) {
-                LOG_INFO << "(find) state_file is " << it->second;
-                StopTickSimulation();
+void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration& mc, SampleInfo_t* info)
+{
+  if (mc.name() == "physiology_engine") {
+    LOG_DEBUG << "Entering ModuleConfiguration for physiology engine.";
+    std::string capabilities = mc.capabilities_configuration().to_string();
+    ParseXML(capabilities);
+    auto it = config.find("state_file");
+    if (it != config.end()) {
+      LOG_INFO << "(find) state_file is " << it->second;
+      StopTickSimulation();
 
                 AMM::SimulationControl simControl;
                 auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
@@ -1149,21 +1163,23 @@ namespace AMM {
  * @param i instrument data as defined by the idl (ie ventilator..)
  * @param info 
  */
-    void PhysiologyEngineManager::OnNewInstrumentData(AMM::InstrumentData &i, SampleInfo_t *info) {
-        LOG_DEBUG << "Instrument data for " << i.instrument() << " received with payload: " << i.payload().to_string();
-        if (m_pe == nullptr || !running) {
-            LOG_WARNING << "Physiology engine not running, cannot execute instrument data.";
-            return;
-        }
-        std::string instrument(i.instrument());
-        m_mutex.lock();
-        if (instrument == "ventilator" || instrument == "erventilator") {
-            m_pe->SetVentilator(i.payload().to_string());
-        } else if (instrument == "bvm_mask") {
-            m_pe->SetBVMMask(i.payload().to_string());
-        } else if (instrument == "ivpump") {
-            m_pe->SetIVPump(i.payload().to_string());
-        }
-        m_mutex.unlock();
-    }
+void PhysiologyEngineManager::OnNewInstrumentData(AMM::InstrumentData& i, SampleInfo_t* info)
+{
+  LOG_DEBUG << "Instrument data for " << i.instrument() << " received with payload: " << i.payload();
+  if (m_pe == nullptr || !running) {
+    LOG_WARNING << "Physiology engine not running, cannot execute instrument data.";
+    return;
+  }
+  std::string instrument(i.instrument());
+  std::string payload = i.payload().to_string();
+  m_mutex.lock();
+  if (instrument == "ventilator" || instrument == "erventilator") {
+    m_pe->SetVentilator(payload);
+  } else if (instrument == "bvm_mask") {
+    m_pe->SetBVMMask(payload);
+  } else if (instrument == "ivpump") {
+    m_pe->SetIVPump(payload);
+  }
+  m_mutex.unlock();
+}
 }
