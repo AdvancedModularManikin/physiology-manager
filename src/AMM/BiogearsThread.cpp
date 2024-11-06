@@ -4,9 +4,6 @@
 using namespace biogears;
 
 namespace AMM {
-
-    std::vector<std::string> BiogearsThread::highFrequencyNodes;
-
 /**
  * @brief Construct a new Biogears Thread:: Biogears Thread object
  *
@@ -18,6 +15,15 @@ namespace AMM {
             bg = dynamic_cast<BioGears *>(m_pe.get());
         } catch (std::exception &e) {
             LOG_ERROR << "Error starting engine: " << e.what();
+        }
+
+        try {
+            LOG_DEBUG << "Attaching event handler";
+            EventHandler MEH(m_pe->GetLogger());
+            m_pe->SetEventHandler(&MEH);
+            patientEventStates = &MEH.patientEventStates;
+        } catch (std::exception &e) {
+            LOG_ERROR << "Error attaching event handler: " << e.what();
         }
 
         PopulateNodePathTable();
@@ -232,26 +238,7 @@ namespace AMM {
         }
         m_mutex.unlock();
 
-        // preload substances
-        if (InitializeBioGearsSubstances()) {
-            LOG_DEBUG << "Preloading substances";
-        }
-
-        // logging
-        if (BioGearsLogging()) {
-            LOG_DEBUG << "Set up logging";
-        }
-
-        try {
-            LOG_DEBUG << "Attaching event handler";
-            EventHandler MEH(m_pe->GetLogger());
-            myEventHandler = &MEH;
-            m_pe->SetEventHandler(myEventHandler);
-        } catch (std::exception &e) {
-            LOG_ERROR << "Error attaching event handler: " << e.what();
-        }
-
-        return true;
+        return PostLoad();
     }
 
 /**
@@ -287,14 +274,18 @@ namespace AMM {
             return false;
         }
         m_mutex.unlock();
+
+        return PostLoad();
+    }
+
+    /**
+    * @brief Perform post-loading Biogears actions
+    * @return true if successful
+     */
+    bool BiogearsThread::PostLoad() {
         auto &patientactions = bg->GetActions().GetPatientActions();
 
-        // check for actions and send appropriate render mods
-        LOG_INFO << "Iterating over action data";
-        m_mutex.lock();
-        // get state data
-        ///\todo: add other actions to this and determine how to handle mild/moderate/severe cases separately
-        // PNEUMOTHORAX
+        LOG_DEBUG << "Setting current patient states.";
         pneumothoraxLClosed = patientactions.HasLeftClosedTensionPneumothorax();
         pneumothoraxLOpen = patientactions.HasLeftOpenTensionPneumothorax();
         pneumothoraxRClosed = patientactions.HasRightClosedTensionPneumothorax();
@@ -303,25 +294,15 @@ namespace AMM {
         acuteStress = patientactions.HasAcuteStress();
         asthmaAttack = patientactions.HasAsthmaAttack();
         brainInjury = patientactions.HasBrainInjury();
-        m_mutex.unlock();
 
         // preload substances
         if (InitializeBioGearsSubstances()) {
-            LOG_DEBUG << "Preloading substances";
+            LOG_DEBUG << "Preloaded substances";
         }
 
         // logging
         if (BioGearsLogging()) {
             LOG_DEBUG << "Set up logging";
-        }
-
-        try {
-            LOG_DEBUG << "Attaching event handler";
-            EventHandler MEH(m_pe->GetLogger());
-            myEventHandler = &MEH;
-            m_pe->SetEventHandler(myEventHandler);
-        } catch (std::exception &e) {
-            LOG_ERROR << "Error attaching event handler: " << e.what();
         }
 
         return true;
@@ -341,18 +322,9 @@ namespace AMM {
         }
         m_mutex.lock();
         m_pe->SaveStateToFile(stateFile);
-        // m_pe->SaveState(stateFile);
         m_mutex.unlock();
         return true;
     }
-
-// bool BiogearsThread::Execute(std::function<std::unique_ptr<biogears::PhysiologyEngine>(
-//                                std::unique_ptr<biogears::PhysiologyEngine>&&)>
-//                                func)
-// {
-//   m_pe = func(std::move(m_pe));
-//   return true;
-// }
 
     void BiogearsThread::SetLastFrame(int lF) {
         lastFrame = lF;
@@ -436,27 +408,10 @@ namespace AMM {
                     }
                 }
             }
-
-            // preload substances
-            if (InitializeBioGearsSubstances()) {
-                LOG_DEBUG << "Preloading substances";
-            }
-
-            // logging
-            if (BioGearsLogging()) {
-                LOG_DEBUG << "Set up logging";
-            }
-
-            try {
-                LOG_DEBUG << "Attaching event handler";
-                EventHandler MEH(m_pe->GetLogger());
-                myEventHandler = &MEH;
-                m_pe->SetEventHandler(myEventHandler);
-            } catch (std::exception &e) {
-                LOG_ERROR << "Error attaching event handler: " << e.what();
-            }
             scenarioLoading = false;
         }
+
+		PostLoad();
 
         LOG_INFO << "Executing actions";
         SEAdvanceTime *adv;
@@ -507,15 +462,6 @@ namespace AMM {
             LOG_ERROR << "Cannot advance time, simulation is not running.";
             return;
         }
-
-        /** if (myEventHandler != nullptr) {
-            LOG_INFO << "Setting default event handler values";
-            irreversible = myEventHandler->irreversible;
-            tachypnea = myEventHandler->tachypnea;
-            tachycardia = myEventHandler->tachycardia;
-            startOfInhale = myEventHandler->startOfInhale;
-            startOfExhale = myEventHandler->startOfExhale;
-        } **/
 
         m_mutex.lock();
         try {
@@ -1514,25 +1460,19 @@ namespace AMM {
             hemorrhage.GetInitialRate().SetValue(flow, biogears::VolumePerTimeUnit::mL_Per_min);
             hemorrhage.SetMCIS();
             m_pe->ProcessAction(hemorrhage);
-            // m_mutex.lock();
-            // if (!) {
-            //                LOG_ERROR << "Unable to process action.";
-            //            }
-            // m_mutex.unlock();
         } catch (std::exception &e) {
             LOG_ERROR << "Error processing hemorrhage action: " << e.what();
         }
     }
 
-    void BiogearsThread::SetNasalCannula(double flowRate, const std::string& unit)
-    {
+    void BiogearsThread::SetNasalCannula(double flowRate, const std::string &unit) {
         try {
             biogears::SENasalCannula nasalcannula;
             if (unit == "L/min") {
                 nasalcannula.GetFlowRate().SetValue(flowRate, biogears::VolumePerTimeUnit::L_Per_min);
                 m_pe->ProcessAction(nasalcannula);
             }
-        } catch (std::exception& e) {
+        } catch (std::exception &e) {
             LOG_ERROR << "Error processing nasal cannula action: " << e.what();
         }
     }

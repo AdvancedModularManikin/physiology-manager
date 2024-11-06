@@ -23,7 +23,7 @@ namespace AMM {
 
         virtual ~PhysiologyEngineManager();
 
-        BiogearsThread *m_pe;
+        BiogearsThread *m_pe{};
         std::string stateFile;
         std::string patientFile;
         std::string scenarioFile;
@@ -63,9 +63,9 @@ namespace AMM {
 
         void SendShutdown();
 
-        void WriteNodeData(std::string node);
+        void WriteNodeData(const std::string& node);
 
-        void WriteHighFrequencyNodeData(std::string node);
+        void WriteHighFrequencyNodeData(const std::string& node);
 
         void AdvanceTimeTick();
 
@@ -98,8 +98,8 @@ namespace AMM {
         void OnNewPhysiologyModification(AMM::PhysiologyModification &physMod, SampleInfo_t *info);
 
         void SendPatientStateRendMod(std::string rendModType);
-        
-        std::map<std::string, double (BiogearsThread::*)()> *nodePathMap;
+
+        std::map<std::string, double (BiogearsThread::*)()> *nodePathMap{};
 
         std::string sysPrefix = "[SYS]";
         std::string loadPrefix = "LOAD_STATE:";

@@ -113,13 +113,13 @@
 #include <biogears/cdm/scenario/SEScenario.h>
 #include <biogears/cdm/scenario/SEScenarioExec.h>
 
-//#include "PhysiologyEngineManager.h"
 #include "amm/Utility.h"
 
 using namespace biogears;
 
 // Forward declare what we will use in our thread
 namespace AMM {
+
     class EventHandler;
 
     class BiogearsThread {
@@ -128,7 +128,7 @@ namespace AMM {
 
         ~BiogearsThread();
 
-        bool LoadScenario(const std::string &scenarioFile);
+        bool PostLoad();
 
         bool LoadScenarioFile(const std::string &scenarioFile);
 
@@ -141,12 +141,6 @@ namespace AMM {
         bool ExecuteXMLCommand(const std::string &cmd);
 
         bool ExecuteCommand(const std::string &cmd);
-
-        bool Execute(std::function<std::unique_ptr<biogears::PhysiologyEngine>(
-                std::unique_ptr<biogears::PhysiologyEngine> &&)>
-                     func);
-
-        bool scenarioLoading = false;
 
         bool InitializeBioGearsSubstances();
 
@@ -218,7 +212,7 @@ namespace AMM {
 
         void SetMechanicalVentilation(const std::string &actionSettings);
 
-        void SetNasalCannula(double flowRate, const std::string& unit);
+        void SetNasalCannula(double flowRate, const std::string &unit);
 
         void SetNeedleDecompression(const std::string &state, const std::string &side);
 
@@ -264,11 +258,15 @@ namespace AMM {
 
         void Status();
 
+        bool scenarioLoading = false;
+
         bool running = false;
 
 
         std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
-        static std::vector<std::string> highFrequencyNodes;
+        std::vector<std::string> highFrequencyNodes;
+        static constexpr size_t numEvents = static_cast<size_t>(biogears::SEPatientEventType::_end);
+        std::vector<EventStatus> *patientEventStates;
 
         bool paralyzed = false;
         bool paralyzedSent = false;
@@ -304,7 +302,6 @@ namespace AMM {
         bool tachypneaSent = false;
         bool tachycardia = false;
         bool tachycardiaSent = false;
-        EventHandler *myEventHandler;
 
     private:
         void PopulateNodePathTable();
