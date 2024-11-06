@@ -30,6 +30,7 @@ namespace AMM {
         bool authoringMode = false;
 
         void PublishOperationalDescription();
+
         void PublishConfiguration();
 
         void SetLogging(bool logging_enabled);
@@ -96,6 +97,8 @@ namespace AMM {
 
         void OnNewPhysiologyModification(AMM::PhysiologyModification &physMod, SampleInfo_t *info);
 
+        void SendPatientStateRendMod(std::string rendModType);
+        
         std::map<std::string, double (BiogearsThread::*)()> *nodePathMap;
 
         std::string sysPrefix = "[SYS]";

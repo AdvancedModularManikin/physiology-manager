@@ -6,7 +6,6 @@ using namespace biogears;
 namespace AMM {
 
     std::vector<std::string> BiogearsThread::highFrequencyNodes;
-    std::map<std::string, double (BiogearsThread::*)()> BiogearsThread::nodePathTable;
 
 /**
  * @brief Construct a new Biogears Thread:: Biogears Thread object
@@ -509,14 +508,14 @@ namespace AMM {
             return;
         }
 
-        if (myEventHandler != nullptr) {
-            if (myEventHandler->irreversible && !irreversible) {
-                irreversible = true;
-            }
-
+        /** if (myEventHandler != nullptr) {
+            LOG_INFO << "Setting default event handler values";
+            irreversible = myEventHandler->irreversible;
+            tachypnea = myEventHandler->tachypnea;
+            tachycardia = myEventHandler->tachycardia;
             startOfInhale = myEventHandler->startOfInhale;
             startOfExhale = myEventHandler->startOfExhale;
-        }
+        } **/
 
         m_mutex.lock();
         try {
@@ -1522,6 +1521,19 @@ namespace AMM {
             // m_mutex.unlock();
         } catch (std::exception &e) {
             LOG_ERROR << "Error processing hemorrhage action: " << e.what();
+        }
+    }
+
+    void BiogearsThread::SetNasalCannula(double flowRate, const std::string& unit)
+    {
+        try {
+            biogears::SENasalCannula nasalcannula;
+            if (unit == "L/min") {
+                nasalcannula.GetFlowRate().SetValue(flowRate, biogears::VolumePerTimeUnit::L_Per_min);
+                m_pe->ProcessAction(nasalcannula);
+            }
+        } catch (std::exception& e) {
+            LOG_ERROR << "Error processing nasal cannula action: " << e.what();
         }
     }
 

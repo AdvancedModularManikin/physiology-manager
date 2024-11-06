@@ -40,9 +40,16 @@ namespace AMM {
         bool severeHypothermiaSent = false;
         bool shivering = false;
         bool shiveringSent = false;
+        bool tachypnea = false;
+        bool tachypneaSent = false;
+        bool tachycardia = false;
+        bool tachycardiaSent = false;
 
-        void HandlePatientEvent(biogears::SEPatientEventType type, bool active, const biogears::SEScalarTime* time = nullptr) override;
-        void HandleAnesthesiaMachineEvent(biogears::SEAnesthesiaMachineEvent type, bool active, const biogears::SEScalarTime* time = nullptr) override;
+        void HandlePatientEvent(biogears::SEPatientEventType type, bool active,
+                                const biogears::SEScalarTime *time = nullptr) override;
+
+        void HandleAnesthesiaMachineEvent(biogears::SEAnesthesiaMachineEvent type, bool active,
+                                          const biogears::SEScalarTime *time = nullptr) override;
 
     };
 }

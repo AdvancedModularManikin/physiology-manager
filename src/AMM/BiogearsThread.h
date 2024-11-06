@@ -55,6 +55,7 @@
 #include <biogears/cdm/patient/actions/SEPainStimulus.h>
 #include <biogears/cdm/patient/actions/SEPupillaryResponse.h>
 #include <biogears/cdm/patient/actions/SESubstanceBolus.h>
+#include <biogears/cdm/patient/actions/SENasalCannula.h>
 
 #include <biogears/cdm/substance/SESubstanceManager.h>
 #include <biogears/cdm/system/physiology/SEBloodChemistrySystem.h>
@@ -193,7 +194,7 @@ namespace AMM {
 
         void SetChestCompression(const std::string &actionSettings);
 
-  void SetChestOcclusiveDressing(const std::string& state, const std::string& side);
+        void SetChestOcclusiveDressing(const std::string &state, const std::string &side);
 
         void SetConsciousRespiration(const std::string &actionSettings);
 
@@ -217,7 +218,9 @@ namespace AMM {
 
         void SetMechanicalVentilation(const std::string &actionSettings);
 
-  void SetNeedleDecompression(const std::string& state, const std::string& side);
+        void SetNasalCannula(double flowRate, const std::string& unit);
+
+        void SetNeedleDecompression(const std::string &state, const std::string &side);
 
         void SetPain(const std::string &location, double severity);
 
@@ -249,7 +252,7 @@ namespace AMM {
 
         void SetSubstanceOralDose(const std::string &actionSettings);
 
-  void SetTensionPneumothorax(const std::string& type, const std::string& side, double severity);
+        void SetTensionPneumothorax(const std::string &type, const std::string &side, double severity);
 
         void SetUrinate(const std::string &actionSettings);
 
@@ -263,7 +266,8 @@ namespace AMM {
 
         bool running = false;
 
-        static std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
+
+        std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
         static std::vector<std::string> highFrequencyNodes;
 
         bool paralyzed = false;
@@ -296,6 +300,10 @@ namespace AMM {
         bool severeHypothermiaSent = false;
         bool shivering = false;
         bool shiveringSent = false;
+        bool tachypnea = false;
+        bool tachypneaSent = false;
+        bool tachycardia = false;
+        bool tachycardiaSent = false;
         EventHandler *myEventHandler;
 
     private:
