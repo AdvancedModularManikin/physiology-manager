@@ -45,7 +45,7 @@ namespace AMM {
 
         void StopTickSimulation();
 
-        void ExecutePhysiologyModification(std::string pm);
+        void ExecutePhysiologyModification(const std::string& pm);
 
         void PublishData(bool force);
 
@@ -107,6 +107,18 @@ namespace AMM {
         std::string loadScenarioFile = "LOAD_SCENARIOFILE:";
         std::string stateFilePrefix = "xml";
         std::string patientFilePrefix = "xml";
+
+	private:
+    private:
+	    std::string getElementText(tinyxml2::XMLElement* parent, const char* elementName, const char* attr = nullptr);
+	    double getElementDouble(tinyxml2::XMLElement* parent, const char* elementName, const char* attr = nullptr);
+
+	    // Specialized handlers for specific modification types
+	    void handleNasalCannula(tinyxml2::XMLElement* pRoot);
+	    void handleSubstanceBolus(tinyxml2::XMLElement* pRoot);
+	    void handleSubstanceCompoundInfusion(tinyxml2::XMLElement* pRoot);
+	    void handleSubstanceInfusion(tinyxml2::XMLElement* pRoot);
+	    void handleSubstanceNasalDose(tinyxml2::XMLElement* pRoot);
 
     protected:
         AMM::UUID m_uuid;

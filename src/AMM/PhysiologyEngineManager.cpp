@@ -67,6 +67,7 @@ namespace AMM {
 		InitializeBiogears();
 	}
 
+
 	void PhysiologyEngineManager::PublishOperationalDescription() {
 		AMM::OperationalDescription od;
 		od.name(moduleName);
@@ -179,12 +180,33 @@ namespace AMM {
 		}
 	}
 
+	// Retrieves text from a specified child element or an attribute if the element is null
+	std::string PhysiologyEngineManager::getElementText(tinyxml2::XMLElement* parent, const char* elementName, const char* attr) {
+		if (!parent) return ""; // If parent is null, return empty string
+
+		tinyxml2::XMLElement* elem = parent->FirstChildElement(elementName);
+		if (elem) { // If element exists, return its text content or attribute
+			const char* textValue = elem->GetText();
+			return textValue ? textValue : "";
+		} else if (attr) { // If element is null, fallback to parent attribute if provided
+			const char* attrValue = parent->Attribute(attr);
+			return attrValue ? attrValue : "";
+		}
+		return ""; // If both element and attribute are missing, return empty string
+	}
+
+// Retrieves a double value from a specified child element or an attribute if the element is null
+	double PhysiologyEngineManager::getElementDouble(tinyxml2::XMLElement* parent, const char* elementName, const char* attr) {
+		std::string text = getElementText(parent, elementName, attr);
+		return text.empty() ? 0.0 : std::stod(text); // Convert text to double if non-empty, else return 0.0
+	}
+
 /**
  * @brief this function executes a modification by sting comparison
  *
  * @param pm a string that is used to match to an existing physioligy modification, sting should be a formated supported xml type
  */
-	void PhysiologyEngineManager::ExecutePhysiologyModification(std::string pm) {
+	void PhysiologyEngineManager::ExecutePhysiologyModification(const std::string& pm) {
 		if (m_pe == nullptr) {
 			LOG_WARNING << "Physiology engine not running, cannot execute physiology modification.";
 			return;
@@ -192,191 +214,102 @@ namespace AMM {
 
 		tinyxml2::XMLDocument doc;
 		doc.Parse(pm.c_str());
-
-		if (doc.ErrorID() == 0) {
-			tinyxml2::XMLElement *pRoot;
-
-			pRoot = doc.FirstChildElement("PhysiologyModification");
-
-			while (pRoot) {
-				std::string pmType = pRoot->ToElement()->Attribute("type");
-				boost::algorithm::to_lower(pmType);
-				LOG_INFO << "Physmod type " << pmType;
-
-				if (pmType == "acutestress") {
-
-				} else if (pmType == "airwayobstruction") {
-					double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-					m_pe->SetAirwayObstruction(pSev);
-					return;
-				} else if (pmType == "apnea") {
-				} else if (pmType == "asthmaattack") {
-					double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-					m_pe->SetAsthmaAttack(pSev);
-					return;
-				} else if (pmType == "braininjury") {
-					double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-					std::string pType = pRoot->FirstChildElement("Type")->ToElement()->GetText();
-					m_pe->SetBrainInjury(pSev, pType);
-					return;
-				} else if (pmType == "bronchoconstriction") {
-				} else if (pmType == "burn") {
-				} else if (pmType == "bardiacarrest") {
-				} else if (pmType == "chestcompression") {
-				} else if (pmType == "consciousrespiration") {
-				} else if (pmType == "consumenutrients") {
-				} else if (pmType == "exercise") {
-				} else if (pmType == "hemorrhage") {
-					std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-					LOG_TRACE << "Location is " << pLoc;
-					tinyxml2::XMLElement *pFlow = pRoot->FirstChildElement("Flow")->ToElement();
-					double flow = stod(pFlow->GetText());
-					LOG_TRACE << "Flow is " << flow;
-					// std::string flowUnit = pFlow->Attribute("unit");
-					m_pe->SetHemorrhage(pLoc, flow);
-					return;
-				} else if (pmType == "infection") {
-				} else if (pmType == "intubation") {
-				} else if (pmType == "mechanicalventilation") {
-				} else if (pmType == "nasalcannula") {
-					tinyxml2::XMLElement *pRate = pRoot->FirstChildElement("Rate")->ToElement();
-					double rate;
-					if (pRate->Attribute("value") != NULL) {
-						rate = stod(pRate->Attribute("value"));
-					} else {
-						rate = stod(pRate->GetText());
-					}
-					std::string pUnit = pRate->Attribute("unit");
-
-					m_pe->SetNasalCannula(rate, pUnit);
-					return;
-				} else if (pmType == "needledecompression") {
-					std::string pState = pRoot->FirstChildElement("State")->ToElement()->GetText();
-					std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
-
-					m_pe->SetNeedleDecompression(pState, pSide);
-					return;
-				} else if (pmType == "occlusivedressing") {
-					std::string pState = pRoot->FirstChildElement("State")->ToElement()->GetText();
-					std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
-
-					m_pe->SetChestOcclusiveDressing(pState, pSide);
-					return;
-				} else if (pmType == "painstimulus") {
-					double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-					std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-					m_pe->SetPain(pLoc, pSev);
-					return;
-				} else if (pmType == "pericardialeffusion") {
-				} else if (pmType == "sepsis") {
-					double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-					std::string pLoc = pRoot->FirstChildElement("Location")->ToElement()->GetText();
-					m_pe->SetSepsis(pLoc, pSev);
-					return;
-				} else if (pmType == "substancebolus") {
-					std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
-
-					tinyxml2::XMLElement *pConc = pRoot->FirstChildElement("Concentration")->ToElement();
-					double concentration;
-					if (pConc->GetText() == NULL) {
-						concentration = stod(pConc->Attribute("value"));
-					} else {
-						concentration = stod(pConc->GetText());
-					}
-
-					std::string cUnit = pConc->Attribute("unit");
-
-					tinyxml2::XMLElement *pDose = pRoot->FirstChildElement("Dose")->ToElement();
-					double dose;
-					if (pDose->Attribute("value") != NULL) {
-						dose = stod(pDose->Attribute("value"));
-					} else {
-						dose = stod(pDose->GetText());
-					}
-					std::string dUnit = pDose->Attribute("unit");
-
-					tinyxml2::XMLElement *pAR = pRoot->FirstChildElement("AdminRoute")->ToElement();
-					std::string adminRoute = pAR->GetText();
-
-					m_pe->SetSubstanceBolus(pSub, concentration, cUnit, dose, dUnit, adminRoute);
-
-					return;
-				} else if (pmType == "substancecompoundinfusion") {
-					std::string pSub = pRoot->FirstChildElement("SubstanceCompound")->ToElement()->GetText();
-
-					tinyxml2::XMLElement *pVol = pRoot->FirstChildElement("BagVolume")->ToElement();
-					double bagVolume;
-					if (pVol->Attribute("value") != NULL) {
-						bagVolume = stod(pVol->Attribute("value"));
-					} else {
-						bagVolume = stod(pVol->GetText());
-					}
-					std::string bvUnit = pVol->Attribute("unit");
-
-					tinyxml2::XMLElement *pRate = pRoot->FirstChildElement("Rate")->ToElement();
-					double rate;
-					if (pRate->Attribute("value") != NULL) {
-						rate = stod(pRate->Attribute("value"));
-					} else {
-						rate = stod(pRate->GetText());
-					}
-					std::string rUnit = pRate->Attribute("unit");
-
-					m_pe->SetSubstanceCompoundInfusion(pSub, bagVolume, bvUnit, rate, rUnit);
-					return;
-				} else if (pmType == "substanceinfusion") {
-					std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
-
-					tinyxml2::XMLElement *pConc = pRoot->FirstChildElement("Concentration")->ToElement();
-					double concentration;
-					if (pConc->Attribute("value") != NULL) {
-						concentration = stod(pConc->Attribute("value"));
-					} else {
-						concentration = stod(pConc->GetText());
-					}
-					std::string cUnit = pConc->Attribute("unit");
-
-					tinyxml2::XMLElement *pRate = pRoot->FirstChildElement("Rate")->ToElement();
-					double rate;
-					if (pRate->Attribute("value") != NULL) {
-						rate = stod(pRate->Attribute("value"));
-					} else {
-						rate = stod(pRate->GetText());
-					}
-					std::string rUnit = pRate->Attribute("unit");
-					m_pe->SetSubstanceInfusion(pSub, concentration, cUnit, rate, rUnit);
-					return;
-				} else if (pmType == "substancenasaldose") {
-					std::string pSub = pRoot->FirstChildElement("Substance")->ToElement()->GetText();
-
-					tinyxml2::XMLElement *pDose = pRoot->FirstChildElement("Dose")->ToElement();
-					double dose;
-					if (pDose->Attribute("value") != NULL) {
-						dose = stod(pDose->Attribute("value"));
-					} else {
-						dose = stod(pDose->GetText());
-					}
-					std::string dUnit = pDose->Attribute("unit");
-
-					m_pe->SetSubstanceNasalDose(pSub, dose, dUnit);
-					return;
-				} else if (pmType == "tensionpneumothorax") {
-					std::string pType = pRoot->FirstChildElement("Type")->ToElement()->GetText();
-					std::string pSide = pRoot->FirstChildElement("Side")->ToElement()->GetText();
-					double pSev = stod(pRoot->FirstChildElement("Severity")->ToElement()->GetText());
-
-					m_pe->SetTensionPneumothorax(pType, pSide, pSev);
-					return;
-				} else if (pmType == "urinate") {
-				} else {
-					LOG_WARNING << "Unknown phys mod type: " << pmType;
-					return;
-				}
-			}
-		} else {
+		if (doc.ErrorID() != 0) {
 			LOG_ERROR << "Document parsing error, ID: " << doc.ErrorID();
 			doc.PrintError();
+			return;
 		}
+
+		tinyxml2::XMLElement* pRoot = doc.FirstChildElement("PhysiologyModification");
+
+		while (pRoot) {
+			std::string pmType = getElementText(pRoot, "PhysiologyModification", "type");
+			boost::algorithm::to_lower(pmType);
+			LOG_INFO << "Physiology Modification: " << pmType;
+
+			std::string pState = getElementText(pRoot, "State", "State");
+			std::string pSide = getElementText(pRoot, "Side", "Side");
+			std::string pType = getElementText(pRoot, "Type", "Type");
+			std::string pLoc = getElementText(pRoot, "Location", "Location");
+			double pSev = getElementDouble(pRoot, "Severity", "Severity");
+			double pFlow = getElementDouble(pRoot, "Flow", "Flow");
+
+			// Process based on pmType
+			if (pmType == "airwayobstruction") {
+				m_pe->SetAirwayObstruction(pSev);
+			} else if (pmType == "asthmaattack") {
+				m_pe->SetAsthmaAttack(pSev);
+			} else if (pmType == "braininjury") {
+				m_pe->SetBrainInjury(pSev, pType);
+			} else if (pmType == "hemorrhage") {
+				m_pe->SetHemorrhage(pLoc, pFlow);
+			} else if (pmType == "nasalcannula") {
+				handleNasalCannula(pRoot);
+			} else if (pmType == "needledecompression") {
+				m_pe->SetNeedleDecompression(pState, pSide);
+			} else if (pmType == "occlusivedressing") {
+				m_pe->SetChestOcclusiveDressing(pState, pSide);
+			} else if (pmType == "painstimulus") {
+				m_pe->SetPain(pLoc, pSev);
+			} else if (pmType == "sepsis") {
+				m_pe->SetSepsis(pLoc, pSev);
+			} else if (pmType == "substancebolus") {
+				handleSubstanceBolus(pRoot);
+			} else if (pmType == "substancecompoundinfusion") {
+				handleSubstanceCompoundInfusion(pRoot);
+			} else if (pmType == "substanceinfusion") {
+				handleSubstanceInfusion(pRoot);
+			} else if (pmType == "substancenasaldose") {
+				handleSubstanceNasalDose(pRoot);
+			} else if (pmType == "tensionpneumothorax") {
+				m_pe->SetTensionPneumothorax(pType, pSide, pSev);
+			} else {
+				LOG_WARNING << "Unknown physiology modification type: " << pmType;
+			}
+
+			pRoot = pRoot->NextSiblingElement("PhysiologyModification");
+		}
+	}
+
+	void PhysiologyEngineManager::handleNasalCannula(tinyxml2::XMLElement* pRoot) {
+		double rate = getElementDouble(pRoot, "Rate", "value");
+		std::string pUnit = getElementText(pRoot, "Rate", "unit");
+		m_pe->SetNasalCannula(rate, pUnit);
+	}
+
+	void PhysiologyEngineManager::handleSubstanceBolus(tinyxml2::XMLElement* pRoot) {
+		std::string pSub = getElementText(pRoot, "Substance");
+		double concentration = getElementDouble(pRoot, "Concentration", "value");
+		std::string cUnit = getElementText(pRoot, "Concentration", "unit");
+		double dose = getElementDouble(pRoot, "Dose", "value");
+		std::string dUnit = getElementText(pRoot, "Dose", "unit");
+		std::string adminRoute = getElementText(pRoot, "AdminRoute");
+		m_pe->SetSubstanceBolus(pSub, concentration, cUnit, dose, dUnit, adminRoute);
+	}
+
+	void PhysiologyEngineManager::handleSubstanceCompoundInfusion(tinyxml2::XMLElement* pRoot) {
+		std::string pSub = getElementText(pRoot, "SubstanceCompound");
+		double bagVolume = getElementDouble(pRoot, "BagVolume", "value");
+		std::string bvUnit = getElementText(pRoot, "BagVolume", "unit");
+		double rate = getElementDouble(pRoot, "Rate", "value");
+		std::string rUnit = getElementText(pRoot, "Rate", "unit");
+		m_pe->SetSubstanceCompoundInfusion(pSub, bagVolume, bvUnit, rate, rUnit);
+	}
+
+	void PhysiologyEngineManager::handleSubstanceInfusion(tinyxml2::XMLElement* pRoot) {
+		std::string pSub = getElementText(pRoot, "Substance");
+		double concentration = getElementDouble(pRoot, "Concentration", "value");
+		std::string cUnit = getElementText(pRoot, "Concentration", "unit");
+		double rate = getElementDouble(pRoot, "Rate", "value");
+		std::string rUnit = getElementText(pRoot, "Rate", "unit");
+		m_pe->SetSubstanceInfusion(pSub, concentration, cUnit, rate, rUnit);
+	}
+
+	void PhysiologyEngineManager::handleSubstanceNasalDose(tinyxml2::XMLElement* pRoot) {
+		std::string pSub = getElementText(pRoot, "Substance");
+		double dose = getElementDouble(pRoot, "Dose", "value");
+		std::string dUnit = getElementText(pRoot, "Dose", "unit");
+		m_pe->SetSubstanceNasalDose(pSub, dose, dUnit);
 	}
 
 /**
