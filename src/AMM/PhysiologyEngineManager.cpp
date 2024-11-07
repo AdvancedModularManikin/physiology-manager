@@ -246,7 +246,7 @@ namespace AMM {
 			} else if (pmType == "nasalcannula") {
 				handleNasalCannula(pRoot);
 			} else if (pmType == "chesttube") {
-				m_pe->SetChestTube(pSide);
+				m_pe->SetChestTube(pState, pSide);
 			} else if (pmType == "needledecompression") {
 				m_pe->SetNeedleDecompression(pState, pSide);
 			} else if (pmType == "occlusivedressing") {
