@@ -216,6 +216,8 @@ namespace AMM {
 
         void SetNeedleDecompression(const std::string &state, const std::string &side);
 
+	    void SetChestTube(const std::string &state, const std::string &side);
+
         void SetPain(const std::string &location, double severity);
 
         void SetPatientAction(const std::string &actionSettings);
@@ -302,6 +304,7 @@ namespace AMM {
         bool tachypneaSent = false;
         bool tachycardia = false;
         bool tachycardiaSent = false;
+
 
     private:
         void PopulateNodePathTable();

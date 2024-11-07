@@ -1748,4 +1748,24 @@ namespace AMM {
     double BiogearsThread::GetGCSValue() {
         return GlasgowEstimator(GetCerebralBloodFlow());
     }
+
+	void BiogearsThread::SetChestTube(const std::string &state, const std::string &side) {
+		try {
+			biogears::SEChestTube ct;
+			if (state == "On") {
+				ct.SetActive(true);
+			} else if (state == "Off") {
+				ct.SetActive(false);
+			}
+			if (side == "Left") {
+				ct.SetSide(SESide::Left);
+			} else if (side == "Right") {
+				ct.SetSide(SESide::Right);
+			}
+
+			m_pe->ProcessAction(ct);
+		} catch (std::exception &e) {
+			LOG_ERROR << "Error processing Chest Tube action: " << e.what();
+		}
+	}
 }
