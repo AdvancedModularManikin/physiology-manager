@@ -329,7 +329,9 @@ namespace AMM {
 
         double GetCerebralBloodFlow();
 
-        double GetBloodLossPercentage();
+      double GetBloodLoss();
+      double GetBloodLossPercentage();
+      
 
         double GetHeartRate();
 

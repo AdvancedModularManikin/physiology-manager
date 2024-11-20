@@ -72,6 +72,7 @@ namespace AMM {
         nodePathTable["Cardiovascular_HeartRate"] = &BiogearsThread::GetHeartRate;
         nodePathTable["Cardiovascular_BloodVolume"] = &BiogearsThread::GetBloodVolume;
         nodePathTable["Cardiovascular_BloodLossPercentage"] = &BiogearsThread::GetBloodLossPercentage;
+	nodePathTable["Cardiovascular_BloodLoss"] = &BiogearsThread::GetBloodLoss;
         nodePathTable["Cardiovascular_Arterial_Pressure"] = &BiogearsThread::GetArterialPressure;
         nodePathTable["Cardiovascular_Arterial_Mean_Pressure"] = &BiogearsThread::GetMeanArterialPressure;
         nodePathTable["Cardiovascular_Arterial_Systolic_Pressure"] = &BiogearsThread::GetArterialSystolicPressure;
@@ -638,10 +639,17 @@ namespace AMM {
         return currentBloodVolume;
     }
 
-    double BiogearsThread::GetBloodLossPercentage() {
-        double loss = (startingBloodVolume - currentBloodVolume) / startingBloodVolume;
+    double BiogearsThread::GetBloodLoss() {
+        double loss = (startingBloodVolume - currentBloodVolume);
         return loss;
     }
+
+
+  double BiogearsThread::GetBloodLossPercentage() {
+    double loss = (startingBloodVolume - currentBloodVolume) / startingBloodVolume;
+    return loss;
+  }
+  
 
     double BiogearsThread::GetHeartRate() {
         return m_pe->GetCardiovascularSystem()->GetHeartRate(biogears::FrequencyUnit::Per_min);

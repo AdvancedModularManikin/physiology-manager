@@ -598,26 +598,33 @@ namespace AMM {
 		// If the payload is empty, use the type to execute an XML file.
 		// Otherwise, the payload is considered to be XML to execute.
 		std::string pmData = pm.data().to_string();
+		
+		std::lock_guard<std::mutex> lg(m_mutex);
+		
 		if (pmData.empty()) {
-			LOG_INFO << "Executing scenario file: " << pm.type();
-			m_mutex.lock();
-			m_pe->ExecuteCommand(pm.type());
-			m_mutex.unlock();
-			return;
+		  LOG_INFO << "Scenario file NOT SUPPORTED anymore: " << pm.type();
+		  try {
+		    //		    m_pe->ExecuteCommand(pm.type());
+		  }  catch (std::exception &e) {
+                    LOG_ERROR << "Unable to execute scenario physiology modification: " << e.what();
+                  }
+		  return;
 		} else {
-			if (pm.type().empty() || pm.type() == "biogears") {
-				LOG_INFO << "Executing Biogears PhysMod XML patient action";
-				m_mutex.lock();
-				m_pe->ExecuteXMLCommand(pmData);
-				m_mutex.unlock();
-				return;
-			}
-			LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
-			try {
-				ExecutePhysiologyModification(pmData);
-			} catch (std::exception &e) {
-				LOG_ERROR << "Unable to apply physiology modification: " << e.what();
-			}
+		  if (pm.type().empty() || pm.type() == "biogears") {
+		    LOG_INFO << "Executing Biogears PhysMod XML patient action";
+		    try {
+		      m_pe->ExecuteXMLCommand(pmData);
+		    } catch (std::exception &e) {
+		      LOG_ERROR << "Unable to apply XML physiology modification: " << e.what();
+		    }
+		    return;
+		  }
+		  LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
+		  try {
+		    ExecutePhysiologyModification(pmData);
+		  } catch (std::exception &e) {
+		    LOG_ERROR << "Unable to apply physiology modification: " << e.what();
+		  }
 		}
 	}
 
