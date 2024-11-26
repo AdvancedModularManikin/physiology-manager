@@ -29,7 +29,8 @@ namespace AMM {
         std::string scenarioFile;
         bool authoringMode = false;
 
-        void PublishOperationalDescription();
+      
+      void PublishOperationalDescription();
 
         void PublishConfiguration();
 

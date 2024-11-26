@@ -68,6 +68,7 @@ namespace AMM {
 	}
 
 
+  
 	void PhysiologyEngineManager::PublishOperationalDescription() {
 		AMM::OperationalDescription od;
 		od.name(moduleName);
@@ -582,7 +583,7 @@ namespace AMM {
 		m_pe->Shutdown();
 	}
 
-/**
+  /**
  * @brief Listens for new physiology modifications and execute them if they are a patient action
  *
  * @param pm  a physiology modification (can be a few different types)
@@ -611,7 +612,7 @@ namespace AMM {
 		  return;
 		} else {
 		  if (pm.type().empty() || pm.type() == "biogears") {
-		    LOG_INFO << "Executing Biogears PhysMod XML patient action";
+		    LOG_INFO << "Executing Biogears PhysMod XML patient action";		    
 		    try {
 		      m_pe->ExecuteXMLCommand(pmData);
 		    } catch (std::exception &e) {

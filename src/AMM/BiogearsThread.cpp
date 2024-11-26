@@ -335,27 +335,55 @@ namespace AMM {
         logging_enabled = log;
     }
 
-    bool BiogearsThread::ExecuteXMLCommand(const std::string &cmd) {
-        char *tmpname = strdup("/tmp/tmp_amm_xml_XXXXXX");
-        std::ofstream out(tmpname);
-        if (out.is_open()) {
-            out << cmd;
 
-            out.close();
-            if (!LoadScenarioFile(tmpname)) {
-                LOG_ERROR << "Unable to load scenario file from temp.";
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            LOG_ERROR << "Unable to open file.";
-        }
-
-        return true;
+  std::string BiogearsThread::wrapActionsTag(const std::string& xmlInput) {
+    size_t actionStart = xmlInput.find("<Action");
+    if (actionStart == std::string::npos) {
+      // No <Action> tags found, return the original XML
+      return xmlInput;
     }
+    
+    size_t actionsEnd = xmlInput.rfind("</Action>");
+    if (actionsEnd == std::string::npos) {
+      // Malformed XML: no closing </Action>
+      throw std::runtime_error("Malformed XML: Missing closing </Action>.");
+    }
+    
+    // Insert the <Actions> opening tag before the first <Action>
+    std::string modifiedXml = xmlInput;
+    modifiedXml.insert(actionStart, "<Actions>");
+    
+    // Insert the </Actions> closing tag after the last </Action>
+    actionsEnd = modifiedXml.find("</Action>", actionsEnd); // Recompute location after modification
+    modifiedXml.insert(actionsEnd + 9, "</Actions>"); // Length of "</Action>" is 9
+    
+    return modifiedXml;
+  }
 
-    bool file_exists(const char *fileName) {
+
+  
+  bool BiogearsThread::ExecuteXMLCommand(const std::string& cmd) {
+    char *tmpname = strdup("/tmp/tmp_amm_xml_XXXXXX");
+    std::ofstream out(tmpname);
+    if (out.is_open()) {
+      std::string newcmd = wrapActionsTag(cmd);
+      out << newcmd;
+      
+      out.close();
+      if (!LoadScenarioFile(tmpname)) {
+	LOG_ERROR << "Unable to load scenario file from temp.";
+	return false;
+      } else {
+	return true;
+      }
+    } else {
+      LOG_ERROR << "Unable to open file.";
+    }
+    
+    return true;
+  }
+  
+  bool file_exists(const char *fileName) {
         std::ifstream infile(fileName);
         return infile.good();
     }
@@ -1294,30 +1322,31 @@ namespace AMM {
                                                       const std::string &bvUnit, double rate,
                                                       const std::string &rUnit) {
         try {
-            if (substance == "Blood" || substance == "Whole Blood" || substance == "WholeBlood") {
-                substance == "Blood_ONegative";
-            }
-
-            biogears::SESubstanceCompound *subs = m_pe->GetSubstanceManager().GetCompound(substance);
-            biogears::SESubstanceCompoundInfusion infuse(*subs);
-
-            LOG_DEBUG << "Setting bag volume to " << bagVolume << " / " << bvUnit;
-            if (bvUnit == "mL") {
-                infuse.GetBagVolume().SetValue(bagVolume, biogears::VolumeUnit::mL);
-            } else {
-                infuse.GetBagVolume().SetValue(bagVolume, biogears::VolumeUnit::L);
-            }
-
-            if (rUnit == "mL/hr") {
-                LOG_DEBUG << "Infusing at " << rate << " mL per hour";
-                infuse.GetRate().SetValue(rate, biogears::VolumePerTimeUnit::mL_Per_hr);
-            } else {
-                LOG_DEBUG << "Infusing at " << rate << " mL per min";
-                infuse.GetRate().SetValue(rate, biogears::VolumePerTimeUnit::mL_Per_min);
-            }
-            m_pe->ProcessAction(infuse);
+	  std::string newSub = substance;
+	  if (substance == "Blood" || substance == "Whole Blood" || substance == "WholeBlood") {
+	    newSub = "Blood_ONegative";
+	  }
+	  
+	  biogears::SESubstanceCompound *subs = m_pe->GetSubstanceManager().GetCompound(newSub);
+	  biogears::SESubstanceCompoundInfusion infuse(*subs);
+	  
+	  LOG_DEBUG << "Setting bag volume to " << bagVolume << " / " << bvUnit;
+	  if (bvUnit == "mL") {
+	    infuse.GetBagVolume().SetValue(bagVolume, biogears::VolumeUnit::mL);
+	  } else {
+	    infuse.GetBagVolume().SetValue(bagVolume, biogears::VolumeUnit::L);
+	  }
+	  
+	  if (rUnit == "mL/hr") {
+	    LOG_DEBUG << "Infusing at " << rate << " mL per hour";
+	    infuse.GetRate().SetValue(rate, biogears::VolumePerTimeUnit::mL_Per_hr);
+	  } else {
+	    LOG_DEBUG << "Infusing at " << rate << " mL per min";
+	    infuse.GetRate().SetValue(rate, biogears::VolumePerTimeUnit::mL_Per_min);
+	  }
+	  m_pe->ProcessAction(infuse);
         } catch (std::exception &e) {
-            LOG_ERROR << "Error processing substance bolus action: " << e.what();
+	  LOG_ERROR << "Error processing substance bolus action: " << e.what();
         }
         return;
     }

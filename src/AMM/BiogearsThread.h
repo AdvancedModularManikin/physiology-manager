@@ -138,6 +138,8 @@ namespace AMM {
 
         bool SaveState(const std::string &stateFile);
 
+      std::string wrapActionsTag(const std::string& xmlInput);
+      
         bool ExecuteXMLCommand(const std::string &cmd);
 
         bool ExecuteCommand(const std::string &cmd);
