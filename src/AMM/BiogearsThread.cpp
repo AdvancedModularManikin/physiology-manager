@@ -723,7 +723,7 @@ namespace AMM {
 
 // SPO2 - Oxygen Saturation - unitless %
     double BiogearsThread::GetOxygenSaturation() {
-        return m_pe->GetBloodChemistrySystem()->GetOxygenSaturation() * 100;
+      return std::min(97.0,m_pe->GetBloodChemistrySystem()->GetOxygenSaturation() * 100);
     }
 
     double BiogearsThread::GetCarbonMonoxideSaturation() {

@@ -488,36 +488,39 @@ namespace AMM {
 			m_pe->severeHypothermiaSent = true;
 		}
 
-		if (m_pe->pneumothoraxLClosed && !m_pe->pneumothoraxLClosedSent) {
-			LOG_DEBUG << "Patient has left closed pneumothorax, sending render mod.";
-			SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_L_SEVERE");
-			m_pe->pneumothoraxLClosedSent = true;
+		if (autosend_enabled) {
+		  if (m_pe->pneumothoraxLClosed && !m_pe->pneumothoraxLClosedSent) {
+		    LOG_DEBUG << "Patient has left closed pneumothorax, sending render mod.";
+		    SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_L_SEVERE");
+		    m_pe->pneumothoraxLClosedSent = true;
+		  }
+		  
+		  if (m_pe->pneumothoraxLOpen && !m_pe->pneumothoraxLOpenSent) {
+		    LOG_DEBUG << "Patient has left open pneumothorax, sending render mod.";
+		    SendPatientStateRendMod("PNEUMOTHORAX_OPEN_L_SEVERE");
+		    m_pe->pneumothoraxLOpenSent = true;
+		  }
+		  
+		  if (m_pe->pneumothoraxRClosed && !m_pe->pneumothoraxRClosedSent) {
+		    LOG_DEBUG << "Patient has  has right closed pneumothorax, sending render mod.";
+		    SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_R_SEVERE");
+		    m_pe->pneumothoraxRClosedSent = true;
+		  }
+		  
+		  if (m_pe->pneumothoraxROpen && !m_pe->pneumothoraxROpenSent) {
+		    LOG_DEBUG << "Patient  has right open pneumothorax, sending render mod.";
+		    SendPatientStateRendMod("PNEUMOTHORAX_OPEN_R_SEVERE");
+		    m_pe->pneumothoraxROpenSent = true;
+		  }
+		  
+		  if (m_pe->hemorrhage && !m_pe->hemorrhageSent) {
+		    LOG_DEBUG << "Patient has a hemmorrhage, sending render mod.";
+		    SendPatientStateRendMod("HEMORRHAGE");
+		    m_pe->hemorrhageSent = true;
+		  }
 		}
-
-		if (m_pe->pneumothoraxLOpen && !m_pe->pneumothoraxLOpenSent) {
-			LOG_DEBUG << "Patient has left open pneumothorax, sending render mod.";
-			SendPatientStateRendMod("PNEUMOTHORAX_OPEN_L_SEVERE");
-			m_pe->pneumothoraxLOpenSent = true;
-		}
-
-		if (m_pe->pneumothoraxRClosed && !m_pe->pneumothoraxRClosedSent) {
-			LOG_DEBUG << "Patient has  has right closed pneumothorax, sending render mod.";
-			SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_R_SEVERE");
-			m_pe->pneumothoraxRClosedSent = true;
-		}
-
-		if (m_pe->pneumothoraxROpen && !m_pe->pneumothoraxROpenSent) {
-			LOG_DEBUG << "Patient  has right open pneumothorax, sending render mod.";
-			SendPatientStateRendMod("PNEUMOTHORAX_OPEN_R_SEVERE");
-			m_pe->pneumothoraxROpenSent = true;
-		}
-
-		if (m_pe->hemorrhage && !m_pe->hemorrhageSent) {
-			LOG_DEBUG << "Patient has a hemmorrhage, sending render mod.";
-			SendPatientStateRendMod("HEMORRHAGE");
-			m_pe->hemorrhageSent = true;
-		}
-
+		
+		
 		if (m_pe->acuteStress && m_pe->acuteStressSent) {
 			LOG_DEBUG << "Patient has accute stress, sending render mod.";
 			SendPatientStateRendMod("ACUTE_STRESS");
@@ -566,6 +569,10 @@ namespace AMM {
 			m_pe->SetLogging(logging_enabled);
 			m_mutex.unlock();
 		}
+	}
+
+  	void PhysiologyEngineManager::SetAutosend(bool autosend) {
+		autosend_enabled = autosend;
 	}
 
 	int PhysiologyEngineManager::GetTickCount() { return lastFrame; }

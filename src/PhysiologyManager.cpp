@@ -7,6 +7,7 @@ using namespace AMM;
 
 bool closed = false;
 int autostart = 0;
+bool autosend = false;
 bool logging = false;
 
 
@@ -14,6 +15,7 @@ static void show_usage(const std::string &name) {
    std::cerr << "Usage: " << name << " <option(s)>"
              << "\nOptions:\n"
              << "\t-a\t\tAuto-start based on ticks\n"
+	     << "\t-s\t\tSend render mods on startup\n"
              << "\t-l\t\tEnable physiology CSV logging\n"
              << "\t-h,--help\t\tShow this help message\n"
              << std::endl;
@@ -147,10 +149,15 @@ int main(int argc, char *argv[]) {
       if (arg == "-a") {
          autostart = 1;
       }
+
+      if (arg == "-s") {
+	autosend = true;
+      }
    }
 
    auto *pe = new AMM::PhysiologyEngineManager();
    pe->SetLogging(logging);
+   pe->SetAutosend(autosend);
    std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
    pe->PublishOperationalDescription();

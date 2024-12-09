@@ -17,24 +17,24 @@ using namespace tinyxml2;
 namespace AMM {
     class BiogearsThread;
 
-    class PhysiologyEngineManager {
+  class PhysiologyEngineManager {
     public:
-        PhysiologyEngineManager();
-
-        virtual ~PhysiologyEngineManager();
-
-        BiogearsThread *m_pe{};
-        std::string stateFile;
-        std::string patientFile;
-        std::string scenarioFile;
-        bool authoringMode = false;
-
+      PhysiologyEngineManager();
+      
+      virtual ~PhysiologyEngineManager();
+      
+      BiogearsThread *m_pe{};
+      std::string stateFile;
+      std::string patientFile;
+      std::string scenarioFile;
+      bool authoringMode = false;
       
       void PublishOperationalDescription();
-
-        void PublishConfiguration();
-
-        void SetLogging(bool logging_enabled);
+      
+      void PublishConfiguration();
+      
+      void SetLogging(bool logging_enabled);
+      void SetAutosend(bool autosend_enabled);
 
         void StartSimulation();
 
@@ -76,8 +76,10 @@ namespace AMM {
 
         bool paused = false;
         bool running = false;
-        int lastFrame = 0;
-        bool logging_enabled = false;
+        int lastFrame = 0;   
+    bool logging_enabled = false;
+    bool autosend_enabled = false;
+
         bool moduleEnabled = true;
 
         void OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info);
