@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <thread>
+#include <unordered_set>
 
 #include "amm_std.h"
 
@@ -52,10 +53,10 @@
 #include <biogears/cdm/patient/actions/SEAsthmaAttack.h>
 #include <biogears/cdm/patient/actions/SEBrainInjury.h>
 #include <biogears/cdm/patient/actions/SEHemorrhage.h>
+#include <biogears/cdm/patient/actions/SENasalCannula.h>
 #include <biogears/cdm/patient/actions/SEPainStimulus.h>
 #include <biogears/cdm/patient/actions/SEPupillaryResponse.h>
 #include <biogears/cdm/patient/actions/SESubstanceBolus.h>
-#include <biogears/cdm/patient/actions/SENasalCannula.h>
 
 #include <biogears/cdm/substance/SESubstanceManager.h>
 #include <biogears/cdm/system/physiology/SEBloodChemistrySystem.h>
@@ -115,443 +116,445 @@
 
 #include "amm/Utility.h"
 
-using namespace biogears;
 
 // Forward declare what we will use in our thread
 namespace AMM {
 
-    class EventHandler;
+	class EventHandler;
 
-    class BiogearsThread {
-    public:
-        explicit BiogearsThread(const std::string &stateFile);
+	class BiogearsThread {
+	public:
+		explicit BiogearsThread(const std::string &stateFile);
 
-        ~BiogearsThread();
+		~BiogearsThread();
 
-        bool PostLoad();
+		bool PostLoad();
 
-        bool LoadScenarioFile(const std::string &scenarioFile);
+		bool LoadScenarioFile(const std::string &scenarioFile);
 
-        bool LoadPatient(const std::string &patientFile);
+		bool LoadPatient(const std::string &patientFile);
 
-        bool LoadState(const std::string &stateFile, double sec);
+		bool LoadState(const std::string &stateFile, double sec);
 
-        bool SaveState(const std::string &stateFile);
+		bool SaveState(const std::string &stateFile);
 
-      std::string wrapActionsTag(const std::string& xmlInput);
-      
-        bool ExecuteXMLCommand(const std::string &cmd);
+		std::string wrapActionsTag(const std::string &xmlInput);
 
-        bool ExecuteCommand(const std::string &cmd);
+		bool ExecuteXMLCommand(const std::string &cmd);
 
-        bool InitializeBioGearsSubstances();
+		bool ExecuteCommand(const std::string &cmd);
 
-        bool BioGearsLogging();
+		bool InitializeBioGearsSubstances();
 
-        void Shutdown();
+		bool InitializeBioGearsLogging();
 
-        void StartSimulation();
+		bool InitializePatientActions();
 
-        void StopSimulation();
+		bool AttachEventHandler();
 
-        void AdvanceTimeTick();
+		void Shutdown();
 
+		void StartSimulation();
 
-        double GetSimulationTime();
+		void StopSimulation();
 
-        double GetPatientTime();
+		void AdvanceTimeTick();
 
-        std::map<std::string, double (BiogearsThread::*)()> *GetNodePathTable();
+		double GetSimulationTime();
 
-        double GetNodePath(const std::string &nodePath);
+		double GetPatientTime();
 
-        void SetVentilator(const std::string &ventilatorSettings);
+		std::map<std::string, double (BiogearsThread::*)()> *GetNodePathTable();
 
-        void SetBVMMask(const std::string &ventilatorSettings);
+		double GetNodePath(const std::string &nodePath);
 
-        void SetIVPump(const std::string &pumpSettings);
+		void SetVentilator(const std::string &ventilatorSettings);
 
-        // AMM Standard patient actions
-        void SetAcuteStress(const std::string &actionSettings);
+		void SetBVMMask(const std::string &ventilatorSettings);
 
-        void SetAirwayObstruction(double severity);
+		void SetIVPump(const std::string &pumpSettings);
 
-        void SetApnea(const std::string &actionSettings);
+		// AMM Standard patient actions
+		void SetAcuteStress(const std::string &actionSettings);
 
-        void SetAsthmaAttack(double severity);
+		void SetAirwayObstruction(double severity);
 
-        void SetBrainInjury(double severity, const std::string &type);
+		void SetApnea(const std::string &actionSettings);
 
-        void SetBronchoconstriction(const std::string &actionSettings);
+		void SetAsthmaAttack(double severity);
 
-        void SetBurnWound(const std::string &actionSettings);
+		void SetBrainInjury(double severity, const std::string &type);
 
-        void SetCardiacArrest(const std::string &actionSettings);
+		void SetBronchoconstriction(const std::string &actionSettings);
 
-        void SetChestCompression(const std::string &actionSettings);
+		void SetBurnWound(const std::string &actionSettings);
 
-        void SetChestOcclusiveDressing(const std::string &state, const std::string &side);
+		void SetCardiacArrest(const std::string &actionSettings);
 
-        void SetConsciousRespiration(const std::string &actionSettings);
+		void SetChestCompression(const std::string &actionSettings);
 
-        void SetBreathHold(const std::string &actionSettings);
+		void SetChestOcclusiveDressing(const std::string &state, const std::string &side);
 
-        void SetForcedExhale(const std::string &actionSettings);
+		void SetConsciousRespiration(const std::string &actionSettings);
 
-        void SetForcedInhale(const std::string &actionSettings);
+		void SetBreathHold(const std::string &actionSettings);
 
-        void SetConsciousRespirationCommand(const std::string &actionSettings);
+		void SetForcedExhale(const std::string &actionSettings);
 
-        void SetConsumeNutrients(const std::string &actionSettings);
+		void SetForcedInhale(const std::string &actionSettings);
 
-        void SetExercise(const std::string &actionSettings);
+		void SetConsciousRespirationCommand(const std::string &actionSettings);
 
-        void SetHemorrhage(const std::string &location, double flow);
+		void SetConsumeNutrients(const std::string &actionSettings);
 
-        void SetInfection(const std::string &actionSettings);
+		void SetExercise(const std::string &actionSettings);
 
-        void SetIntubation(const std::string &actionSettings);
+		void SetHemorrhage(const std::string &location, double flow);
 
-        void SetMechanicalVentilation(const std::string &actionSettings);
+		void SetInfection(const std::string &actionSettings);
 
-        void SetNasalCannula(double flowRate, const std::string &unit);
+		void SetIntubation(const std::string &actionSettings);
 
-        void SetNeedleDecompression(const std::string &state, const std::string &side);
+		void SetMechanicalVentilation(const std::string &actionSettings);
 
-	    void SetChestTube(const std::string &state, const std::string &side);
+		void SetNasalCannula(double flowRate, const std::string &unit);
 
-        void SetPain(const std::string &location, double severity);
+		void SetNeedleDecompression(const std::string &state, const std::string &side);
 
-        void SetPatientAction(const std::string &actionSettings);
+		void SetChestTube(const std::string &state, const std::string &side);
 
-        void SetPatientAssessmentRequest(const std::string &actionSettings);
+		void SetPain(const std::string &location, double severity);
 
-        void SetPericardialEffusion(const std::string &actionSettings);
+		void SetPatientAction(const std::string &actionSettings);
 
-        void SetPupillaryResponse(const std::string &actionSettings);
+		void SetPatientAssessmentRequest(const std::string &actionSettings);
 
-        void SetSepsis(const std::string &location, double severity);
+		void SetPericardialEffusion(const std::string &actionSettings);
 
-        void SetSubstanceAdministration(const std::string &actionSettings);
+		void SetPupillaryResponse(const std::string &actionSettings);
 
-        void
-        SetSubstanceBolus(const std::string &substance, double concentration, const std::string &concUnit, double dose,
-                          const std::string &doseUnit, const std::string &adminRoute);
+		void SetSepsis(const std::string &location, double severity);
 
-        void SetSubstanceCompoundInfusion(const std::string &substance, double bagVolume, const std::string &bvUnit,
-                                          double rate,
-                                          const std::string &rUnit);
+		void SetSubstanceAdministration(const std::string &actionSettings);
 
-        void
-        SetSubstanceInfusion(const std::string &substance, double bagVolume, const std::string &bvUnit, double rate,
-                             const std::string &rUnit);
+		void
+		SetSubstanceBolus(const std::string &substance, double concentration, const std::string &concUnit, double dose,
+		                  const std::string &doseUnit, const std::string &adminRoute);
 
-        void SetSubstanceNasalDose(const std::string &substance, double dose, const std::string &doseUnit);
+		void SetSubstanceCompoundInfusion(const std::string &substance, double bagVolume, const std::string &bvUnit,
+		                                  double rate,
+		                                  const std::string &rUnit);
 
-        void SetSubstanceOralDose(const std::string &actionSettings);
+		void
+		SetSubstanceInfusion(const std::string &substance, double bagVolume, const std::string &bvUnit, double rate,
+		                     const std::string &rUnit);
 
-        void SetTensionPneumothorax(const std::string &type, const std::string &side, double severity);
+		void SetSubstanceNasalDose(const std::string &substance, double dose, const std::string &doseUnit);
 
-        void SetUrinate(const std::string &actionSettings);
+		void SetSubstanceOralDose(const std::string &actionSettings);
 
-        void SetUseInhaler(const std::string &actionSettings);
+		void SetTensionPneumothorax(const std::string &type, const std::string &side, double severity);
 
-        void SetLogging(bool log);
+		void SetUrinate(const std::string &actionSettings);
 
-        void SetLastFrame(int lastFrame);
+		void SetUseInhaler(const std::string &actionSettings);
 
-        void Status();
+		void SetLogging(bool log);
 
-        bool scenarioLoading = false;
+		void SetLastFrame(int lastFrame);
 
-        bool running = false;
+		void Status();
 
+		bool scenarioLoading = false;
 
-        std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
-        std::vector<std::string> highFrequencyNodes;
-        static constexpr size_t numEvents = static_cast<size_t>(biogears::SEPatientEventType::_end);
-        std::vector<EventStatus> *patientEventStates;
+		bool running = false;
 
-        bool paralyzed = false;
-        bool paralyzedSent = false;
-        bool irreversible = false;
-        bool irreversibleSent = false;
-        bool startOfExhale = false;
-        bool startOfInhale = false;
-        bool pneumothoraxLClosed = false;
-        bool pneumothoraxLClosedSent = false;
-        bool pneumothoraxRClosed = false;
-        bool pneumothoraxRClosedSent = false;
-        bool pneumothoraxLOpen = false;
-        bool pneumothoraxLOpenSent = false;
-        bool pneumothoraxROpen = false;
-        bool pneumothoraxROpenSent = false;
-        bool hemorrhage = false;
-        bool hemorrhageSent = false;
-        bool acuteStress = false;
-        bool acuteStressSent = false;
-        bool asthmaAttack = false;
-        bool asthmaAttackSent = false;
-        bool brainInjury = false;
-        bool brainInjurySent = false;
-        bool mildHypothermia = false;
-        bool mildHypothermiaSent = false;
-        bool moderateHypothermia = false;
-        bool moderateHypothermiaSent = false;
-        bool severeHypothermia = false;
-        bool severeHypothermiaSent = false;
-        bool shivering = false;
-        bool shiveringSent = false;
-        bool tachypnea = false;
-        bool tachypneaSent = false;
-        bool tachycardia = false;
-        bool tachycardiaSent = false;
+		std::map<std::string, double (BiogearsThread::*)()> nodePathTable;
+		std::unordered_set<std::string> highFrequencyNodes;
 
+		static constexpr int DEFAULT_LOGGING_FREQUENCY = 50;
+		static constexpr char DEFAULT_LOG_PATH[] = "./logs/AMM_Output_";
 
-    private:
-        void PopulateNodePathTable();
+		static constexpr size_t numEvents = static_cast<size_t>(biogears::SEPatientEventType::_end);
+		std::vector<EventStatus> *patientEventStates;
 
-        double GetLoggingStatus();
+		bool paralyzed = false;
+		bool paralyzedSent = false;
+		bool irreversible = false;
+		bool irreversibleSent = false;
+		bool startOfExhale = false;
+		bool startOfInhale = false;
+		bool pneumothoraxLClosed = false;
+		bool pneumothoraxLClosedSent = false;
+		bool pneumothoraxRClosed = false;
+		bool pneumothoraxRClosedSent = false;
+		bool pneumothoraxLOpen = false;
+		bool pneumothoraxLOpenSent = false;
+		bool pneumothoraxROpen = false;
+		bool pneumothoraxROpenSent = false;
+		bool hemorrhage = false;
+		bool hemorrhageSent = false;
+		bool acuteStress = false;
+		bool acuteStressSent = false;
+		bool asthmaAttack = false;
+		bool asthmaAttackSent = false;
+		bool brainInjury = false;
+		bool brainInjurySent = false;
+		bool mildHypothermia = false;
+		bool mildHypothermiaSent = false;
+		bool moderateHypothermia = false;
+		bool moderateHypothermiaSent = false;
+		bool severeHypothermia = false;
+		bool severeHypothermiaSent = false;
+		bool shivering = false;
+		bool shiveringSent = false;
+		bool tachypnea = false;
+		bool tachypneaSent = false;
+		bool tachycardia = false;
+		bool tachycardiaSent = false;
 
-        double GetShutdownMessage();
+	private:
+		void PopulateNodePathTable();
 
-        double GetPatientAge();
+		double GetLoggingStatus();
 
-        double GetPatientWeight();
+		double GetShutdownMessage();
 
-        double GetPatientGender();
+		double GetPatientAge();
 
-        double GetPatientHeight();
+		double GetPatientWeight();
 
-        double GetPatient_BodyFatFraction();
+		double GetPatientGender();
 
-        double GetGCSValue();
+		double GetPatientHeight();
 
-        double GetCerebralPerfusionPressure();
+		double GetPatient_BodyFatFraction();
 
-        double GetCerebralBloodFlow();
+		double GetGCSValue();
 
-      double GetBloodLoss();
-      double GetBloodLossPercentage();
-      
+		double GetCerebralPerfusionPressure();
 
-        double GetHeartRate();
+		double GetCerebralBloodFlow();
 
-        double GetBloodVolume();
+		double GetBloodLoss();
 
-        double GetArterialSystolicPressure();
+		double GetBloodLossPercentage();
 
-        double GetArterialDiastolicPressure();
+		double GetHeartRate();
 
-        double GetMeanArterialPressure();
+		double GetBloodVolume();
 
-        double GetArterialPressure();
+		double GetArterialSystolicPressure();
 
-        double GetMeanCentralVenousPressure();
+		double GetArterialDiastolicPressure();
 
-        double GetInspiratoryFlow();
+		double GetMeanArterialPressure();
 
-        double GetRespiratoryTotalPressure();
+		double GetArterialPressure();
 
-        double GetEndTidalCarbonDioxideFraction();
+		double GetMeanCentralVenousPressure();
 
-        double GetEndTidalCarbonDioxidePressure();
+		double GetInspiratoryFlow();
 
-        double GetOxygenSaturation();
+		double GetRespiratoryTotalPressure();
 
-        double GetCarbonMonoxideSaturation();
+		double GetEndTidalCarbonDioxideFraction();
 
-        double GetRawRespirationRate();
+		double GetEndTidalCarbonDioxidePressure();
 
-        double GetRespirationRate();
+		double GetOxygenSaturation();
 
-        double GetPulmonaryResistance();
+		double GetCarbonMonoxideSaturation();
 
-        double GetCoreTemperature();
+		double GetRawRespirationRate();
 
-        double GetECGWaveform();
+		double GetRespirationRate();
 
-        double GetSodiumConcentration();
+		double GetPulmonaryResistance();
 
-        double GetSodium();
+		double GetCoreTemperature();
 
-        double GetGlucoseConcentration();
+		double GetECGWaveform();
 
-        double GetBUN();
+		double GetSodiumConcentration();
 
-        double GetIntracranialPressure();
+		double GetSodium();
 
-        double GetCreatinineConcentration();
+		double GetGlucoseConcentration();
 
-        double GetWhiteBloodCellCount();
+		double GetBUN();
 
-        double GetRedBloodCellCount();
+		double GetIntracranialPressure();
 
-        double GetHemoglobinConcentration();
+		double GetCreatinineConcentration();
 
-        double GetOxyhemoglobinConcentration();
+		double GetWhiteBloodCellCount();
 
-        double GetCarbaminohemoglobinConcentration();
+		double GetRedBloodCellCount();
 
-        double GetOxyCarbaminohemoglobinConcentration();
+		double GetHemoglobinConcentration();
 
-        double GetCarboxyhemoglobinConcentration();
+		double GetOxyhemoglobinConcentration();
 
-        double GetIonizedCalcium();
+		double GetCarbaminohemoglobinConcentration();
 
-        double GetAnionGap();
+		double GetOxyCarbaminohemoglobinConcentration();
 
-        double GetHematocrit();
+		double GetCarboxyhemoglobinConcentration();
 
-        double GetRawBloodPH();
+		double GetIonizedCalcium();
 
-        double GetModBloodPH();
+		double GetAnionGap();
 
-        double GetBloodPH();
+		double GetHematocrit();
 
-        double GetArterialCarbonDioxidePressure();
+		double GetRawBloodPH();
 
-        double GetArterialOxygenPressure();
+		double GetModBloodPH();
 
-        double GetVenousOxygenPressure();
+		double GetBloodPH();
 
-        double GetVenousCarbonDioxidePressure();
+		double GetArterialCarbonDioxidePressure();
 
-        double GetBicarbonateConcentration();
+		double GetArterialOxygenPressure();
 
-        double GetBicarbonate();
+		double GetVenousOxygenPressure();
 
-        double GetBicarbonateRaw();
+		double GetVenousCarbonDioxidePressure();
 
-        double GetBaseExcess();
+		double GetBicarbonateConcentration();
 
-        double GetBaseExcessRaw();
+		double GetBicarbonate();
 
-        double GetCO2();
+		double GetBicarbonateRaw();
 
-        double GetPotassium();
+		double GetBaseExcess();
 
-        double GetChloride();
+		double GetBaseExcessRaw();
 
-        double GetPlateletCount();
+		double GetCO2();
 
-        double GetExhaledCO2();
+		double GetPotassium();
 
-        double GetExhaledO2();
+		double GetChloride();
 
-        double GetTidalVolume();
+		double GetPlateletCount();
 
-        double GetTotalLungVolume();
+		double GetExhaledCO2();
 
-        double GetLeftLungVolume();
+		double GetExhaledO2();
 
-        double GetRightLungVolume();
+		double GetTidalVolume();
 
-        double GetLeftLungTidalVolume();
+		double GetTotalLungVolume();
 
-        double GetRightLungTidalVolume();
+		double GetLeftLungVolume();
 
-        double GetLeftPleuralCavityVolume();
+		double GetRightLungVolume();
 
-        double GetRightPleuralCavityVolume();
+		double GetLeftLungTidalVolume();
 
-        double GetLeftAlveoliBaselineCompliance();
+		double GetRightLungTidalVolume();
 
-        double GetRightAlveoliBaselineCompliance();
+		double GetLeftPleuralCavityVolume();
 
-        double GetCardiacOutput();
+		double GetRightPleuralCavityVolume();
 
-        double GetCalciumConcentration();
+		double GetLeftAlveoliBaselineCompliance();
 
-        double GetAlbuminConcentration();
+		double GetRightAlveoliBaselineCompliance();
 
-        double GetLactateConcentration();
+		double GetCardiacOutput();
 
-        double GetLactateConcentrationMMOL();
+		double GetCalciumConcentration();
 
-        double GetTotalBilirubin();
+		double GetAlbuminConcentration();
 
-        double GetTotalProtein();
+		double GetLactateConcentration();
 
-        double GetPainVisualAnalogueScale();
+		double GetLactateConcentrationMMOL();
 
-        double GetUrineSpecificGravity();
+		double GetTotalBilirubin();
 
-        double GetUrineProductionRate();
+		double GetTotalProtein();
 
-        double GetUrineOsmolality();
+		double GetPainVisualAnalogueScale();
 
-        double GetUrineOsmolarity();
+		double GetUrineSpecificGravity();
 
-        double GetBladderGlucose();
+		double GetUrineProductionRate();
 
-        double GetShuntFraction();
+		double GetUrineOsmolality();
 
-        int GlasgowEstimator(double cbf);
+		double GetUrineOsmolarity();
 
-        biogears::SESubstance *sodium;
-        biogears::SESubstance *glucose;
-        biogears::SESubstance *creatinine;
-        biogears::SESubstance *calcium;
-        biogears::SESubstance *albumin;
-        biogears::SESubstance *hemoglobin;
-        biogears::SESubstance *bicarbonate;
-        biogears::SESubstance *CO2;
-        biogears::SESubstance *N2;
-        biogears::SESubstance *O2;
-        biogears::SESubstance *CO;
-        biogears::SESubstance *Hb;
-        biogears::SESubstance *HbO2;
-        biogears::SESubstance *HbCO2;
-        biogears::SESubstance *HbCO;
-        biogears::SESubstance *HbO2CO2;
-        biogears::SESubstance *potassium;
-        biogears::SESubstance *chloride;
-        biogears::SESubstance *lactate;
+		double GetBladderGlucose();
 
-        const biogears::SEGasCompartment *carina;
-        const biogears::SEGasCompartment *leftLung;
-        const biogears::SEGasCompartment *rightLung;
-        const biogears::SELiquidCompartment *bladder;
+		double GetShuntFraction();
 
-    protected:
-        std::mutex m_mutex;
-        std::unique_ptr<biogears::BioGearsEngine> m_pe;
-        biogears::BioGears *bg;
+		int GlasgowEstimator(double cbf);
 
-        // AMM
-        AMM::UUID m_uuid;
-        std::string moduleName = "AMM_BioGearsThread";
-        std::string configFile = "config/pe_manager_amm.xml";
-        AMM::DDSManager<BiogearsThread> *m_mgr = new DDSManager<BiogearsThread>(configFile);
+		biogears::SESubstance *sodium;
+		biogears::SESubstance *glucose;
+		biogears::SESubstance *creatinine;
+		biogears::SESubstance *calcium;
+		biogears::SESubstance *albumin;
+		biogears::SESubstance *hemoglobin;
+		biogears::SESubstance *bicarbonate;
+		biogears::SESubstance *CO2;
+		biogears::SESubstance *N2;
+		biogears::SESubstance *O2;
+		biogears::SESubstance *CO;
+		biogears::SESubstance *Hb;
+		biogears::SESubstance *HbO2;
+		biogears::SESubstance *HbCO2;
+		biogears::SESubstance *HbCO;
+		biogears::SESubstance *HbO2CO2;
+		biogears::SESubstance *potassium;
+		biogears::SESubstance *chloride;
+		biogears::SESubstance *lactate;
 
-        double thresh = 1.0;
+		const biogears::SEGasCompartment *carina;
+		const biogears::SEGasCompartment *leftLung;
+		const biogears::SEGasCompartment *rightLung;
+		const biogears::SELiquidCompartment *bladder;
 
-        bool falling_L;
-        double lung_vol_L, new_min_L, new_max_L, min_lung_vol_L, max_lung_vol_L;
-        double chestrise_pct_L;
-        double leftLungTidalVol;
+	protected:
+		std::mutex m_mutex;
+		std::unique_ptr<biogears::BioGearsEngine> m_pe;
+		biogears::BioGears *bg;
 
-        bool falling_R;
-        double lung_vol_R, new_min_R, new_max_R, min_lung_vol_R, max_lung_vol_R;
-        double chestrise_pct_R;
-        double rightLungTidalVol;
+		// AMM
+		AMM::UUID m_uuid;
+		std::string moduleName = "MoHSES_BioGearsThread";
+		std::string configFile = "config/pe_manager_amm.xml";
 
-        bool eventHandlerAttached = false;
+		AMM::DDSManager<BiogearsThread> *m_mgr = new DDSManager<BiogearsThread>(configFile);
 
-        double bloodPH = 0.0;
-        double rawBloodPH = 0.0;
-        double lactateConcentration = 0.0;
-        double lactateMMOL = 0.0;
-        double startingBloodVolume = 5423.53;
-        double currentBloodVolume = 0.0;
-        double rawRespirationRate = 0.0;
+		double thresh = 1.0;
 
-        int lastFrame = 0;
+		bool falling_L;
+		double lung_vol_L, new_min_L, new_max_L, min_lung_vol_L, max_lung_vol_L;
+		double chestrise_pct_L;
+		double leftLungTidalVol;
 
-        // Log every 50th frame
-        int loggingFrequency = 50;
+		bool falling_R;
+		double lung_vol_R, new_min_R, new_max_R, min_lung_vol_R, max_lung_vol_R;
+		double chestrise_pct_R;
+		double rightLungTidalVol;
 
-        bool logging_enabled = false;
-    };
+		bool eventHandlerAttached = false;
+
+		double bloodPH = 0.0;
+		double rawBloodPH = 0.0;
+		double lactateConcentration = 0.0;
+		double lactateMMOL = 0.0;
+		double startingBloodVolume = 5423.53;
+		double currentBloodVolume = 0.0;
+		double rawRespirationRate = 0.0;
+
+		int lastFrame = 0;
+
+		bool logging_enabled = false;
+	};
 }

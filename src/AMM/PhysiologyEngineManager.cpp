@@ -19,15 +19,16 @@ std::string get_filename_date() {
 	return the_date;
 }
 
-
 namespace AMM {
 	std::map<std::string, std::string> config;
 
 	PhysiologyEngineManager::PhysiologyEngineManager() {
-		static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+		static plog::ColorConsoleAppender <plog::TxtFormatter> consoleAppender;
 
 		stateFile = "./states/StandardMale@0s.xml";
 		patientFile = "./patients/StandardMale.xml";
+
+		m_mgr = std::make_unique < DDSManager < AMM::PhysiologyEngineManager >> (configFile);
 
 		m_mgr->InitializeTick();
 		m_mgr->InitializeCommand();
@@ -67,8 +68,6 @@ namespace AMM {
 		InitializeBiogears();
 	}
 
-
-  
 	void PhysiologyEngineManager::PublishOperationalDescription() {
 		AMM::OperationalDescription od;
 		od.name(moduleName);
@@ -77,7 +76,7 @@ namespace AMM {
 		od.serial_number("1.0.0");
 		od.module_id(m_uuid);
 		od.module_version("1.0.0");
-		const std::string capabilities = Utility::read_file_to_string("config/pe_manager_capabilities.xml");
+		const std::string capabilities = Utility::read_file_to_string(CAPABILITIES_FILE);
 		od.capabilities_schema(capabilities);
 		od.description();
 		m_mgr->WriteOperationalDescription(od);
@@ -91,18 +90,13 @@ namespace AMM {
 		mc.timestamp(ms);
 		mc.module_id(m_uuid);
 		mc.name(moduleName);
-		const std::string configuration = Utility::read_file_to_string("config/pe_manager_configuration.xml");
+		const std::string configuration = Utility::read_file_to_string(CONFIG_FILE);
 		mc.capabilities_configuration(configuration);
 		m_mgr->WriteModuleConfiguration(mc);
 	}
 
 	PhysiologyEngineManager::~PhysiologyEngineManager() {
-		if (m_pe != nullptr) {
-			m_mutex.lock();
-			m_pe->Shutdown();
-			m_pe = nullptr;
-			m_mutex.unlock();
-		}
+		m_pe.reset();
 		m_mgr->Shutdown();
 	}
 
@@ -112,7 +106,6 @@ namespace AMM {
 	}
 
 	void PhysiologyEngineManager::PrintAvailableNodePaths() {
-		nodePathMap = m_pe->GetNodePathTable();
 		auto it = nodePathMap->begin();
 		while (it != nodePathMap->end()) {
 			std::string word = it->first;
@@ -122,7 +115,6 @@ namespace AMM {
 	}
 
 	void PhysiologyEngineManager::PrintAllCurrentData() {
-		nodePathMap = m_pe->GetNodePathTable();
 		auto it = nodePathMap->begin();
 		while (it != nodePathMap->end()) {
 			std::string node = it->first;
@@ -164,40 +156,42 @@ namespace AMM {
 	}
 
 	void PhysiologyEngineManager::PublishData(bool force = false) {
+		std::lock_guard<std::mutex> lg(m_mutex);
 		if (m_pe == nullptr || !running) {
 			LOG_WARNING << "Physiology engine not running, cannot publish data.";
 			return;
 		}
-		auto it = nodePathMap->begin();
-		while (it != nodePathMap->end()) {
-			if ((lastFrame % 10) == 0 || force) {
-				WriteNodeData(it->first);
+
+		for (const auto& [node, accessor] : *nodePathMap) {
+			if ((lastFrame % HIGH_FREQUENCY_INTERVAL) == 0 || force) {
+				WriteNodeData(node);
 			}
-			if ((std::find(m_pe->highFrequencyNodes.begin(), m_pe->highFrequencyNodes.end(), it->first) !=
-			     m_pe->highFrequencyNodes.end())) {
-				WriteHighFrequencyNodeData(it->first);
+			if (m_pe->highFrequencyNodes.contains(node)) {
+				WriteHighFrequencyNodeData(node);
 			}
-			++it;
 		}
 	}
 
-	// Retrieves text from a specified child element or an attribute if the element is null
-	std::string PhysiologyEngineManager::getElementText(tinyxml2::XMLElement* parent, const char* elementName, const char* attr) {
-		if (!parent) return ""; // If parent is null, return empty string
+// Retrieves text from a specified child element or an attribute if the element is null
+	std::string
+	PhysiologyEngineManager::getElementText(tinyxml2::XMLElement *parent, const char *elementName, const char *attr) {
+		if (!parent)
+			return ""; // If parent is null, return empty string
 
-		tinyxml2::XMLElement* elem = parent->FirstChildElement(elementName);
+		tinyxml2::XMLElement *elem = parent->FirstChildElement(elementName);
 		if (elem) { // If element exists, return its text content or attribute
-			const char* textValue = elem->GetText();
+			const char *textValue = elem->GetText();
 			return textValue ? textValue : "";
 		} else if (attr) { // If element is null, fallback to parent attribute if provided
-			const char* attrValue = parent->Attribute(attr);
+			const char *attrValue = parent->Attribute(attr);
 			return attrValue ? attrValue : "";
 		}
 		return ""; // If both element and attribute are missing, return empty string
 	}
 
 // Retrieves a double value from a specified child element or an attribute if the element is null
-	double PhysiologyEngineManager::getElementDouble(tinyxml2::XMLElement* parent, const char* elementName, const char* attr) {
+	double
+	PhysiologyEngineManager::getElementDouble(tinyxml2::XMLElement *parent, const char *elementName, const char *attr) {
 		std::string text = getElementText(parent, elementName, attr);
 		return text.empty() ? 0.0 : std::stod(text); // Convert text to double if non-empty, else return 0.0
 	}
@@ -207,7 +201,7 @@ namespace AMM {
  *
  * @param pm a string that is used to match to an existing physioligy modification, sting should be a formated supported xml type
  */
-	void PhysiologyEngineManager::ExecutePhysiologyModification(const std::string& pm) {
+	void PhysiologyEngineManager::ExecutePhysiologyModification(const std::string &pm) {
 		if (m_pe == nullptr) {
 			LOG_WARNING << "Physiology engine not running, cannot execute physiology modification.";
 			return;
@@ -221,10 +215,20 @@ namespace AMM {
 			return;
 		}
 
-		tinyxml2::XMLElement* pRoot = doc.FirstChildElement("PhysiologyModification");
+		tinyxml2::XMLElement *pRoot = doc.FirstChildElement("PhysiologyModification");
+		if (!pRoot) {
+			LOG_ERROR << "Missing PhysiologyModification root element.";
+			return;
+		}
+
+
 
 		while (pRoot) {
 			std::string pmType = getElementText(pRoot, "PhysiologyModification", "type");
+			if (pmType.empty()) {
+				LOG_ERROR << "Missing or empty PhysiologyModification type.";
+				return;
+			}
 			boost::algorithm::to_lower(pmType);
 			LOG_INFO << "Physiology Modification: " << pmType;
 
@@ -274,13 +278,13 @@ namespace AMM {
 		}
 	}
 
-	void PhysiologyEngineManager::handleNasalCannula(tinyxml2::XMLElement* pRoot) {
+	void PhysiologyEngineManager::handleNasalCannula(tinyxml2::XMLElement *pRoot) {
 		double rate = getElementDouble(pRoot, "Rate", "value");
 		std::string pUnit = getElementText(pRoot, "Rate", "unit");
 		m_pe->SetNasalCannula(rate, pUnit);
 	}
 
-	void PhysiologyEngineManager::handleSubstanceBolus(tinyxml2::XMLElement* pRoot) {
+	void PhysiologyEngineManager::handleSubstanceBolus(tinyxml2::XMLElement *pRoot) {
 		std::string pSub = getElementText(pRoot, "Substance");
 		double concentration = getElementDouble(pRoot, "Concentration", "value");
 		std::string cUnit = getElementText(pRoot, "Concentration", "unit");
@@ -290,7 +294,7 @@ namespace AMM {
 		m_pe->SetSubstanceBolus(pSub, concentration, cUnit, dose, dUnit, adminRoute);
 	}
 
-	void PhysiologyEngineManager::handleSubstanceCompoundInfusion(tinyxml2::XMLElement* pRoot) {
+	void PhysiologyEngineManager::handleSubstanceCompoundInfusion(tinyxml2::XMLElement *pRoot) {
 		std::string pSub = getElementText(pRoot, "SubstanceCompound");
 		double bagVolume = getElementDouble(pRoot, "BagVolume", "value");
 		std::string bvUnit = getElementText(pRoot, "BagVolume", "unit");
@@ -299,7 +303,7 @@ namespace AMM {
 		m_pe->SetSubstanceCompoundInfusion(pSub, bagVolume, bvUnit, rate, rUnit);
 	}
 
-	void PhysiologyEngineManager::handleSubstanceInfusion(tinyxml2::XMLElement* pRoot) {
+	void PhysiologyEngineManager::handleSubstanceInfusion(tinyxml2::XMLElement *pRoot) {
 		std::string pSub = getElementText(pRoot, "Substance");
 		double concentration = getElementDouble(pRoot, "Concentration", "value");
 		std::string cUnit = getElementText(pRoot, "Concentration", "unit");
@@ -308,7 +312,7 @@ namespace AMM {
 		m_pe->SetSubstanceInfusion(pSub, concentration, cUnit, rate, rUnit);
 	}
 
-	void PhysiologyEngineManager::handleSubstanceNasalDose(tinyxml2::XMLElement* pRoot) {
+	void PhysiologyEngineManager::handleSubstanceNasalDose(tinyxml2::XMLElement *pRoot) {
 		std::string pSub = getElementText(pRoot, "Substance");
 		double dose = getElementDouble(pRoot, "Dose", "value");
 		std::string dUnit = getElementText(pRoot, "Dose", "unit");
@@ -317,15 +321,12 @@ namespace AMM {
 
 /**
  * @brief creates the biogears thread and inializes engine
- * 
+ *
  */
 	void PhysiologyEngineManager::InitializeBiogears() {
-
 		if (!running) {
 			LOG_INFO << "Initializing Biogears thread";
-			m_mutex.lock();
-			m_pe = new BiogearsThread("logs/biogears.log");
-			m_mutex.unlock();
+			m_pe = std::make_unique<BiogearsThread>("logs/biogears.log");
 
 			if (m_pe == nullptr) {
 				LOG_WARNING << "Physiology engine not running, unable to start tick simulation.";
@@ -335,11 +336,9 @@ namespace AMM {
 			this->SetLogging(logging_enabled);
 
 			if (authoringMode) {
-				m_mutex.lock();
 				if (m_pe->LoadPatient(patientFile)) {
 					LOG_INFO << "Patient loaded";
 				}
-				m_mutex.unlock();
 			} else {
 				std::size_t pos = stateFile.find('@');
 				double startPosition;
@@ -352,25 +351,25 @@ namespace AMM {
 					startPosition = 0;
 				}
 
-				m_mutex.lock();
-				LOG_INFO << "Loading " << stateFile << " at " << startPosition;
+				// LOG_INFO << "Loading " << stateFile << " at " << startPosition;
 				if (m_pe->LoadState(stateFile, startPosition)) {
-					LOG_INFO << "State loaded.";
+					// LOG_INFO << "State loaded.";
 				}
-				m_mutex.unlock();
 			}
-			nodePathMap = m_pe->GetNodePathTable();
+			m_pe->PostLoad();
+			nodePathMap = std::make_unique<std::map<std::string, double (BiogearsThread::*)()>>(*m_pe->GetNodePathTable());
+
 		} else {
 			LOG_ERROR << "Initialization failed because the sim is already running";
 		}
-		return;
 	}
 
 /**
  * @brief manages enums that define if the engine is running
- * 
+ *
  */
 	void PhysiologyEngineManager::StartTickSimulation() {
+		std::lock_guard <std::mutex> lg(m_mutex);
 		LOG_INFO << "Starting tick simulation";
 		running = true;
 		m_pe->running = true;
@@ -379,10 +378,10 @@ namespace AMM {
 
 /**
  * @brief deletes the physiology engine and sets enums
- * 
+ *
  */
 	void PhysiologyEngineManager::StopTickSimulation() {
-		m_mutex.lock();
+		std::lock_guard <std::mutex> lg(m_mutex);
 		paused = true;
 		running = false;
 
@@ -392,8 +391,7 @@ namespace AMM {
 		}
 
 		LOG_INFO << "Deleting Physiology Engine thread";
-		m_pe = nullptr;
-		m_mutex.unlock();
+		m_pe.reset();
 		LOG_INFO << "Simulation stopped and reset.";
 	}
 
@@ -427,9 +425,10 @@ namespace AMM {
 
 /**
  * @brief processes patient states in biogears (defined by the biogears physiology)
- * 
+ *
  */
 	void PhysiologyEngineManager::ProcessStates() {
+		std::lock_guard<std::mutex> lg(m_mutex);
 		if (m_pe->startOfInhale) {
 			// LOG_TRACE << "Start of inhale, sending render mod";
 			AMM::RenderModification renderMod;
@@ -489,38 +488,37 @@ namespace AMM {
 		}
 
 		if (autosend_enabled) {
-		  if (m_pe->pneumothoraxLClosed && !m_pe->pneumothoraxLClosedSent) {
-		    LOG_DEBUG << "Patient has left closed pneumothorax, sending render mod.";
-		    SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_L_SEVERE");
-		    m_pe->pneumothoraxLClosedSent = true;
-		  }
-		  
-		  if (m_pe->pneumothoraxLOpen && !m_pe->pneumothoraxLOpenSent) {
-		    LOG_DEBUG << "Patient has left open pneumothorax, sending render mod.";
-		    SendPatientStateRendMod("PNEUMOTHORAX_OPEN_L_SEVERE");
-		    m_pe->pneumothoraxLOpenSent = true;
-		  }
-		  
-		  if (m_pe->pneumothoraxRClosed && !m_pe->pneumothoraxRClosedSent) {
-		    LOG_DEBUG << "Patient has  has right closed pneumothorax, sending render mod.";
-		    SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_R_SEVERE");
-		    m_pe->pneumothoraxRClosedSent = true;
-		  }
-		  
-		  if (m_pe->pneumothoraxROpen && !m_pe->pneumothoraxROpenSent) {
-		    LOG_DEBUG << "Patient  has right open pneumothorax, sending render mod.";
-		    SendPatientStateRendMod("PNEUMOTHORAX_OPEN_R_SEVERE");
-		    m_pe->pneumothoraxROpenSent = true;
-		  }
-		  
-		  if (m_pe->hemorrhage && !m_pe->hemorrhageSent) {
-		    LOG_DEBUG << "Patient has a hemmorrhage, sending render mod.";
-		    SendPatientStateRendMod("HEMORRHAGE");
-		    m_pe->hemorrhageSent = true;
-		  }
+			if (m_pe->pneumothoraxLClosed && !m_pe->pneumothoraxLClosedSent) {
+				LOG_DEBUG << "Patient has left closed pneumothorax, sending render mod.";
+				SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_L_SEVERE");
+				m_pe->pneumothoraxLClosedSent = true;
+			}
+
+			if (m_pe->pneumothoraxLOpen && !m_pe->pneumothoraxLOpenSent) {
+				LOG_DEBUG << "Patient has left open pneumothorax, sending render mod.";
+				SendPatientStateRendMod("PNEUMOTHORAX_OPEN_L_SEVERE");
+				m_pe->pneumothoraxLOpenSent = true;
+			}
+
+			if (m_pe->pneumothoraxRClosed && !m_pe->pneumothoraxRClosedSent) {
+				LOG_DEBUG << "Patient has  has right closed pneumothorax, sending render mod.";
+				SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_R_SEVERE");
+				m_pe->pneumothoraxRClosedSent = true;
+			}
+
+			if (m_pe->pneumothoraxROpen && !m_pe->pneumothoraxROpenSent) {
+				LOG_DEBUG << "Patient  has right open pneumothorax, sending render mod.";
+				SendPatientStateRendMod("PNEUMOTHORAX_OPEN_R_SEVERE");
+				m_pe->pneumothoraxROpenSent = true;
+			}
+
+			if (m_pe->hemorrhage && !m_pe->hemorrhageSent) {
+				LOG_DEBUG << "Patient has a hemmorrhage, sending render mod.";
+				SendPatientStateRendMod("HEMORRHAGE");
+				m_pe->hemorrhageSent = true;
+			}
 		}
-		
-		
+
 		if (m_pe->acuteStress && m_pe->acuteStressSent) {
 			LOG_DEBUG << "Patient has accute stress, sending render mod.";
 			SendPatientStateRendMod("ACUTE_STRESS");
@@ -542,7 +540,7 @@ namespace AMM {
 
 /**
  * @brief manage and advance a single time step, includes checking for physiology patient events
- * 
+ *
  */
 	void PhysiologyEngineManager::AdvanceTimeTick() {
 		if (m_pe == nullptr || !running) {
@@ -550,34 +548,30 @@ namespace AMM {
 			return;
 		}
 
-		ProcessStates();
-
-		m_mutex.lock();
 		m_pe->AdvanceTimeTick();
-		m_mutex.unlock();
+		ProcessStates();
 	}
 
 /**
- * @brief checks if logging is configured and sets up logging if it is  
- * 
+ * @brief checks if logging is configured and sets up logging if it is
+ *
  * @param log bool that determines if logging is enabled
  */
 	void PhysiologyEngineManager::SetLogging(bool log) {
 		logging_enabled = log;
 		if (m_pe != nullptr) {
-			m_mutex.lock();
 			m_pe->SetLogging(logging_enabled);
-			m_mutex.unlock();
 		}
 	}
 
-  	void PhysiologyEngineManager::SetAutosend(bool autosend) {
+	void PhysiologyEngineManager::SetAutosend(bool autosend) {
 		autosend_enabled = autosend;
 	}
 
 	int PhysiologyEngineManager::GetTickCount() { return lastFrame; }
 
 	void PhysiologyEngineManager::Status() {
+		std::lock_guard <std::mutex> lg(m_mutex);
 		if (m_pe != nullptr) {
 			return m_pe->Status();
 		}
@@ -590,7 +584,7 @@ namespace AMM {
 		m_pe->Shutdown();
 	}
 
-  /**
+/**
  * @brief Listens for new physiology modifications and execute them if they are a patient action
  *
  * @param pm  a physiology modification (can be a few different types)
@@ -598,6 +592,7 @@ namespace AMM {
  */
 	void PhysiologyEngineManager::OnNewPhysiologyModification(AMM::PhysiologyModification &pm, SampleInfo_t *info) {
 		LOG_INFO << "Physiology modification received (type " << pm.type() << "): " << pm.data();
+
 		if (m_pe == nullptr || !running) {
 			LOG_WARNING << "Physiology engine not running, cannot execute physiology modification.";
 			return;
@@ -606,33 +601,32 @@ namespace AMM {
 		// If the payload is empty, use the type to execute an XML file.
 		// Otherwise, the payload is considered to be XML to execute.
 		std::string pmData = pm.data().to_string();
-		
-		std::lock_guard<std::mutex> lg(m_mutex);
-		
+
+		std::lock_guard <std::mutex> lg(m_mutex);
 		if (pmData.empty()) {
-		  LOG_INFO << "Scenario file NOT SUPPORTED anymore: " << pm.type();
-		  try {
-		    //		    m_pe->ExecuteCommand(pm.type());
-		  }  catch (std::exception &e) {
-                    LOG_ERROR << "Unable to execute scenario physiology modification: " << e.what();
-                  }
-		  return;
+			LOG_INFO << "Scenario file NOT SUPPORTED anymore: " << pm.type();
+			try {
+				//		    m_pe->ExecuteCommand(pm.type());
+			} catch (std::exception &e) {
+				LOG_ERROR << "Unable to execute scenario physiology modification: " << e.what();
+			}
+			return;
 		} else {
-		  if (pm.type().empty() || pm.type() == "biogears") {
-		    LOG_INFO << "Executing Biogears PhysMod XML patient action";		    
-		    try {
-		      m_pe->ExecuteXMLCommand(pmData);
-		    } catch (std::exception &e) {
-		      LOG_ERROR << "Unable to apply XML physiology modification: " << e.what();
-		    }
-		    return;
-		  }
-		  LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
-		  try {
-		    ExecutePhysiologyModification(pmData);
-		  } catch (std::exception &e) {
-		    LOG_ERROR << "Unable to apply physiology modification: " << e.what();
-		  }
+			if (pm.type().empty() || pm.type() == "biogears") {
+				LOG_INFO << "Executing Biogears PhysMod XML patient action";
+				try {
+					m_pe->ExecuteXMLCommand(pmData);
+				} catch (std::exception &e) {
+					LOG_ERROR << "Unable to apply XML physiology modification: " << e.what();
+				}
+				return;
+			}
+			LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
+			try {
+				ExecutePhysiologyModification(pmData);
+			} catch (std::exception &e) {
+				LOG_ERROR << "Unable to apply physiology modification: " << e.what();
+			}
 		}
 	}
 
@@ -682,9 +676,7 @@ namespace AMM {
 					ss << "SavedState_" << filenamedate << "@" << (int) std::round(simTime) << "s."
 					   << stateFilePrefix;
 					LOG_INFO << "Saved state to " << ss.str();
-					m_mutex.lock();
 					m_pe->SaveState(ss.str());
-					m_mutex.unlock();
 				} else {
 					LOG_ERROR << "Simulation has not been run, no state to save.";
 				}
@@ -761,10 +753,10 @@ namespace AMM {
 				}
 				infile.close();
 
+				std::lock_guard <std::mutex> lg(m_mutex);
+
 				LOG_INFO << "Initializing Biogears thread to call LoadScenarioFile";
-				m_mutex.lock();
-				m_pe = new BiogearsThread("logs/biogears.log");
-				m_mutex.unlock();
+				m_pe = std::make_unique<BiogearsThread>("logs/biogears.log");
 
 				if (m_pe == nullptr) {
 					LOG_WARNING << "Physiology engine not running, unable to start tick simulation.";
@@ -777,7 +769,7 @@ namespace AMM {
 				m_pe->LoadScenarioFile(scenarioFile);
 				m_pe->scenarioLoading = false;
 
-				nodePathMap = m_pe->GetNodePathTable();
+				nodePathMap = std::make_unique<std::map<std::string, double (BiogearsThread::*)()>>(*m_pe->GetNodePathTable());
 
 				paused = true;
 
@@ -791,9 +783,9 @@ namespace AMM {
 
 /**
  * @brief resets state file for the physiology engine and parses the capabilities xml
- * 
+ *
  * @param mc module configuration defined by idl file
- * @param info 
+ * @param info
  */
 	void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info) {
 		if (mc.name() == "physiology_engine") {
@@ -829,7 +821,7 @@ namespace AMM {
 
 /**
  * @brief parse the xml configuration file
- * 
+ *
  * @param xmlConfig strin config file to be read by tinyxml
  */
 	void PhysiologyEngineManager::ParseXML(std::string &xmlConfig) {
@@ -844,7 +836,8 @@ namespace AMM {
 			XMLElement *config = root->FirstChildElement("configuration_data");
 			if (config != nullptr)
 				ReadConfig(config);
-			else LOG_WARNING << "No configuration_data found";
+			else
+				LOG_WARNING << "No configuration_data found";
 		}
 	}
 
@@ -890,7 +883,8 @@ namespace AMM {
 			XMLElement *config = ele->FirstChildElement("configuration_data");
 			if (config != nullptr)
 				ReadConfig(config);
-			else LOG_WARNING << "No configuration_data found";
+			else
+				LOG_WARNING << "No configuration_data found";
 		} else {
 			LOG_WARNING << "No capabilities found.";
 		}
@@ -898,9 +892,9 @@ namespace AMM {
 
 /**
  * @brief controls adancing time with the physiology engine
- * 
- * @param ti idk tick object 
- * @param info 
+ *
+ * @param ti idk tick object
+ * @param info
  */
 	void PhysiologyEngineManager::OnNewTick(AMM::Tick &ti, SampleInfo_t *info) {
 		if (running) {
@@ -922,10 +916,10 @@ namespace AMM {
 	}
 
 /**
- * @brief manages the instrument data with the physiology engine 
- * 
+ * @brief manages the instrument data with the physiology engine
+ *
  * @param i instrument data as defined by the idl (ie ventilator..)
- * @param info 
+ * @param info
  */
 	void PhysiologyEngineManager::OnNewInstrumentData(AMM::InstrumentData &i, SampleInfo_t *info) {
 		LOG_DEBUG << "Instrument data for " << i.instrument() << " received with payload: " << i.payload();
@@ -935,7 +929,6 @@ namespace AMM {
 		}
 		std::string instrument(i.instrument());
 		std::string payload = i.payload().to_string();
-		m_mutex.lock();
 		if (instrument == "ventilator" || instrument == "erventilator") {
 			m_pe->SetVentilator(payload);
 		} else if (instrument == "bvm_mask") {
@@ -943,6 +936,5 @@ namespace AMM {
 		} else if (instrument == "ivpump") {
 			m_pe->SetIVPump(payload);
 		}
-		m_mutex.unlock();
 	}
 }

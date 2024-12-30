@@ -15,121 +15,135 @@
 using namespace tinyxml2;
 
 namespace AMM {
-    class BiogearsThread;
+	class BiogearsThread;
 
-  class PhysiologyEngineManager {
-    public:
-      PhysiologyEngineManager();
-      
-      virtual ~PhysiologyEngineManager();
-      
-      BiogearsThread *m_pe{};
-      std::string stateFile;
-      std::string patientFile;
-      std::string scenarioFile;
-      bool authoringMode = false;
-      
-      void PublishOperationalDescription();
-      
-      void PublishConfiguration();
-      
-      void SetLogging(bool logging_enabled);
-      void SetAutosend(bool autosend_enabled);
+	class PhysiologyEngineManager {
+	public:
+		PhysiologyEngineManager();
 
-        void StartSimulation();
+		virtual ~PhysiologyEngineManager();
 
-        void StopSimulation();
+		static constexpr int HIGH_FREQUENCY_INTERVAL = 10;
 
-        void Shutdown();
+		const std::string CAPABILITIES_FILE = "config/pe_manager_capabilities.xml";
+		const std::string CONFIG_FILE = "config/pe_manager_configuration.xml";
 
-        void StartTickSimulation();
 
-        void StopTickSimulation();
+		std::unique_ptr<BiogearsThread> m_pe;
+		std::string stateFile;
+		std::string patientFile;
+		std::string scenarioFile;
+		bool authoringMode = false;
 
-        void ExecutePhysiologyModification(const std::string& pm);
+		void PublishOperationalDescription();
 
-        void PublishData(bool force);
+		void PublishConfiguration();
 
-        void PrintAvailableNodePaths();
+		void SetLogging(bool logging_enabled);
 
-        void PrintAllCurrentData();
+		void SetAutosend(bool autosend_enabled);
 
-        void Status();
+		void StartSimulation();
 
-        int GetNodePathCount();
+		void StopSimulation();
 
-        int GetTickCount();
+		void Shutdown();
 
-        bool isRunning();
+		void StartTickSimulation();
 
-        void SendShutdown();
+		void StopTickSimulation();
 
-        void WriteNodeData(const std::string& node);
+		void ExecutePhysiologyModification(const std::string &pm);
 
-        void WriteHighFrequencyNodeData(const std::string& node);
+		void PublishData(bool force);
 
-        void AdvanceTimeTick();
+		void PrintAvailableNodePaths();
 
-        void InitializeBiogears();
+		void PrintAllCurrentData();
 
-        void ProcessStates();
+		void Status();
 
-        bool paused = false;
-        bool running = false;
-        int lastFrame = 0;   
-    bool logging_enabled = false;
-    bool autosend_enabled = false;
+		int GetNodePathCount();
 
-        bool moduleEnabled = true;
+		int GetTickCount();
 
-        void OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info);
+		bool isRunning();
 
-        void ParseXML(std::string &xmlConfig);
+		void SendShutdown();
 
-        void ReadConfig(XMLElement *_root);
+		void WriteNodeData(const std::string &node);
 
-        void ReadCapabilities(XMLElement *_root);
+		void WriteHighFrequencyNodeData(const std::string &node);
 
-        void OnNewTick(AMM::Tick &ti, SampleInfo_t *info);
+		void AdvanceTimeTick();
 
-        void OnNewCommand(Command &cm, SampleInfo_t *info);
+		void InitializeBiogears();
 
-        void OnNewSimulationControl(SimulationControl &simControl, SampleInfo_t *info);
+		void ProcessStates();
 
-        void OnNewInstrumentData(InstrumentData &i, SampleInfo_t *info);
+		bool paused = false;
+		bool running = false;
+		int lastFrame = 0;
+		bool logging_enabled = false;
+		bool autosend_enabled = false;
 
-        void OnNewPhysiologyModification(AMM::PhysiologyModification &physMod, SampleInfo_t *info);
+		bool moduleEnabled = true;
 
-        void SendPatientStateRendMod(std::string rendModType);
+		void OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info);
 
-        std::map<std::string, double (BiogearsThread::*)()> *nodePathMap{};
+		void ParseXML(std::string &xmlConfig);
 
-        std::string sysPrefix = "[SYS]";
-        std::string loadPrefix = "LOAD_STATE:";
-        std::string loadPatient = "LOAD_PATIENT:";
-        std::string loadScenarioFile = "LOAD_SCENARIOFILE:";
-        std::string stateFilePrefix = "xml";
-        std::string patientFilePrefix = "xml";
+		void ReadConfig(XMLElement *_root);
+
+		void ReadCapabilities(XMLElement *_root);
+
+		void OnNewTick(AMM::Tick &ti, SampleInfo_t *info);
+
+		void OnNewCommand(Command &cm, SampleInfo_t *info);
+
+		void OnNewSimulationControl(SimulationControl &simControl, SampleInfo_t *info);
+
+		void OnNewInstrumentData(InstrumentData &i, SampleInfo_t *info);
+
+		void OnNewPhysiologyModification(AMM::PhysiologyModification &physMod, SampleInfo_t *info);
+
+		void SendPatientStateRendMod(std::string rendModType);
+
+		// std::map<std::string, double (BiogearsThread::*)()> *nodePathMap{};
+		std::unique_ptr<std::map<std::string, double (BiogearsThread::*)()>> nodePathMap;
+
+		std::string sysPrefix = "[SYS]";
+		std::string loadPrefix = "LOAD_STATE:";
+		std::string loadPatient = "LOAD_PATIENT:";
+		std::string loadScenarioFile = "LOAD_SCENARIOFILE:";
+		std::string stateFilePrefix = "xml";
+		std::string patientFilePrefix = "xml";
 
 	private:
-    private:
-	    std::string getElementText(tinyxml2::XMLElement* parent, const char* elementName, const char* attr = nullptr);
-	    double getElementDouble(tinyxml2::XMLElement* parent, const char* elementName, const char* attr = nullptr);
+	private:
+		std::string getElementText(tinyxml2::XMLElement *parent, const char *elementName, const char *attr = nullptr);
 
-	    // Specialized handlers for specific modification types
-	    void handleNasalCannula(tinyxml2::XMLElement* pRoot);
-	    void handleSubstanceBolus(tinyxml2::XMLElement* pRoot);
-	    void handleSubstanceCompoundInfusion(tinyxml2::XMLElement* pRoot);
-	    void handleSubstanceInfusion(tinyxml2::XMLElement* pRoot);
-	    void handleSubstanceNasalDose(tinyxml2::XMLElement* pRoot);
+		double getElementDouble(tinyxml2::XMLElement *parent, const char *elementName, const char *attr = nullptr);
 
-    protected:
-        AMM::UUID m_uuid;
-        std::string moduleName = "AMM_PhysiologyEngine";
-        std::string configFile = "config/pe_manager_amm.xml";
-        AMM::DDSManager<AMM::PhysiologyEngineManager> *m_mgr = new DDSManager<AMM::PhysiologyEngineManager>(configFile);
+		// Specialized handlers for specific modification types
+		void handleNasalCannula(tinyxml2::XMLElement *pRoot);
 
-        std::mutex m_mutex;
+		void handleSubstanceBolus(tinyxml2::XMLElement *pRoot);
 
-    };
+		void handleSubstanceCompoundInfusion(tinyxml2::XMLElement *pRoot);
+
+		void handleSubstanceInfusion(tinyxml2::XMLElement *pRoot);
+
+		void handleSubstanceNasalDose(tinyxml2::XMLElement *pRoot);
+
+	protected:
+		AMM::UUID m_uuid;
+		std::string moduleName = "AMM_PhysiologyEngine";
+		std::string configFile = "config/pe_manager_amm.xml";
+		// AMM::DDSManager<AMM::PhysiologyEngineManager> *m_mgr = new DDSManager<AMM::PhysiologyEngineManager>(configFile);
+		std::unique_ptr<AMM::DDSManager<AMM::PhysiologyEngineManager>> m_mgr;
+
+		std::mutex m_mutex;
+
+	};
 }
