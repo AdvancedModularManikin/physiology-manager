@@ -1,16 +1,20 @@
 #pragma once
 
 #include <chrono>
+#include <mutex>
+#include <shared_mutex>
+#include <memory>
+
 #include <ctime>
 #include <fstream>
 #include <iostream>
-#include <mutex>
+
 #include <sstream>
 #include <stdexcept>
 #include <thread>
 #include <unordered_set>
 
-#include "amm_std.h"
+// #include "amm_std.h"
 
 #include "amm/BaseLogger.h"
 
@@ -116,13 +120,249 @@
 
 #include "amm/Utility.h"
 
+#include "MoHSES_EventHandler.h"
+
+class CustomEventHandler : public biogears::SEEventHandler {
+private:
+	biogears::Logger* m_Logger;
+
+public:
+	CustomEventHandler()
+			: SEEventHandler()
+	{
+		std::cout << "Constructed Event Handler" << std::endl;
+	}
+	virtual void HandlePatientEvent(biogears::SEPatientEventType type, bool active, const biogears::SEScalarTime* time = nullptr)
+	{
+
+		static int event_count = 0;
+		//if ( event_count++ % 31 != 0){
+		//	return ;
+		//}
+
+		std::cout << "\n";
+		std::cout << "  OO O o o o...      _______________________________________ \n";
+		std::cout << "  O     ____          |                                      |\n";
+
+		std::string event;
+		std::string marquee_1 = "                                      ";
+		std::string marquee_2 = "                                      ";
+		std::string prefix = " ][_n_i_| (   ooo___  |";
+		std::string end = "|\n";
+
+		switch (type) {
+			case biogears::SEPatientEventType::AcuteLungInjury:
+				event = "AcuteLungInjury";
+				break;
+			case biogears::SEPatientEventType::AcuteRespiratoryDistress:
+				event = "AcuteRespiratoryDistress";
+				break;
+			case biogears::SEPatientEventType::Antidiuresis:
+				event = "Antidiuresis";
+				break;
+			case biogears::SEPatientEventType::Asystole:
+				event = "Asystoley";
+				break;
+			case biogears::SEPatientEventType::Bradycardia:
+				event = "Bradycardia";
+				break;
+			case biogears::SEPatientEventType::Bradypnea:
+				event = "Bradypnea";
+				break;
+			case biogears::SEPatientEventType::BrainOxygenDeficit:
+				event = "BrainOxygenDeficit";
+				break;
+			case biogears::SEPatientEventType::CardiacArrest:
+				event = "CardiacArrest";
+				break;
+			case biogears::SEPatientEventType::CardiogenicShock:
+				event = "CardiogenicShock";
+				break;
+			case biogears::SEPatientEventType::CriticalBrainOxygenDeficit:
+				event = "CriticalBrainOxygenDeficit";
+				break;
+			case biogears::SEPatientEventType::Dehydration:
+				event = "Dehydration";
+				break;
+			case biogears::SEPatientEventType::Diuresis:
+				event = "AcuteLungInjury";
+				break;
+			case biogears::SEPatientEventType::Fasciculation:
+				event = "Fasciculation";
+				break;
+			case biogears::SEPatientEventType::Fatigue:
+				event = "Fatigue";
+				break;
+			case biogears::SEPatientEventType::FunctionalIncontinence:
+				event = "FunctionalIncontinence";
+				break;
+			case biogears::SEPatientEventType::HemolyticTransfusionReaction:
+				event = "HemolyticTransfusionReaction";
+				break;
+			case biogears::SEPatientEventType::Hypercapnia:
+				event = "Hypercapnia";
+				break;
+			case biogears::SEPatientEventType::Hyperglycemia:
+				event = "Hyperglycemia";
+				break;
+			case biogears::SEPatientEventType::MildHyperkalemia:
+				event = "MildHyperkalemia";
+				break;
+			case biogears::SEPatientEventType::SevereHyperkalemia:
+				event = "SevereHyperkalemia";
+				break;
+			case biogears::SEPatientEventType::MildHypernatremia:
+				event = "MildHypernatremia";
+				break;
+			case biogears::SEPatientEventType::SevereHypernatremia:
+				event = "SevereHypernatremia";
+				break;
+			case biogears::SEPatientEventType::Hyperthermia:
+				event = "Hyperthermia";
+				break;
+			case biogears::SEPatientEventType::Hypoglycemia:
+				event = "Hypoglycemia";
+				break;
+			case biogears::SEPatientEventType::HypoglycemicShock:
+				event = "HypoglycemicShock";
+				break;
+			case biogears::SEPatientEventType::HypoglycemicComa:
+				event = "HypoglycemicComa";
+				break;
+			case biogears::SEPatientEventType::MildHypothermia:
+				event = "MildHypothermia";
+				break;
+			case biogears::SEPatientEventType::MildHypokalemia:
+				event = "MildHypokalemia";
+				break;
+			case biogears::SEPatientEventType::SevereHypokalemia:
+				event = "SevereHypokalemia";
+				break;
+			case biogears::SEPatientEventType::MildHyponatremia:
+				event = "MildHyponatremia";
+				break;
+			case biogears::SEPatientEventType::SevereHyponatremia:
+				event = "SevereHyponatremia";
+				break;
+			case biogears::SEPatientEventType::Hypoxia:
+				event = "Hypoxia";
+				break;
+			case biogears::SEPatientEventType::HypovolemicShock:
+				event = "HypovolemicShock";
+				break;
+			case biogears::SEPatientEventType::IntracranialHypertension:
+				event = "IntracranialHypertension";
+				break;
+			case biogears::SEPatientEventType::IntracranialHypotension:
+				event = "IntracranialHypotension";
+				break;
+			case biogears::SEPatientEventType::IrreversibleState:
+				event = "IrreversibleState";
+				break;
+			case biogears::SEPatientEventType::Ketoacidosis:
+				event = "Ketoacidosis";
+				break;
+			case biogears::SEPatientEventType::LacticAcidosis:
+				event = "LacticAcidosis";
+				break;
+			case biogears::SEPatientEventType::LiverGlycogenDepleted:
+				event = "LiverGlycogenDepleted";
+				break;
+			case biogears::SEPatientEventType::MaximumPulmonaryVentilationRate:
+				event = "MaximumPulmonaryVentilationRate";
+				break;
+			case biogears::SEPatientEventType::MetabolicAcidosis:
+				event = "MetabolicAcidosis";
+				break;
+			case biogears::SEPatientEventType::MetabolicAlkalosis:
+				event = "MetabolicAlkalosis";
+				break;
+			case biogears::SEPatientEventType::MuscleCatabolism:
+				event = "MuscleCatabolism";
+				break;
+			case biogears::SEPatientEventType::MuscleGlycogenDepleted:
+				event = "MuscleGlycogenDepleted";
+				break;
+			case biogears::SEPatientEventType::MyocardiumOxygenDeficit:
+				event = "MyocardiumOxygenDeficit";
+				break;
+			case biogears::SEPatientEventType::Natriuresis:
+				event = "Natriuresis";
+				break;
+			case biogears::SEPatientEventType::NutritionDepleted:
+				event = "NutritionDepleted";
+				break;
+			case biogears::SEPatientEventType::PulselessRhythm:
+				event = "PulselessRhythm";
+				break;
+			case biogears::SEPatientEventType::RenalHypoperfusion:
+				event = "RenalHypoperfusion";
+				break;
+			case biogears::SEPatientEventType::RespiratoryAcidosis:
+				event = "RespiratoryAcidosis";
+				break;
+			case biogears::SEPatientEventType::RespiratoryAlkalosis:
+				event = "RespiratoryAlkalosis";
+				break;
+			case biogears::SEPatientEventType::SevereAcuteRespiratoryDistress:
+				event = "SevereAcuteRespiratoryDistress";
+				break;
+			case biogears::SEPatientEventType::StartOfCardiacCycle:
+				event = "AcuteLungInjury";
+				break;
+			case biogears::SEPatientEventType::StartOfExhale:
+				event = "StartOfExhale";
+				break;
+			case biogears::SEPatientEventType::StartOfInhale:
+				event = "StartOfInhale";
+				break;
+			case biogears::SEPatientEventType::SevereSepsis:
+				event = "SevereSepsis";
+				break;
+			case biogears::SEPatientEventType::Tachycardia:
+				event = "Tachycardia";
+				break;
+			case biogears::SEPatientEventType::Tachypnea:
+				event = "Tachypnea";
+				break;
+			case biogears::SEPatientEventType::_TotalPatientEvents:
+				event = "TotalPatientEvents";
+				break;
+			default:
+				event = "Unknown";
+				break;
+		}
+		std::string state = (active) ? "(On)" : "(Off)";
+		if (event.size() < marquee_1.size()) {
+			marquee_1.replace(marquee_1.begin() + (marquee_1.size() / 2) - (event.size() / 2),
+			                  marquee_1.begin() + (marquee_1.size() / 2) + (event.size() / 2) + (state.size() % 2),
+			                  event.begin(), event.end());
+		} else {
+			marquee_1 = event;
+		}
+		if (state.size() < marquee_2.size()) {
+			marquee_2.replace(marquee_2.begin() + (marquee_2.size() / 2) - (state.size() / 2),
+			                  marquee_2.begin() + (marquee_2.size() / 2) + (state.size() / 2) + (state.size() % 2),
+			                  state.begin(), state.end());
+		} else {
+			marquee_1 = state;
+		}
+		std::cout << prefix << marquee_1 << end;
+		std::cout << prefix << marquee_2 << end;
+		std::cout << "(__________|_[______]_|______________________________________|\n";
+		std::cout << "  0--0--0      0  0      0       0     0        0        0    \n";
+		std::cout << std::endl;
+	}
+	virtual void HandleAnesthesiaMachineEvent(biogears::SEAnesthesiaMachineEvent type, bool active, const biogears::SEScalarTime* time = nullptr)
+	{
+	}
+};
 
 // Forward declare what we will use in our thread
 namespace AMM {
 
-	class EventHandler;
-
 	class BiogearsThread {
+
 	public:
 		explicit BiogearsThread(const std::string &stateFile);
 
@@ -276,14 +516,19 @@ namespace AMM {
 		static constexpr char DEFAULT_LOG_PATH[] = "./logs/AMM_Output_";
 
 		static constexpr size_t numEvents = static_cast<size_t>(biogears::SEPatientEventType::_end);
-		std::vector<EventStatus> *patientEventStates;
+		std::vector<EventStatus> patientEventStates;
 
 		bool paralyzed = false;
 		bool paralyzedSent = false;
 		bool irreversible = false;
 		bool irreversibleSent = false;
+
 		bool startOfExhale = false;
+		bool startOfExhaleSent = false;
+
 		bool startOfInhale = false;
+		bool startOfInhaleSent = false;
+
 		bool pneumothoraxLClosed = false;
 		bool pneumothoraxLClosedSent = false;
 		bool pneumothoraxRClosed = false;
@@ -521,15 +766,18 @@ namespace AMM {
 
 	protected:
 		std::mutex m_mutex;
+		mutable std::shared_mutex m_nodePathMutex;
+
 		std::unique_ptr<biogears::BioGearsEngine> m_pe;
-		biogears::BioGears *bg;
+		// biogears::BioGears *bg;
 
 		// AMM
-		AMM::UUID m_uuid;
-		std::string moduleName = "MoHSES_BioGearsThread";
-		std::string configFile = "config/pe_manager_amm.xml";
+		// AMM::UUID m_uuid;
+		// std::string moduleName = "MoHSES_BioGearsThread";
+		// std::string configFile = "config/pe_manager_amm.xml";
 
-		AMM::DDSManager<BiogearsThread> *m_mgr = new DDSManager<BiogearsThread>(configFile);
+		// AMM::DDSManager<BiogearsThread> *m_mgr = new DDSManager<BiogearsThread>(configFile);
+		// std::unique_ptr<AMM::DDSManager<BiogearsThread>> m_mgr;
 
 		double thresh = 1.0;
 
@@ -556,5 +804,19 @@ namespace AMM {
 		int lastFrame = 0;
 
 		bool logging_enabled = false;
+
+		// Helper function to check if the engine is initialized
+		bool IsEngineInitialized() const;
+
+		template <typename Func>
+		auto WithEngineLock(Func &&func) -> decltype(func()) {
+			std::lock_guard<std::mutex> lock(m_mutex); // Lock the mutex to ensure thread safety
+			return func(); // Execute the lambda function and return its result
+		}
+
+		MoHSES_EventHandler myEventHandler;
+
+		// Initialization and cleanup helpers
+		void Cleanup();
 	};
 }

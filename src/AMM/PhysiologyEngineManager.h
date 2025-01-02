@@ -23,7 +23,7 @@ namespace AMM {
 
 		virtual ~PhysiologyEngineManager();
 
-		static constexpr int HIGH_FREQUENCY_INTERVAL = 10;
+		static constexpr int LOW_FREQUENCY_INTERVAL = 10;
 
 		const std::string CAPABILITIES_FILE = "config/pe_manager_capabilities.xml";
 		const std::string CONFIG_FILE = "config/pe_manager_configuration.xml";
@@ -57,17 +57,17 @@ namespace AMM {
 
 		void PublishData(bool force);
 
-		void PrintAvailableNodePaths();
+		void PrintAvailableNodePaths() const;
 
-		void PrintAllCurrentData();
+		void PrintAllCurrentData() const;
 
 		void Status();
 
-		int GetNodePathCount();
+		int GetNodePathCount() const;
 
 		int GetTickCount();
 
-		bool isRunning();
+		bool isRunning() const;
 
 		void SendShutdown();
 
@@ -111,6 +111,7 @@ namespace AMM {
 
 		// std::map<std::string, double (BiogearsThread::*)()> *nodePathMap{};
 		std::unique_ptr<std::map<std::string, double (BiogearsThread::*)()>> nodePathMap;
+		std::unordered_set<std::string> localHighFrequencyNodes;
 
 		std::string sysPrefix = "[SYS]";
 		std::string loadPrefix = "LOAD_STATE:";
@@ -140,10 +141,10 @@ namespace AMM {
 		AMM::UUID m_uuid;
 		std::string moduleName = "AMM_PhysiologyEngine";
 		std::string configFile = "config/pe_manager_amm.xml";
-		// AMM::DDSManager<AMM::PhysiologyEngineManager> *m_mgr = new DDSManager<AMM::PhysiologyEngineManager>(configFile);
 		std::unique_ptr<AMM::DDSManager<AMM::PhysiologyEngineManager>> m_mgr;
 
 		std::mutex m_mutex;
+		std::mutex mgr_mutex;
 
 	};
 }

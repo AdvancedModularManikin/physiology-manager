@@ -1,270 +1,30 @@
 #include "BiogearsThread.h"
-// #include "MoHSES_EventHandler.h"
-
-using namespace biogears;
 
 namespace AMM {
-	class MyEventHandler : public biogears::SEEventHandler {
-
-	private:
-		biogears::Logger *m_Logger;
-
-	public:
-		MyEventHandler() : SEEventHandler() {}
-
-		virtual void HandlePatientEvent(SEPatientEventType type, bool active, const SEScalarTime* time = nullptr)
-		{
-
-			static int event_count = 0;
-			if ( event_count++ % 31 != 0){
-				return ;
-			}
-
-			std::cout << "\n";
-			std::cout << "  OO O o o o...      _______________________________________ \n";
-			std::cout << "  O     ____          |                                      |\n";
-
-			std::string event;
-			std::string marquee_1 = "                                      ";
-			std::string marquee_2 = "                                      ";
-			std::string prefix = " ][_n_i_| (   ooo___  |";
-			std::string end = "|\n";
-
-			switch (type) {
-				case SEPatientEventType::AcuteLungInjury:
-					event = "AcuteLungInjury";
-					break;
-				case SEPatientEventType::AcuteRespiratoryDistress:
-					event = "AcuteRespiratoryDistress";
-					break;
-				case SEPatientEventType::Antidiuresis:
-					event = "Antidiuresis";
-					break;
-				case SEPatientEventType::Asystole:
-					event = "Asystoley";
-					break;
-				case SEPatientEventType::Bradycardia:
-					event = "Bradycardia";
-					break;
-				case SEPatientEventType::Bradypnea:
-					event = "Bradypnea";
-					break;
-				case SEPatientEventType::BrainOxygenDeficit:
-					event = "BrainOxygenDeficit";
-					break;
-				case SEPatientEventType::CardiacArrest:
-					event = "CardiacArrest";
-					break;
-				case SEPatientEventType::CardiogenicShock:
-					event = "CardiogenicShock";
-					break;
-				case SEPatientEventType::CriticalBrainOxygenDeficit:
-					event = "CriticalBrainOxygenDeficit";
-					break;
-				case SEPatientEventType::Dehydration:
-					event = "Dehydration";
-					break;
-				case SEPatientEventType::Diuresis:
-					event = "AcuteLungInjury";
-					break;
-				case SEPatientEventType::Fasciculation:
-					event = "Fasciculation";
-					break;
-				case SEPatientEventType::Fatigue:
-					event = "Fatigue";
-					break;
-				case SEPatientEventType::FunctionalIncontinence:
-					event = "FunctionalIncontinence";
-					break;
-				case SEPatientEventType::HemolyticTransfusionReaction:
-					event = "HemolyticTransfusionReaction";
-					break;
-				case SEPatientEventType::Hypercapnia:
-					event = "Hypercapnia";
-					break;
-				case SEPatientEventType::Hyperglycemia:
-					event = "Hyperglycemia";
-					break;
-				case SEPatientEventType::MildHyperkalemia:
-					event = "MildHyperkalemia";
-					break;
-				case SEPatientEventType::SevereHyperkalemia:
-					event = "SevereHyperkalemia";
-					break;
-				case SEPatientEventType::MildHypernatremia:
-					event = "MildHypernatremia";
-					break;
-				case SEPatientEventType::SevereHypernatremia:
-					event = "SevereHypernatremia";
-					break;
-				case SEPatientEventType::Hyperthermia:
-					event = "Hyperthermia";
-					break;
-				case SEPatientEventType::Hypoglycemia:
-					event = "Hypoglycemia";
-					break;
-				case SEPatientEventType::HypoglycemicShock:
-					event = "HypoglycemicShock";
-					break;
-				case SEPatientEventType::HypoglycemicComa:
-					event = "HypoglycemicComa";
-					break;
-				case SEPatientEventType::MildHypothermia:
-					event = "MildHypothermia";
-					break;
-				case SEPatientEventType::MildHypokalemia:
-					event = "MildHypokalemia";
-					break;
-				case SEPatientEventType::SevereHypokalemia:
-					event = "SevereHypokalemia";
-					break;
-				case SEPatientEventType::MildHyponatremia:
-					event = "MildHyponatremia";
-					break;
-				case SEPatientEventType::SevereHyponatremia:
-					event = "SevereHyponatremia";
-					break;
-				case SEPatientEventType::Hypoxia:
-					event = "Hypoxia";
-					break;
-				case SEPatientEventType::HypovolemicShock:
-					event = "HypovolemicShock";
-					break;
-				case SEPatientEventType::IntracranialHypertension:
-					event = "IntracranialHypertension";
-					break;
-				case SEPatientEventType::IntracranialHypotension:
-					event = "IntracranialHypotension";
-					break;
-				case SEPatientEventType::IrreversibleState:
-					event = "IrreversibleState";
-					break;
-				case SEPatientEventType::Ketoacidosis:
-					event = "Ketoacidosis";
-					break;
-				case SEPatientEventType::LacticAcidosis:
-					event = "LacticAcidosis";
-					break;
-				case SEPatientEventType::LiverGlycogenDepleted:
-					event = "LiverGlycogenDepleted";
-					break;
-				case SEPatientEventType::MaximumPulmonaryVentilationRate:
-					event = "MaximumPulmonaryVentilationRate";
-					break;
-				case SEPatientEventType::MetabolicAcidosis:
-					event = "MetabolicAcidosis";
-					break;
-				case SEPatientEventType::MetabolicAlkalosis:
-					event = "MetabolicAlkalosis";
-					break;
-				case SEPatientEventType::MuscleCatabolism:
-					event = "MuscleCatabolism";
-					break;
-				case SEPatientEventType::MuscleGlycogenDepleted:
-					event = "MuscleGlycogenDepleted";
-					break;
-				case SEPatientEventType::MyocardiumOxygenDeficit:
-					event = "MyocardiumOxygenDeficit";
-					break;
-				case SEPatientEventType::Natriuresis:
-					event = "Natriuresis";
-					break;
-				case SEPatientEventType::NutritionDepleted:
-					event = "NutritionDepleted";
-					break;
-				case SEPatientEventType::PulselessRhythm:
-					event = "PulselessRhythm";
-					break;
-				case SEPatientEventType::RenalHypoperfusion:
-					event = "RenalHypoperfusion";
-					break;
-				case SEPatientEventType::RespiratoryAcidosis:
-					event = "RespiratoryAcidosis";
-					break;
-				case SEPatientEventType::RespiratoryAlkalosis:
-					event = "RespiratoryAlkalosis";
-					break;
-				case SEPatientEventType::SevereAcuteRespiratoryDistress:
-					event = "SevereAcuteRespiratoryDistress";
-					break;
-				case SEPatientEventType::StartOfCardiacCycle:
-					event = "AcuteLungInjury";
-					break;
-				case SEPatientEventType::StartOfExhale:
-					event = "StartOfExhale";
-					break;
-				case SEPatientEventType::StartOfInhale:
-					event = "StartOfInhale";
-					break;
-				case SEPatientEventType::SevereSepsis:
-					event = "SevereSepsis";
-					break;
-				case SEPatientEventType::Tachycardia:
-					event = "Tachycardia";
-					break;
-				case SEPatientEventType::Tachypnea:
-					event = "Tachypnea";
-					break;
-				case SEPatientEventType::_TotalPatientEvents:
-					event = "TotalPatientEvents";
-					break;
-				default:
-					event = "Unknown";
-					break;
-			}
-			std::string state = (active) ? "(On)" : "(Off)";
-			if (event.size() < marquee_1.size()) {
-				marquee_1.replace(marquee_1.begin() + (marquee_1.size() / 2) - (event.size() / 2),
-				                  marquee_1.begin() + (marquee_1.size() / 2) + (event.size() / 2) + (state.size() % 2),
-				                  event.begin(), event.end());
-			} else {
-				marquee_1 = event;
-			}
-			if (state.size() < marquee_2.size()) {
-				marquee_2.replace(marquee_2.begin() + (marquee_2.size() / 2) - (state.size() / 2),
-				                  marquee_2.begin() + (marquee_2.size() / 2) + (state.size() / 2) + (state.size() % 2),
-				                  state.begin(), state.end());
-			} else {
-				marquee_1 = state;
-			}
-			std::cout << prefix << marquee_1 << end;
-			std::cout << prefix << marquee_2 << end;
-			std::cout << "(__________|_[______]_|______________________________________|\n";
-			std::cout << "  0--0--0      0  0      0       0     0        0        0    \n";
-			std::cout << std::endl;
-		}
-		virtual void HandleAnesthesiaMachineEvent(SEAnesthesiaMachineEvent type, bool active, const SEScalarTime* time = nullptr)
-		{
-		}
-	};
-
-
 /**
  * @brief Construct a new Biogears Thread:: Biogears Thread object
  *
  * @param logFile biogears log file
  */
 	BiogearsThread::BiogearsThread(const std::string &logFile) {
-		std::lock_guard<std::mutex> lg(m_mutex);
-		try {
-			m_pe = std::make_unique<biogears::BioGearsEngine>("biogears.log");
-			bg = dynamic_cast<biogears::BioGears *>(m_pe.get());
-		} catch (std::exception &e) {
-			LOG_ERROR << "Error starting engine: " << e.what();
-		}
 		PopulateNodePathTable();
+		LOG_DEBUG << "Populated node path table, elements: " << nodePathTable.size();
+
+		LOG_INFO << "Initializing BiogearsThread with log file: " << logFile;
+		WithEngineLock([&]() {
+			m_pe = std::make_unique<biogears::BioGearsEngine>(logFile);
+		});
+
 		running = false;
 	}
+
 
 /**
  * @brief Destroy the Biogears Thread:: Biogears Thread object
  *
  */
 	BiogearsThread::~BiogearsThread() {
-		running = false;
-		m_pe = nullptr;
-		bg = nullptr;
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		Cleanup();
 	}
 
 /**
@@ -272,6 +32,7 @@ namespace AMM {
  *
  */
 	void BiogearsThread::PopulateNodePathTable() {
+		std::lock_guard<std::mutex> lg(m_mutex);
 		highFrequencyNodes.clear();
 		nodePathTable.clear();
 
@@ -421,22 +182,30 @@ namespace AMM {
 	}
 
 	std::map<std::string, double (BiogearsThread::*)()> *BiogearsThread::GetNodePathTable() {
-		return &nodePathTable;
+		return WithEngineLock([&]() -> std::map<std::string, double (BiogearsThread::*)()> * {
+			return &nodePathTable; // Always return the address of nodePathTable
+		});
 	}
 
 	void BiogearsThread::Shutdown() {
 	}
 
 	void BiogearsThread::StartSimulation() {
-		if (!running) {
-			running = true;
-		}
+		WithEngineLock([&]() {
+			if (!running) {
+				running = true;
+				LOG_INFO << "Simulation started.";
+			}
+		});
 	}
 
 	void BiogearsThread::StopSimulation() {
-		if (running) {
-			running = false;
-		}
+		WithEngineLock([&]() {
+			if (running) {
+				running = false;
+				LOG_INFO << "Simulation stopped.";
+			}
+		});
 	}
 
 /**
@@ -448,24 +217,38 @@ namespace AMM {
  * @return false if engine doesn't load
  */
 	bool BiogearsThread::LoadPatient(const std::string &patientFile) {
-		std::lock_guard<std::mutex> lg(m_mutex);
-		if (m_pe == nullptr) {
-			LOG_ERROR << "Unable to load state, Biogears has not been initialized.";
-			return false;
-		}
+		return WithEngineLock([&]() {
+			if (!IsEngineInitialized()) return false;
 
-		LOG_INFO << "Loading patient file " << patientFile;
-		try {
-			if (!m_pe->InitializeEngine(patientFile)) {
-				LOG_ERROR << "Error loading patient";
+			LOG_INFO << "Loading patient file " << patientFile;
+			try {
+				if (!m_pe->InitializeEngine(patientFile)) {
+					LOG_ERROR << "Error loading patient.";
+					return false;
+				}
+			} catch (const std::exception &e) {
+				LOG_ERROR << "Exception loading patient: " << e.what();
 				return false;
 			}
-		} catch (std::exception &e) {
-			LOG_ERROR << "Exception loading patient: " << e.what();
+			return true;
+		});
+	}
+
+	bool BiogearsThread::IsEngineInitialized() const {
+		if (m_pe == nullptr) {
+			LOG_ERROR << "Physiology engine is not initialized.";
 			return false;
 		}
-
 		return true;
+	}
+
+
+	void BiogearsThread::Cleanup() {
+		WithEngineLock([&]() {
+			m_pe.reset();
+			running = false;
+			LOG_INFO << "BiogearsThread cleaned up.";
+		});
 	}
 
 /**
@@ -478,65 +261,53 @@ namespace AMM {
  * @return false if not
  */
 	bool BiogearsThread::LoadState(const std::string &stateFile, double sec) {
-		std::lock_guard<std::mutex> lg(m_mutex);
-		if (m_pe == nullptr) {
-			LOG_ERROR << "Unable to load state, Biogears has not been initialized.";
-			return false;
-		}
+		return WithEngineLock([&]() {
+			if (!IsEngineInitialized()) return false;
 
-		auto *startTime = new biogears::SEScalarTime();
-		startTime->SetValue(sec, biogears::TimeUnit::s);
+			auto startTime = std::make_unique<biogears::SEScalarTime>();
+			startTime->SetValue(sec, biogears::TimeUnit::s);
 
-		LOG_INFO << "Loading state file " << stateFile << " at position " << sec << " seconds";
+			LOG_INFO << "Loading state file " << stateFile << " at position " << sec << " seconds";
 
-		try {
-
-			if (!m_pe->LoadState(stateFile, startTime)) {
-				LOG_ERROR << "Error loading state";
+			try {
+				if (!m_pe->LoadState(stateFile, startTime.get())) {
+					LOG_ERROR << "Error loading state.";
+					return false;
+				}
+				m_pe->SetEventHandler(&myEventHandler);
+				// patientEventStates = myEventHandler->patientEventStates;
+			} catch (const std::exception &e) {
+				LOG_ERROR << "Exception loading state: " << e.what();
 				return false;
 			}
-		} catch (std::exception &e) {
-			LOG_ERROR << "Exception loading state: " << e.what();
-			return false;
-		}
-
-		return true;
+			return true;
+		});
 	}
 
-	bool BiogearsThread::AttachEventHandler() {
-		std::lock_guard<std::mutex> lg(m_mutex);
-		try {
-			// LOG_DEBUG << "Attaching event handler";
-			// MyEventHandler MEH;
-			// m_pe->SetEventHandler(&MEH);
-			//
-			// patientEventStates = &MEH.patientEventStates;
-		} catch (std::exception &e) {
-			LOG_ERROR << "Error attaching event handler: " << e.what();
-			return false;
-		}
-		return true;
-	}
 
 	bool BiogearsThread::InitializePatientActions() {
-		std::lock_guard<std::mutex> lg(m_mutex);
-		try {
-			auto &patientactions = bg->GetActions().GetPatientActions();
+		return WithEngineLock([&]() {
+			if (!IsEngineInitialized()) return false;
 
-			LOG_DEBUG << "Setting starting patient states.";
-			pneumothoraxLClosed = patientactions.HasLeftClosedTensionPneumothorax();
-			pneumothoraxLOpen = patientactions.HasLeftOpenTensionPneumothorax();
-			pneumothoraxRClosed = patientactions.HasRightClosedTensionPneumothorax();
-			pneumothoraxROpen = patientactions.HasRightOpenTensionPneumothorax();
-			hemorrhage = patientactions.HasHemorrhage();
-			acuteStress = patientactions.HasAcuteStress();
-			asthmaAttack = patientactions.HasAsthmaAttack();
-			brainInjury = patientactions.HasBrainInjury();
-		} catch (std::exception &e) {
-			LOG_ERROR << "Error intializing patient actions: " << e.what();
-			return false;
-		}
-		return true;
+			try {
+
+				auto bg = dynamic_cast<biogears::BioGears*>(m_pe.get());
+				auto &patientactions = bg->GetActions().GetPatientActions();
+
+				pneumothoraxLClosed = patientactions.HasLeftClosedTensionPneumothorax();
+				pneumothoraxLOpen = patientactions.HasLeftOpenTensionPneumothorax();
+				pneumothoraxRClosed = patientactions.HasRightClosedTensionPneumothorax();
+				pneumothoraxROpen = patientactions.HasRightOpenTensionPneumothorax();
+				hemorrhage = patientactions.HasHemorrhage();
+				acuteStress = patientactions.HasAcuteStress();
+				asthmaAttack = patientactions.HasAsthmaAttack();
+				brainInjury = patientactions.HasBrainInjury();
+			} catch (std::exception &e) {
+				LOG_ERROR << "Error initializing patient actions: " << e.what();
+				return false;
+			}
+			return true;
+		});
 	}
 
 	/**
@@ -545,7 +316,7 @@ namespace AMM {
 	 */
 	bool BiogearsThread::PostLoad() {
 		if (InitializeBioGearsSubstances()) {
-			LOG_DEBUG << "Prepared substances";
+			LOG_DEBUG << "Initialized substances.";
 		} else {
 			LOG_ERROR << "Unable to prepare substances.";
 			return false;
@@ -553,24 +324,18 @@ namespace AMM {
 
 		if (logging_enabled) {
 			if (InitializeBioGearsLogging()) {
-				LOG_DEBUG << "Set up logging";
+				LOG_DEBUG << "Initialized Biogears logging.";
 			} else {
 				LOG_ERROR << "Unable to setup logging.";
 				return false;
 			}
 		}
 
+
 		if (InitializePatientActions()) {
 			LOG_DEBUG << "Initialized patient actions.";
 		} else {
 			LOG_ERROR << "Unable to initialize patient actions.";
-			return false;
-		}
-
-		if (AttachEventHandler()) {
-			LOG_DEBUG << "Attached event handler";
-		} else {
-			LOG_ERROR << "Unable to attach event handler";
 			return false;
 		}
 
@@ -585,22 +350,30 @@ namespace AMM {
  * @return false if biogears is a nullptr (not initialized)
  */
 	bool BiogearsThread::SaveState(const std::string &stateFile) {
-		std::lock_guard<std::mutex> lg(m_mutex);
-		if (m_pe == nullptr) {
-			LOG_ERROR << "Unable to save state, Biogears has not been initialized.";
-			return false;
-		}
-		m_pe->SaveStateToFile(stateFile);
+		return WithEngineLock([&]() {
+			if (!IsEngineInitialized()) return false;
 
-		return true;
+			LOG_INFO << "Saving state to file: " << stateFile;
+			try {
+				m_pe->SaveStateToFile(stateFile);
+			} catch (const std::exception &e) {
+				LOG_ERROR << "Exception saving state: " << e.what();
+				return false;
+			}
+			return true;
+		});
 	}
 
-	void BiogearsThread::SetLastFrame(int lF) {
-		lastFrame = lF;
+	void BiogearsThread::SetLastFrame(int lastFrameValue) {
+		// WithEngineLock([&]() {
+		lastFrame = lastFrameValue;
+//		});
 	}
 
 	void BiogearsThread::SetLogging(bool log) {
-		logging_enabled = log;
+		WithEngineLock([&]() {
+			logging_enabled = log;
+		});
 	}
 
 
@@ -664,8 +437,7 @@ namespace AMM {
  * @return false if not
  */
 	bool BiogearsThread::LoadScenarioFile(const std::string &scenarioFile) {
-		if (m_pe == nullptr) {
-			LOG_ERROR << "Unable to load scenario, Biogears has not been initialized.";
+		if (!IsEngineInitialized()) {
 			return false;
 		}
 
@@ -674,6 +446,7 @@ namespace AMM {
 			return false;
 		}
 
+		std::lock_guard<std::mutex> lg(m_mutex);
 		biogears::SEScenario sce(m_pe->GetSubstanceManager());
 		sce.Load(scenarioFile);
 
@@ -748,32 +521,33 @@ namespace AMM {
  *
  */
 	void BiogearsThread::AdvanceTimeTick() {
-		LOG_DEBUG << "Advance time tick, locking.";
-		std::lock_guard<std::mutex> lg(m_mutex);
-		if (m_pe == nullptr) {
-			LOG_ERROR << "Unable to advance time, Biogears has not been initialized.";
-			return;
-		}
+		WithEngineLock([&]() {
+			if (!IsEngineInitialized() || !running) return;
 
-		if (!running) {
-			LOG_ERROR << "Cannot advance time, simulation is not running.";
-			return;
-		}
 
-		LOG_DEBUG << "About to advance time on the PE.";
+			if (myEventHandler.irreversible && !irreversible) {
+				irreversible = true;
+			}
 
-		try {
+			startOfInhale = myEventHandler.startOfInhale;
+			startOfExhale = myEventHandler.startOfExhale;
 
-			m_pe->AdvanceModelTime();
-			LOG_DEBUG << "Time advanced, logging if needed.";
-			if (logging_enabled) {
-				if ((lastFrame % DEFAULT_LOGGING_FREQUENCY) == 0) {
+			if (lastFrame == 0) {
+				LOG_INFO << "Starting frame";
+			}
+
+			try {
+				// LOG_TRACE << "Advancing time tick for frame: " << lastFrame;
+				m_pe->AdvanceModelTime();
+
+				if (logging_enabled && (lastFrame % DEFAULT_LOGGING_FREQUENCY == 0)) {
 					m_pe->GetEngineTrack()->TrackData(m_pe->GetSimulationTime(biogears::TimeUnit::s));
 				}
+				// LOG_TRACE << "Done advancing time tick for frame: " << lastFrame;
+			} catch (const std::exception &e) {
+				LOG_ERROR << "Error advancing time: " << e.what();
 			}
-		} catch (std::exception &e) {
-			LOG_ERROR << "Error advancing time: " << e.what();
-		}
+		});
 
 	}
 
@@ -784,12 +558,11 @@ namespace AMM {
  * @return false if the physiology engine isn't running
  */
 	bool BiogearsThread::InitializeBioGearsSubstances() {
-		std::lock_guard<std::mutex> lg(m_mutex);
-		if (m_pe == nullptr) {
-			LOG_ERROR << "Physiology engine is not running";
+		if (!IsEngineInitialized()) {
 			return false;
 		}
 
+		std::lock_guard<std::mutex> lg(m_mutex);
 		sodium = m_pe->GetSubstanceManager().GetSubstance("Sodium");
 		glucose = m_pe->GetSubstanceManager().GetSubstance("Glucose");
 		creatinine = m_pe->GetSubstanceManager().GetSubstance("Creatinine");
@@ -829,8 +602,9 @@ namespace AMM {
  * @return false if logging is not enabled
  */
 	bool BiogearsThread::InitializeBioGearsLogging() {
-		std::lock_guard<std::mutex> lg(m_mutex);
-
+		if (!IsEngineInitialized()) {
+			return false;
+		}
 
 		std::string logFilename = Utility::getTimestampedFilename(DEFAULT_LOG_PATH, ".csv");
 		LOG_INFO << "Initializing log file: " << logFilename;
@@ -839,7 +613,8 @@ namespace AMM {
 		fs.open(logFilename, std::ios::out);
 		fs.close();
 
-		m_pe->GetEngineTrack()->GetDataRequestManager().Clear();
+		std::lock_guard<std::mutex> lg(m_mutex);
+		// m_pe->GetEngineTrack()->GetDataRequestManager().Clear();
 		m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
 				"HeartRate", biogears::FrequencyUnit::Per_min);
 		m_pe->GetEngineTrack()->GetDataRequestManager().CreatePhysiologyDataRequest().Set(
@@ -899,7 +674,9 @@ namespace AMM {
  * @return double
  */
 	double BiogearsThread::GetSimulationTime() {
-		return (double) lastFrame / (double) 50;
+		return WithEngineLock([&]() -> double {
+			return m_pe->GetSimulationTime(biogears::TimeUnit::s);
+		}) ? 0.0 : 0.0;
 	}
 
 /**
@@ -920,9 +697,14 @@ namespace AMM {
  * @return double return a double of the string name
  */
 	double BiogearsThread::GetNodePath(const std::string &nodePath) {
-		std::map<std::string, double (BiogearsThread::*)()>::iterator entry;
-		entry = nodePathTable.find(nodePath);
-		if (entry != nodePathTable.end()) {
+		std::map<std::string, double (BiogearsThread::*)()> localNodePathTable;
+		{
+			std::shared_lock<std::shared_mutex> lock(m_nodePathMutex);
+			localNodePathTable = nodePathTable;
+		}
+
+		auto entry = localNodePathTable.find(nodePath);
+		if (entry != localNodePathTable.end()) {
 			return (this->*(entry->second))();
 		}
 
@@ -1399,6 +1181,9 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetIVPump(const std::string &pumpSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
 		LOG_DEBUG << "Got pump settings: " << pumpSettings;
 		std::string type, concentration, rate, dose, substance, bagVolume;
 		std::vector<std::string> strings = Utility::explode("\n", pumpSettings);
@@ -1442,6 +1227,9 @@ namespace AMM {
 			LOG_DEBUG << "Setting paralyzed to TRUE from succs infusion";
 			paralyzed = true;
 		}
+
+
+		std::lock_guard<std::mutex> lg(m_mutex);
 
 		try {
 			if (type == "infusion") {
@@ -1561,6 +1349,10 @@ namespace AMM {
 	void BiogearsThread::SetSubstanceInfusion(const std::string &substance, double conVal,
 	                                          const std::string &conUnit, double rate,
 	                                          const std::string &rUnit) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SESubstance *subs = m_pe->GetSubstanceManager().GetSubstance(substance);
 			biogears::SESubstanceInfusion infuse(*subs);
@@ -1589,6 +1381,10 @@ namespace AMM {
 	void BiogearsThread::SetSubstanceCompoundInfusion(const std::string &substance, double bagVolume,
 	                                                  const std::string &bvUnit, double rate,
 	                                                  const std::string &rUnit) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			std::string newSub = substance;
 			if (substance == "Blood" || substance == "Whole Blood" || substance == "WholeBlood") {
@@ -1621,6 +1417,10 @@ namespace AMM {
 
 	void BiogearsThread::SetSubstanceNasalDose(const std::string &substance, double dose,
 	                                           const std::string &doseUnit) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			const biogears::SESubstance *subs = m_pe->GetSubstanceManager().GetSubstance(substance);
 			biogears::SESubstanceNasalDose nd(*subs);
@@ -1640,6 +1440,10 @@ namespace AMM {
 	void BiogearsThread::SetSubstanceBolus(const std::string &substance, double concentration,
 	                                       const std::string &concUnit, double dose,
 	                                       const std::string &doseUnit, const std::string &adminRoute) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			const biogears::SESubstance *subs = m_pe->GetSubstanceManager().GetSubstance(substance);
 			biogears::SESubstanceBolus bolus(*subs);
@@ -1681,6 +1485,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetTensionPneumothorax(const std::string &type, const std::string &side, double severity) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SETensionPneumothorax pneumo;
 			if (type == "Open") {
@@ -1701,6 +1509,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetChestOcclusiveDressing(const std::string &state, const std::string &side) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SEChestOcclusiveDressing dressing;
 			if (state == "On") {
@@ -1722,6 +1534,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetAirwayObstruction(double severity) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SEAirwayObstruction obstruction;
 			obstruction.GetSeverity().SetValue(severity);
@@ -1732,6 +1548,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetAsthmaAttack(double severity) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SEAsthmaAttack asthmaAttack;
 			asthmaAttack.GetSeverity().SetValue(severity);
@@ -1742,6 +1562,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetBrainInjury(double severity, const std::string &type) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SEBrainInjury tbi;
 			if (type == "Diffuse") {
@@ -1759,6 +1583,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetHemorrhage(const std::string &location, double flow) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SEHemorrhage hemorrhage;
 			hemorrhage.SetCompartment(location);
@@ -1771,6 +1599,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetNasalCannula(double flowRate, const std::string &unit) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SENasalCannula nasalcannula;
 			if (unit == "L/min") {
@@ -1783,6 +1615,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetNeedleDecompression(const std::string &state, const std::string &side) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SENeedleDecompression ncd;
 			if (state == "On") {
@@ -1804,6 +1640,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetPain(const std::string &location, double severity) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SEPainStimulus PainStimulus;
 			PainStimulus.SetLocation(location);
@@ -1815,6 +1655,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetSepsis(const std::string &location, double severity) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			//          biogears::SESepsisState sepsis;
 			//          PainStimulus.SetLocation(location);
@@ -1831,6 +1675,9 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetVentilator(const std::string &ventilatorSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
 		std::vector<std::string> strings = Utility::explode("\n", ventilatorSettings);
 
 		biogears::SEAnesthesiaMachineConfiguration AMConfig(m_pe->GetSubstanceManager());
@@ -1876,6 +1723,9 @@ namespace AMM {
 				LOG_ERROR << "Issue with setting " << e.what();
 			}
 		}
+
+
+		std::lock_guard<std::mutex> lg(m_mutex);
 
 		try {
 			m_pe->ProcessAction(AMConfig);
@@ -1931,6 +1781,7 @@ namespace AMM {
 			}
 		}
 
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			m_pe->ProcessAction(AMConfig);
 		} catch (std::exception &e) {
@@ -2055,6 +1906,10 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetChestTube(const std::string &state, const std::string &side) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SEChestTube ct;
 			if (state == "On") {
@@ -2072,5 +1927,167 @@ namespace AMM {
 		} catch (std::exception &e) {
 			LOG_ERROR << "Error processing Chest Tube action: " << e.what();
 		}
+	}
+
+	void BiogearsThread::SetSubstanceOralDose(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetUrinate(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetAcuteStress(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetApnea(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetBronchoconstriction(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetBurnWound(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetCardiacArrest(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetChestCompression(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetConsciousRespiration(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetBreathHold(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetForcedExhale(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetForcedInhale(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetConsciousRespirationCommand(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetConsumeNutrients(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetExercise(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetInfection(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetIntubation(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetMechanicalVentilation(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetPatientAction(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetPatientAssessmentRequest(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetPericardialEffusion(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetPupillaryResponse(const std::string &actionSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+	}
+
+	void BiogearsThread::SetSubstanceAdministration(const std::string &actionSettings) {
+
+	}
+
+	void BiogearsThread::SetUseInhaler(const std::string &actionSettings) {
+
 	}
 }

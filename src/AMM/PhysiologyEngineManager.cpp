@@ -63,12 +63,13 @@ namespace AMM {
 		m_mgr->CreateInstrumentDataSubscriber(this, &AMM::PhysiologyEngineManager::OnNewInstrumentData);
 		m_mgr->CreateModuleConfigurationSubscriber(this, &AMM::PhysiologyEngineManager::OnNewModuleConfiguration);
 
-		m_uuid.id(m_mgr->GenerateUuidString());
+		m_uuid.id(AMM::DDSManager<AMM::PhysiologyEngineManager>::GenerateUuidString());
 
 		InitializeBiogears();
 	}
 
 	void PhysiologyEngineManager::PublishOperationalDescription() {
+		std::lock_guard<std::mutex> lg(mgr_mutex);
 		AMM::OperationalDescription od;
 		od.name(moduleName);
 		od.model("Physiology Engine Manager");
@@ -83,6 +84,7 @@ namespace AMM {
 	}
 
 	void PhysiologyEngineManager::PublishConfiguration() {
+		std::lock_guard<std::mutex> lg(mgr_mutex);
 		AMM::ModuleConfiguration mc;
 		uint64_t ms = static_cast<uint64_t>(duration_cast<milliseconds>(
 				system_clock::now().time_since_epoch())
@@ -100,12 +102,12 @@ namespace AMM {
 		m_mgr->Shutdown();
 	}
 
-	bool PhysiologyEngineManager::isRunning() { return running; }
+	bool PhysiologyEngineManager::isRunning() const { return running; }
 
 	void PhysiologyEngineManager::SendShutdown() {
 	}
 
-	void PhysiologyEngineManager::PrintAvailableNodePaths() {
+	void PhysiologyEngineManager::PrintAvailableNodePaths() const {
 		auto it = nodePathMap->begin();
 		while (it != nodePathMap->end()) {
 			std::string word = it->first;
@@ -114,7 +116,7 @@ namespace AMM {
 		}
 	}
 
-	void PhysiologyEngineManager::PrintAllCurrentData() {
+	void PhysiologyEngineManager::PrintAllCurrentData() const {
 		auto it = nodePathMap->begin();
 		while (it != nodePathMap->end()) {
 			std::string node = it->first;
@@ -124,18 +126,20 @@ namespace AMM {
 		}
 	}
 
-	int PhysiologyEngineManager::GetNodePathCount() {
+	int PhysiologyEngineManager::GetNodePathCount() const {
 		return static_cast<int>(nodePathMap->size());
 	}
 
 	void PhysiologyEngineManager::WriteNodeData(const std::string &node) {
 		AMM::PhysiologyValue dataInstance;
+		std::lock_guard<std::mutex> lg(mgr_mutex);
 		try {
 			dataInstance.name(node);
-			dataInstance.value(m_pe->GetNodePath(node));
+			double data = m_pe->GetNodePath(node);
+			dataInstance.value(data);
 			m_mgr->WritePhysiologyValue(dataInstance);
 		} catch (std::exception &e) {
-			// LOG_ERROR << "Unable to write node data  " << node << ": " << e.what();
+			LOG_ERROR << "Unable to write node data  " << node << ": " << e.what();
 		}
 	}
 
@@ -146,28 +150,24 @@ namespace AMM {
  */
 	void PhysiologyEngineManager::WriteHighFrequencyNodeData(const std::string &node) {
 		AMM::PhysiologyWaveform dataInstance;
+		std::lock_guard<std::mutex> lg(mgr_mutex);
 		try {
 			dataInstance.name(node);
 			dataInstance.value(m_pe->GetNodePath(node));
 			m_mgr->WritePhysiologyWaveform(dataInstance);
 		} catch (std::exception &e) {
-			// LOG_ERROR << "Unable to write high frequency node data  " << node << ": " << e.what();
+			LOG_ERROR << "Unable to write high frequency node data  " << node << ": " << e.what();
 		}
 	}
 
 	void PhysiologyEngineManager::PublishData(bool force = false) {
-		std::lock_guard<std::mutex> lg(m_mutex);
-		if (m_pe == nullptr || !running) {
-			LOG_WARNING << "Physiology engine not running, cannot publish data.";
-			return;
-		}
-
 		for (const auto& [node, accessor] : *nodePathMap) {
-			if ((lastFrame % HIGH_FREQUENCY_INTERVAL) == 0 || force) {
-				WriteNodeData(node);
-			}
-			if (m_pe->highFrequencyNodes.contains(node)) {
+			if (localHighFrequencyNodes.contains(node)) {
 				WriteHighFrequencyNodeData(node);
+			}
+
+			if ((lastFrame % LOW_FREQUENCY_INTERVAL) == 0 || force) {
+				WriteNodeData(node);
 			}
 		}
 	}
@@ -324,44 +324,78 @@ namespace AMM {
  *
  */
 	void PhysiologyEngineManager::InitializeBiogears() {
-		if (!running) {
-			LOG_INFO << "Initializing Biogears thread";
-			m_pe = std::make_unique<BiogearsThread>("logs/biogears.log");
+		if (running) {
+			LOG_ERROR << "Initialization failed because the sim is already running";
+			return;
+		}
 
-			if (m_pe == nullptr) {
-				LOG_WARNING << "Physiology engine not running, unable to start tick simulation.";
+		LOG_INFO << "Initializing Biogears thread";
+		m_pe = std::make_unique<BiogearsThread>("logs/biogears.log");
+
+		if (m_pe == nullptr) {
+			LOG_WARNING << "Physiology engine not running, unable to start tick simulation.";
+			return;
+		}
+
+		this->SetLogging(logging_enabled);
+
+		bool loadSuccess = false;
+		if (authoringMode) {
+			LOG_INFO << "Authoring mode is enabled. Loading patient: " << patientFile;
+			loadSuccess = m_pe->LoadPatient(patientFile);
+			if (loadSuccess) {
+				LOG_INFO << "Patient loaded successfully";
+			} else {
+				LOG_ERROR << "Failed to load patient";
 				return;
 			}
+		} else {
+			LOG_INFO << "Standard mode. Loading state file: " << stateFile;
+			double startPosition = 0;
 
-			this->SetLogging(logging_enabled);
-
-			if (authoringMode) {
-				if (m_pe->LoadPatient(patientFile)) {
-					LOG_INFO << "Patient loaded";
-				}
-			} else {
-				std::size_t pos = stateFile.find('@');
-				double startPosition;
-				if (pos != std::string::npos) {
-					std::string state2 = stateFile.substr(pos);
-					std::size_t pos2 = state2.find('s');
+			std::size_t pos = stateFile.find('@');
+			if (pos != std::string::npos) {
+				std::string state2 = stateFile.substr(pos);
+				std::size_t pos2 = state2.find('s');
+				if (pos2 != std::string::npos) {
 					std::string state3 = state2.substr(1, pos2 - 1);
-					startPosition = strtod(state3.c_str(), NULL);
+					try {
+						startPosition = std::stod(state3);
+					} catch (const std::exception &e) {
+						LOG_ERROR << "Failed to parse start position from state file: " << e.what();
+						return;
+					}
 				} else {
-					startPosition = 0;
-				}
-
-				// LOG_INFO << "Loading " << stateFile << " at " << startPosition;
-				if (m_pe->LoadState(stateFile, startPosition)) {
-					// LOG_INFO << "State loaded.";
+					LOG_WARNING << "Failed to find 's' in state file. Defaulting start position to 0.";
 				}
 			}
-			m_pe->PostLoad();
-			nodePathMap = std::make_unique<std::map<std::string, double (BiogearsThread::*)()>>(*m_pe->GetNodePathTable());
 
-		} else {
-			LOG_ERROR << "Initialization failed because the sim is already running";
+			loadSuccess = m_pe->LoadState(stateFile, startPosition);
+			if (loadSuccess) {
+				LOG_INFO << "State loaded successfully";
+			} else {
+				LOG_ERROR << "Failed to load state";
+				return;
+			}
 		}
+
+		// Safely call PostLoad
+		if (!m_pe->PostLoad()) {
+			LOG_ERROR << "PostLoad failed for BiogearsThread.";
+			return;
+		}
+
+		// Safely get the NodePathTable
+		auto nodePathTablePtr = m_pe->GetNodePathTable();
+		if (nodePathTablePtr == nullptr) {
+			LOG_ERROR << "Failed to get NodePathTable from BiogearsThread.";
+			return;
+		}
+		nodePathMap = std::make_unique<std::map<std::string, double (BiogearsThread::*)()>>(*nodePathTablePtr);
+
+		localHighFrequencyNodes = m_pe->highFrequencyNodes;
+
+		LOG_INFO << "Biogears initialization complete.";
 	}
 
 /**
@@ -369,7 +403,6 @@ namespace AMM {
  *
  */
 	void PhysiologyEngineManager::StartTickSimulation() {
-		std::lock_guard <std::mutex> lg(m_mutex);
 		LOG_INFO << "Starting tick simulation";
 		running = true;
 		m_pe->running = true;
@@ -404,6 +437,7 @@ namespace AMM {
  *
  */
 	void PhysiologyEngineManager::SendPatientStateRendMod(std::string rendModType) {
+		std::lock_guard<std::mutex> lg(mgr_mutex);
 		AMM::UUID erID;
 		erID.id(AMM::DDSManager<AMM::PhysiologyEngineManager>::GenerateUuidString());
 		FMA_Location fma;
@@ -428,16 +462,16 @@ namespace AMM {
  *
  */
 	void PhysiologyEngineManager::ProcessStates() {
-		std::lock_guard<std::mutex> lg(m_mutex);
-		if (m_pe->startOfInhale) {
-			// LOG_TRACE << "Start of inhale, sending render mod";
+		std::lock_guard<std::mutex> lg(mgr_mutex);
+		if (m_pe->startOfInhale && !m_pe->startOfInhaleSent) {
+			LOG_TRACE << "Start of inhale, sending render mod";
 			AMM::RenderModification renderMod;
 			renderMod.type("START_OF_INHALE");
 			renderMod.data("<RenderModification type='START_OF_INHALE'/>");
 			m_mgr->WriteRenderModification(renderMod);
 			m_pe->startOfInhale = false;
-		} else if (m_pe->startOfExhale) {
-			// LOG_TRACE << "Start of exhale, sending render mod";
+		} else if (m_pe->startOfExhale && !m_pe->startOfExhaleSent) {
+			LOG_TRACE << "Start of exhale, sending render mod";
 			AMM::RenderModification renderMod;
 			renderMod.type("START_OF_EXHALE");
 			renderMod.data("<RenderModification type='START_OF_EXHALE'/>");
@@ -543,13 +577,7 @@ namespace AMM {
  *
  */
 	void PhysiologyEngineManager::AdvanceTimeTick() {
-		if (m_pe == nullptr || !running) {
-			LOG_WARNING << "Physiology engine not running, cannot advance time.";
-			return;
-		}
-
 		m_pe->AdvanceTimeTick();
-		ProcessStates();
 	}
 
 /**
@@ -639,7 +667,7 @@ namespace AMM {
 	void PhysiologyEngineManager::OnNewSimulationControl(AMM::SimulationControl &simControl, SampleInfo_t *info) {
 		switch (simControl.type()) {
 			case AMM::ControlType::RUN: {
-				LOG_DEBUG << "SimControl recieved: Run sim.";
+				LOG_DEBUG << "SimControl received: Run sim.";
 				if (!running) {
 					LOG_INFO << "Not running, calling starttick.";
 					StartTickSimulation();
@@ -648,7 +676,7 @@ namespace AMM {
 			}
 
 			case AMM::ControlType::HALT: {
-				LOG_DEBUG << "SimControl recieved: Halt sim";
+				LOG_DEBUG << "SimControl received: Halt sim";
 				if (running) {
 					paused = true;
 				}
@@ -656,7 +684,7 @@ namespace AMM {
 			}
 
 			case AMM::ControlType::RESET: {
-				LOG_DEBUG << "SimControl recieved: Reset simulation, clearing engine data and preparing for next run.";
+				LOG_DEBUG << "SimControl received: Reset simulation, clearing engine data and preparing for next run.";
 				if (running) {
 					paused = true;
 				}
@@ -668,7 +696,7 @@ namespace AMM {
 			}
 
 			case AMM::ControlType::SAVE: {
-				LOG_DEBUG << "SimControl recieved: Save sim";
+				LOG_DEBUG << "SimControl received: Save sim";
 				if (m_pe != nullptr) {
 					std::ostringstream ss;
 					double simTime = m_pe->GetSimulationTime();
@@ -789,6 +817,7 @@ namespace AMM {
  */
 	void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info) {
 		if (mc.name() == "physiology_engine") {
+			std::lock_guard<std::mutex> lg(mgr_mutex);
 			LOG_DEBUG << "Entering ModuleConfiguration for physiology engine.";
 			std::string capabilities = mc.capabilities_configuration().to_string();
 			ParseXML(capabilities);
@@ -905,6 +934,7 @@ namespace AMM {
 				// Per-frame stuff happens here
 				try {
 					AdvanceTimeTick();
+					ProcessStates();
 					PublishData(false);
 				} catch (std::exception &e) {
 					LOG_ERROR << "Unable to advance time: " << e.what();
