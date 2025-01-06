@@ -464,14 +464,14 @@ namespace AMM {
 	void PhysiologyEngineManager::ProcessStates() {
 		std::lock_guard<std::mutex> lg(mgr_mutex);
 		if (m_pe->startOfInhale && !m_pe->startOfInhaleSent) {
-			LOG_TRACE << "Start of inhale, sending render mod";
+			// LOG_TRACE << "Start of inhale, sending render mod";
 			AMM::RenderModification renderMod;
 			renderMod.type("START_OF_INHALE");
 			renderMod.data("<RenderModification type='START_OF_INHALE'/>");
 			m_mgr->WriteRenderModification(renderMod);
 			m_pe->startOfInhale = false;
 		} else if (m_pe->startOfExhale && !m_pe->startOfExhaleSent) {
-			LOG_TRACE << "Start of exhale, sending render mod";
+			// LOG_TRACE << "Start of exhale, sending render mod";
 			AMM::RenderModification renderMod;
 			renderMod.type("START_OF_EXHALE");
 			renderMod.data("<RenderModification type='START_OF_EXHALE'/>");
@@ -535,13 +535,13 @@ namespace AMM {
 			}
 
 			if (m_pe->pneumothoraxRClosed && !m_pe->pneumothoraxRClosedSent) {
-				LOG_DEBUG << "Patient has  has right closed pneumothorax, sending render mod.";
+				LOG_DEBUG << "Patient has has right closed pneumothorax, sending render mod.";
 				SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_R_SEVERE");
 				m_pe->pneumothoraxRClosedSent = true;
 			}
 
 			if (m_pe->pneumothoraxROpen && !m_pe->pneumothoraxROpenSent) {
-				LOG_DEBUG << "Patient  has right open pneumothorax, sending render mod.";
+				LOG_DEBUG << "Patient has right open pneumothorax, sending render mod.";
 				SendPatientStateRendMod("PNEUMOTHORAX_OPEN_R_SEVERE");
 				m_pe->pneumothoraxROpenSent = true;
 			}

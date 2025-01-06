@@ -674,9 +674,7 @@ namespace AMM {
  * @return double
  */
 	double BiogearsThread::GetSimulationTime() {
-		return WithEngineLock([&]() -> double {
-			return m_pe->GetSimulationTime(biogears::TimeUnit::s);
-		}) ? 0.0 : 0.0;
+		return (double) lastFrame / (double) 50;
 	}
 
 /**
