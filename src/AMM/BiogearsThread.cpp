@@ -275,7 +275,7 @@ namespace AMM {
 					return false;
 				}
 				m_pe->SetEventHandler(&myEventHandler);
-				// patientEventStates = myEventHandler->patientEventStates;
+				// patientEventStates = &myEventHandler->patientEventStates;
 			} catch (const std::exception &e) {
 				LOG_ERROR << "Exception loading state: " << e.what();
 				return false;
@@ -1591,6 +1591,31 @@ namespace AMM {
 			hemorrhage.GetInitialRate().SetValue(flow, biogears::VolumePerTimeUnit::mL_Per_min);
 			hemorrhage.SetMCIS();
 			m_pe->ProcessAction(hemorrhage);
+		} catch (std::exception &e) {
+			LOG_ERROR << "Error processing hemorrhage action: " << e.what();
+		}
+	}
+
+	void BiogearsThread::SetTourniquet(const std::string &location, const std::string &state) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
+		std::lock_guard<std::mutex> lg(m_mutex);
+		try {
+			biogears::SETourniquetApplicationType application;
+			if (state == "on") {
+				application = biogears::SETourniquetApplicationType::Applied;
+			} else {
+				application = biogears::SETourniquetApplicationType::NotApplied;
+			}
+			auto tourniquet = biogears::SETourniquet();
+			tourniquet.SetCompartment(location);
+			tourniquet.SetTourniquetLevel(application);
+			if (tourniquet.IsValid()) {
+				m_pe->ProcessAction(tourniquet);
+			} else {
+				LOG_ERROR << "Invalid tourniquet: " << location << " (" << application << ")";
+			}
 		} catch (std::exception &e) {
 			LOG_ERROR << "Error processing hemorrhage action: " << e.what();
 		}

@@ -1,11 +1,18 @@
 #include "MoHSES_EventHandler.h"
 
 void MoHSES_EventHandler::setEventState(biogears::SEPatientEventType event, bool state) {
+	std::lock_guard<std::mutex> lock(eventMutex);
 	patientEventStates[static_cast<size_t>(event)].state = state;
 }
 
 void MoHSES_EventHandler::setMessageSent(biogears::SEPatientEventType event, bool sent) {
+	std::lock_guard<std::mutex> lock(eventMutex);
 	patientEventStates[static_cast<size_t>(event)].messageSent = sent;
+}
+
+bool MoHSES_EventHandler::isEventActive(biogears::SEPatientEventType event) const {
+	std::lock_guard<std::mutex> lock(eventMutex);
+	return patientEventStates[static_cast<size_t>(event)].state;
 }
 
 void MoHSES_EventHandler::HandlePatientEvent(biogears::SEPatientEventType type, bool active,

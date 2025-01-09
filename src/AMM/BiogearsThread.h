@@ -451,6 +451,8 @@ namespace AMM {
 
 		void SetHemorrhage(const std::string &location, double flow);
 
+		void SetTourniquet(const std::string &location, const std::string &state);
+
 		void SetInfection(const std::string &actionSettings);
 
 		void SetIntubation(const std::string &actionSettings);

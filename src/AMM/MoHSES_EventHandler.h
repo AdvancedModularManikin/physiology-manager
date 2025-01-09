@@ -53,5 +53,9 @@ public:
 
 	void setMessageSent(biogears::SEPatientEventType event, bool sent);
 
+	bool isEventActive(biogears::SEPatientEventType event) const;
+
 	std::vector<AMM::EventStatus> patientEventStates;
+
+	mutable std::mutex eventMutex;
 };

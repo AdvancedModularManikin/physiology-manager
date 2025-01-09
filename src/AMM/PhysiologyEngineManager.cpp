@@ -248,6 +248,8 @@ namespace AMM {
 				m_pe->SetBrainInjury(pSev, pType);
 			} else if (pmType == "hemorrhage") {
 				m_pe->SetHemorrhage(pLoc, pFlow);
+			} else if (pmType == "tourniquet") {
+				m_pe->SetTourniquet(pLoc, pState);
 			} else if (pmType == "nasalcannula") {
 				handleNasalCannula(pRoot);
 			} else if (pmType == "chesttube") {
@@ -437,7 +439,6 @@ namespace AMM {
  *
  */
 	void PhysiologyEngineManager::SendPatientStateRendMod(std::string rendModType) {
-		std::lock_guard<std::mutex> lg(mgr_mutex);
 		AMM::UUID erID;
 		erID.id(AMM::DDSManager<AMM::PhysiologyEngineManager>::GenerateUuidString());
 		FMA_Location fma;
@@ -535,7 +536,7 @@ namespace AMM {
 			}
 
 			if (m_pe->pneumothoraxRClosed && !m_pe->pneumothoraxRClosedSent) {
-				LOG_DEBUG << "Patient has has right closed pneumothorax, sending render mod.";
+				LOG_DEBUG << "Patient has right closed pneumothorax, sending render mod.";
 				SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_R_SEVERE");
 				m_pe->pneumothoraxRClosedSent = true;
 			}
@@ -547,14 +548,15 @@ namespace AMM {
 			}
 
 			if (m_pe->hemorrhage && !m_pe->hemorrhageSent) {
-				LOG_DEBUG << "Patient has a hemmorrhage, sending render mod.";
+				// @TODO: Get hemorrhage details, apply to proper location and with proper flow rate
+				LOG_DEBUG << "Patient has a hemorrhage, sending render mod.";
 				SendPatientStateRendMod("HEMORRHAGE");
 				m_pe->hemorrhageSent = true;
 			}
 		}
 
 		if (m_pe->acuteStress && m_pe->acuteStressSent) {
-			LOG_DEBUG << "Patient has accute stress, sending render mod.";
+			LOG_DEBUG << "Patient has acute stress, sending render mod.";
 			SendPatientStateRendMod("ACUTE_STRESS");
 			m_pe->acuteStressSent = true;
 		}
