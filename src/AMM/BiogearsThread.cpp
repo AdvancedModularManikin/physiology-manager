@@ -1488,21 +1488,21 @@ namespace AMM {
 		}
 		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
-			biogears::SETensionPneumothorax pneumo;
-			if (type == "Open") {
-				pneumo.SetType(biogears::SEPneumothoraxType::Open);
-			} else if (type == "Closed") {
-				pneumo.SetType(biogears::SEPneumothoraxType::Closed);
-			}
-			if (side == "Left") {
-				pneumo.SetSide(biogears::SESide::Left);
-			} else if (side == "Right") {
-				pneumo.SetSide(biogears::SESide::Right);
-			}
-			pneumo.GetSeverity().SetValue(severity);
-			m_pe->ProcessAction(pneumo);
+		  biogears::SETensionPneumothorax pneumo;
+		  if (boost::iequals(type,"open")) {
+		    pneumo.SetType(biogears::SEPneumothoraxType::Open);
+		  } else if (boost::iequals(type,"closed")) {
+		    pneumo.SetType(biogears::SEPneumothoraxType::Closed);
+		  }
+		  if (boost::iequals(side,"left")) {
+		    pneumo.SetSide(biogears::SESide::Left);
+		  } else if (boost::iequals(side, "right")) {
+		    pneumo.SetSide(biogears::SESide::Right);
+		  }
+		  pneumo.GetSeverity().SetValue(severity);
+		  m_pe->ProcessAction(pneumo);
 		} catch (std::exception &e) {
-			LOG_ERROR << "Error processing tension pneumothorax action: " << e.what();
+		  LOG_ERROR << "Error processing tension pneumothorax action: " << e.what();
 		}
 	}
 
@@ -1513,14 +1513,14 @@ namespace AMM {
 		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SEChestOcclusiveDressing dressing;
-			if (state == "On") {
+			if (boost::iequals(state,"on")) {
 				dressing.SetActive(true);
-			} else if (state == "Off") {
+			} else if (boost::iequals(state,"off")) {
 				dressing.SetActive(false);
 			}
-			if (side == "Left") {
+			if (boost::iequals(side,"left")) {
 				dressing.SetSide(biogears::SESide::Left);
-			} else if (side == "Right") {
+			} else if (boost::iequals(side,"right")) {
 				dressing.SetSide(biogears::SESide::Right);
 			}
 
@@ -1602,20 +1602,23 @@ namespace AMM {
 		}
 		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
-			biogears::SETourniquetApplicationType application;
-			if (state == "on") {
-				application = biogears::SETourniquetApplicationType::Applied;
-			} else {
-				application = biogears::SETourniquetApplicationType::NotApplied;
-			}
-			auto tourniquet = biogears::SETourniquet();
-			tourniquet.SetCompartment(location);
-			tourniquet.SetTourniquetLevel(application);
-			if (tourniquet.IsValid()) {
-				m_pe->ProcessAction(tourniquet);
-			} else {
-				LOG_ERROR << "Invalid tourniquet: " << location << " (" << application << ")";
-			}
+		  biogears::SEHemorrhage hemorrhage;
+		  hemorrhage.SetCompartment(location);
+		  hemorrhage.GetInitialRate().SetValue(0, biogears::VolumePerTimeUnit::mL_Per_min);
+		  hemorrhage.SetMCIS();
+		  m_pe->ProcessAction(hemorrhage);
+		  /**		  		  
+		  biogears::SETourniquetApplicationType application;
+		  if (boost::iequals(state,"on")) {
+		    application = biogears::SETourniquetApplicationType::Applied;
+		  } else {
+		    application = biogears::SETourniquetApplicationType::NotApplied;
+		  }
+		  auto tourniquet = biogears::SETourniquet();
+		  tourniquet.SetCompartment(location);
+		  tourniquet.SetTourniquetLevel(application);
+		  m_pe->ProcessAction(tourniquet);
+		  **/
 		} catch (std::exception &e) {
 			LOG_ERROR << "Error processing hemorrhage action: " << e.what();
 		}
@@ -1644,20 +1647,20 @@ namespace AMM {
 		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SENeedleDecompression ncd;
-			if (state == "On") {
+			if (boost::iequals(state,"on")) {
 				ncd.SetActive(true);
-			} else if (state == "Off") {
+			} else if (boost::iequals(state,"off")) {
 				ncd.SetActive(false);
 			}
-			if (side == "Left") {
+			if (boost::iequals(side,"left")) {
 				ncd.SetSide(biogears::SESide::Left);
-			} else if (side == "Right") {
+			} else if (boost::iequals(side,"right")) {
 				ncd.SetSide(biogears::SESide::Right);
 			}
 
 			m_pe->ProcessAction(ncd);
 		} catch (std::exception &e) {
-			LOG_ERROR << "Error processing occlusive dressing action: " << e.what();
+			LOG_ERROR << "Error processing needle decompression action: " << e.what();
 		}
 
 	}
@@ -1935,14 +1938,14 @@ namespace AMM {
 		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			biogears::SEChestTube ct;
-			if (state == "On") {
+			if (boost::iequals(state,"on")) {
 				ct.SetActive(true);
-			} else if (state == "Off") {
+			} else if (boost::iequals(state, "off")) {
 				ct.SetActive(false);
 			}
-			if (side == "Left") {
+			if (boost::iequals(side,"left")) {
 				ct.SetSide(biogears::SESide::Left);
-			} else if (side == "Right") {
+			} else if (boost::iequals(side,"right")) {
 				ct.SetSide(biogears::SESide::Right);
 			}
 

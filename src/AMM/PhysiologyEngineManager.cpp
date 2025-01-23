@@ -239,41 +239,52 @@ namespace AMM {
 			double pSev = getElementDouble(pRoot, "Severity", "Severity");
 			double pFlow = getElementDouble(pRoot, "Flow", "Flow");
 
+			/**
+			   LOG_DEBUG << "\tState:\t" << pState;
+			   LOG_DEBUG << "\tSide:\t" << pSide;
+			   LOG_DEBUG << "\tType:\t" << pType;
+			   LOG_DEBUG << "\tLocation:\t" << pLoc;
+			   LOG_DEBUG << "\tSeverity:\t" << pSev;
+			   LOG_DEBUG << "\tFlow:\t" << pFlow;
+			**/
+			
 			// Process based on pmType
 			if (pmType == "airwayobstruction") {
-				m_pe->SetAirwayObstruction(pSev);
+			  m_pe->SetAirwayObstruction(pSev);
 			} else if (pmType == "asthmaattack") {
-				m_pe->SetAsthmaAttack(pSev);
+			  m_pe->SetAsthmaAttack(pSev);
 			} else if (pmType == "braininjury") {
-				m_pe->SetBrainInjury(pSev, pType);
+			  m_pe->SetBrainInjury(pSev, pType);
 			} else if (pmType == "hemorrhage") {
-				m_pe->SetHemorrhage(pLoc, pFlow);
+			  m_pe->SetHemorrhage(pLoc, pFlow);
 			} else if (pmType == "tourniquet") {
-				m_pe->SetTourniquet(pLoc, pState);
+			  m_pe->SetTourniquet(pLoc, pState);
 			} else if (pmType == "nasalcannula") {
-				handleNasalCannula(pRoot);
+			  handleNasalCannula(pRoot);
 			} else if (pmType == "chesttube") {
-				m_pe->SetChestTube(pState, pSide);
+			  m_pe->SetChestTube(pState, pSide);
 			} else if (pmType == "needledecompression") {
-				m_pe->SetNeedleDecompression(pState, pSide);
+			  m_pe->SetNeedleDecompression(pState, pSide);
 			} else if (pmType == "occlusivedressing") {
-				m_pe->SetChestOcclusiveDressing(pState, pSide);
+			  m_pe->SetChestOcclusiveDressing(pState, pSide);
+			} else if (pmType == "chestseal") {
+			  m_pe->SetChestOcclusiveDressing(pState, pSide);
 			} else if (pmType == "painstimulus") {
-				m_pe->SetPain(pLoc, pSev);
+			  m_pe->SetPain(pLoc, pSev);
 			} else if (pmType == "sepsis") {
-				m_pe->SetSepsis(pLoc, pSev);
+			  m_pe->SetSepsis(pLoc, pSev);
 			} else if (pmType == "substancebolus") {
-				handleSubstanceBolus(pRoot);
+			  handleSubstanceBolus(pRoot);
 			} else if (pmType == "substancecompoundinfusion") {
-				handleSubstanceCompoundInfusion(pRoot);
+			  handleSubstanceCompoundInfusion(pRoot);
 			} else if (pmType == "substanceinfusion") {
-				handleSubstanceInfusion(pRoot);
+			  handleSubstanceInfusion(pRoot);
 			} else if (pmType == "substancenasaldose") {
-				handleSubstanceNasalDose(pRoot);
+			  handleSubstanceNasalDose(pRoot);
 			} else if (pmType == "tensionpneumothorax") {
-				m_pe->SetTensionPneumothorax(pType, pSide, pSev);
+			  m_pe->SetTensionPneumothorax(pType, pSide, pSev);
 			} else {
-				LOG_WARNING << "Unknown physiology modification type: " << pmType;
+			  LOG_WARNING << "Unknown physiology modification type: " << pmType;
 			}
 
 			pRoot = pRoot->NextSiblingElement("PhysiologyModification");
@@ -732,11 +743,6 @@ namespace AMM {
 				LOG_DEBUG << "Disabling logging";
 				this->SetLogging(false);
 			} else if (!value.compare(0, loadPrefix.size(), loadPrefix)) {
-				if (running || m_pe != nullptr) {
-					LOG_INFO << "Loading state, but shutting down existing sim and physiology engine thread first.";
-					StopTickSimulation();
-				}
-
 				authoringMode = false;
 				LOG_INFO << "Loading state.  Setting state file to " << value.substr(loadPrefix.size());
 				std::string holdStateFile = stateFile;
@@ -748,13 +754,12 @@ namespace AMM {
 					LOG_ERROR << "Returning to last good state: " << stateFile;
 				}
 				infile.close();
+				if (running || m_pe != nullptr) {
+				  LOG_INFO << "Loading state, but shutting down existing sim and physiology engine thread first.";
+				  StopTickSimulation();
+				}
 				InitializeBiogears();
 			} else if (!value.compare(0, loadPatient.size(), loadPatient)) {
-				if (running || m_pe != nullptr) {
-					LOG_INFO << "Loading patient, but shutting down existing sim and physiology engine thread first.";
-					StopTickSimulation();
-				}
-
 				authoringMode = true;
 				LOG_INFO << "Loading patient.  Setting patient file to " << value.substr(loadPatient.size());
 				std::string holdPatientFile = patientFile;
@@ -766,12 +771,13 @@ namespace AMM {
 					LOG_ERROR << "Returning to last good patient: " << patientFile;
 				}
 				infile.close();
+				if (running || m_pe != nullptr) {
+				  LOG_INFO << "Loading patient, but shutting down existing sim and physiology engine thread first.";
+				  StopTickSimulation();
+				}
 				InitializeBiogears();
 			} else if (!value.compare(0, loadScenarioFile.size(), loadScenarioFile)) {
-				if (running || m_pe != nullptr) {
-					LOG_INFO << "Loading state, but shutting down existing sim and physiology engine thread first.";
-					StopTickSimulation();
-				}
+
 
 				authoringMode = false;
 				LOG_INFO << "Loading scenario.  Setting scenario file to " << value.substr(loadScenarioFile.size());
@@ -782,6 +788,11 @@ namespace AMM {
 					LOG_ERROR << "Scenario file does not exist: " << scenarioFile;
 				}
 				infile.close();
+
+				if (running || m_pe != nullptr) {
+				  LOG_INFO << "Loading state, but shutting down existing sim and physiology engine thread first.";
+				  StopTickSimulation();
+				}
 
 				std::lock_guard <std::mutex> lg(m_mutex);
 
@@ -845,6 +856,7 @@ namespace AMM {
 					LOG_ERROR << "Returning to last good state: " << stateFile;
 				}
 				infile.close();
+				
 				InitializeBiogears();
 			}
 		}
