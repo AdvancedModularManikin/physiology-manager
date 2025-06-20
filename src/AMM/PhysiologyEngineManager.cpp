@@ -224,20 +224,24 @@ namespace AMM {
 
 
 		while (pRoot) {
-			std::string pmType = getElementText(pRoot, "PhysiologyModification", "type");
-			if (pmType.empty()) {
-				LOG_ERROR << "Missing or empty PhysiologyModification type.";
-				return;
-			}
-			boost::algorithm::to_lower(pmType);
-			LOG_INFO << "Physiology Modification: " << pmType;
-
-			std::string pState = getElementText(pRoot, "State", "State");
-			std::string pSide = getElementText(pRoot, "Side", "Side");
-			std::string pType = getElementText(pRoot, "Type", "Type");
-			std::string pLoc = getElementText(pRoot, "Location", "Location");
-			double pSev = getElementDouble(pRoot, "Severity", "Severity");
-			double pFlow = getElementDouble(pRoot, "Flow", "Flow");
+		  // Get type attribute directly from the root element
+		  const char* typeAttr = pRoot->Attribute("type");
+		  std::string pmType = typeAttr ? typeAttr : "";
+		  
+		  if (pmType.empty()) {
+		    LOG_ERROR << "Missing or empty PhysiologyModification type.";
+		    return;
+		  }
+		  boost::algorithm::to_lower(pmType);
+		  LOG_INFO << "Physiology Modification: " << pmType;
+		  
+		  std::string pState = getElementText(pRoot, "State", "state");
+		  std::string pSide = getElementText(pRoot, "Side", "side");
+		  std::string pType = getElementText(pRoot, "Type", "type");
+		  std::string pLoc = getElementText(pRoot, "Location", "location");
+		  double pSev = getElementDouble(pRoot, "Severity", "severity");
+		  double pFlow = getElementDouble(pRoot, "Flow", "flow");
+		  
 
 			/**
 			   LOG_DEBUG << "\tState:\t" << pState;
@@ -445,6 +449,27 @@ namespace AMM {
 
 	void PhysiologyEngineManager::StopSimulation() { m_pe->StopSimulation(); }
 
+
+  void PhysiologyEngineManager::SendPatientStateRendMod(std::string rendModType, std::string location, std::string state) {
+    AMM::UUID erID;
+    erID.id(AMM::DDSManager<AMM::PhysiologyEngineManager>::GenerateUuidString());
+    FMA_Location fma;
+    AMM::UUID agentID;
+    
+    AMM::EventRecord er;
+    er.id(erID);
+    er.location(fma);
+    er.agent_id(agentID);
+    er.type(rendModType);
+    m_mgr->WriteEventRecord(er);
+    
+    AMM::RenderModification renderMod;
+    renderMod.event_id(erID);
+    renderMod.type(rendModType);
+    renderMod.data("<RenderModification type='" + rendModType + "' location='" + location + "' state='" + state + "'/>");
+    m_mgr->WriteRenderModification(renderMod);
+  }
+  
 /**
  * @brief send patient states rendermod
  *
@@ -536,32 +561,32 @@ namespace AMM {
 		if (autosend_enabled) {
 			if (m_pe->pneumothoraxLClosed && !m_pe->pneumothoraxLClosedSent) {
 				LOG_DEBUG << "Patient has left closed pneumothorax, sending render mod.";
-				SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_L_SEVERE");
+				SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_L_SEVERE", "LeftChest", "On");
 				m_pe->pneumothoraxLClosedSent = true;
 			}
 
 			if (m_pe->pneumothoraxLOpen && !m_pe->pneumothoraxLOpenSent) {
 				LOG_DEBUG << "Patient has left open pneumothorax, sending render mod.";
-				SendPatientStateRendMod("PNEUMOTHORAX_OPEN_L_SEVERE");
+				SendPatientStateRendMod("PNEUMOTHORAX_OPEN_L_SEVERE", "LeftChest", "On");
 				m_pe->pneumothoraxLOpenSent = true;
 			}
 
 			if (m_pe->pneumothoraxRClosed && !m_pe->pneumothoraxRClosedSent) {
 				LOG_DEBUG << "Patient has right closed pneumothorax, sending render mod.";
-				SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_R_SEVERE");
+				SendPatientStateRendMod("PNEUMOTHORAX_CLOSED_R_SEVERE", "RightChest", "On");
 				m_pe->pneumothoraxRClosedSent = true;
 			}
 
 			if (m_pe->pneumothoraxROpen && !m_pe->pneumothoraxROpenSent) {
 				LOG_DEBUG << "Patient has right open pneumothorax, sending render mod.";
-				SendPatientStateRendMod("PNEUMOTHORAX_OPEN_R_SEVERE");
+				SendPatientStateRendMod("PNEUMOTHORAX_OPEN_R_SEVERE", "RightChest", "On");
 				m_pe->pneumothoraxROpenSent = true;
 			}
 
 			if (m_pe->hemorrhage && !m_pe->hemorrhageSent) {
 				// @TODO: Get hemorrhage details, apply to proper location and with proper flow rate
 				LOG_DEBUG << "Patient has a hemorrhage, sending render mod.";
-				SendPatientStateRendMod("HEMORRHAGE");
+				SendPatientStateRendMod("HEMORRHAGE", "LeftLeg", "on");
 				m_pe->hemorrhageSent = true;
 			}
 		}

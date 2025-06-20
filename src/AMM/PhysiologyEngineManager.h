@@ -107,7 +107,8 @@ namespace AMM {
 
 		void OnNewPhysiologyModification(AMM::PhysiologyModification &physMod, SampleInfo_t *info);
 
-		void SendPatientStateRendMod(std::string rendModType);
+	  void SendPatientStateRendMod(std::string rendModType);
+	  void SendPatientStateRendMod(std::string rendModType, std::string location, std::string state);
 
 		// std::map<std::string, double (BiogearsThread::*)()> *nodePathMap{};
 		std::unique_ptr<std::map<std::string, double (BiogearsThread::*)()>> nodePathMap;
