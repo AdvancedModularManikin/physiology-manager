@@ -670,7 +670,7 @@ namespace AMM {
 
 		std::lock_guard <std::mutex> lg(m_mutex);
 		if (pmData.empty()) {
-			LOG_INFO << "Scenario file NOT SUPPORTED anymore: " << pm.type();
+			LOG_INFO << "Scenario file execution NOT SUPPORTED anymore: " << pm.type();
 			try {
 				//		    m_pe->ExecuteCommand(pm.type());
 			} catch (std::exception &e) {

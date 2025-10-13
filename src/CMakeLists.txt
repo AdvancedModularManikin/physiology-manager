@@ -12,6 +12,7 @@ target_link_libraries(${PHYSIOLOGY_MANAGER_EXE}
         PUBLIC Biogears::libbiogears
         PUBLIC Boost::system
         PUBLIC tinyxml2
+	PUBLIC xerces-c
 )
 
 install(

@@ -274,8 +274,9 @@ namespace AMM {
 					LOG_ERROR << "Error loading state.";
 					return false;
 				}
-				m_pe->SetEventHandler(&myEventHandler);
-				// patientEventStates = &myEventHandler->patientEventStates;
+				// Temporarily disable event handler to debug heap corruption
+				 m_pe->SetEventHandler(&myEventHandler);
+				 //patientEventStates = &myEventHandler->patientEventStates;
 			} catch (const std::exception &e) {
 				LOG_ERROR << "Exception loading state: " << e.what();
 				return false;
@@ -521,34 +522,42 @@ namespace AMM {
  *
  */
 	void BiogearsThread::AdvanceTimeTick() {
-		WithEngineLock([&]() {
-			if (!IsEngineInitialized() || !running) return;
+		std::lock_guard<std::mutex> lock(m_mutex);
 
+		if (!IsEngineInitialized() || !running) {
+			LOG_DEBUG << "Engine not initialized or not running, returning";
+			return;
+		}
 
-			if (myEventHandler.irreversible && !irreversible) {
-				irreversible = true;
-			}
+		if (myEventHandler.irreversible && !irreversible) {
+			irreversible = true;
+		}
 
-			startOfInhale = myEventHandler.startOfInhale;
-			startOfExhale = myEventHandler.startOfExhale;
+		startOfInhale = myEventHandler.startOfInhale;
+		startOfExhale = myEventHandler.startOfExhale;
 
-			if (lastFrame == 0) {
-				LOG_INFO << "Starting frame";
-			}
+		if (lastFrame == 0) {
+			LOG_DEBUG << "Starting frame";
+		}
 
-			try {
-				// LOG_TRACE << "Advancing time tick for frame: " << lastFrame;
-				m_pe->AdvanceModelTime();
-
-				if (logging_enabled && (lastFrame % DEFAULT_LOGGING_FREQUENCY == 0)) {
-					m_pe->GetEngineTrack()->TrackData(m_pe->GetSimulationTime(biogears::TimeUnit::s));
+		try {
+				// Validate engine pointer before use
+				if (m_pe == nullptr) {
+					LOG_ERROR << "BioGears engine pointer is null!";
+					return;
 				}
-				// LOG_TRACE << "Done advancing time tick for frame: " << lastFrame;
-			} catch (const std::exception &e) {
-				LOG_ERROR << "Error advancing time: " << e.what();
-			}
-		});
 
+				// BioGears expects time amount and unit parameters
+				// Advance by one timestep (typically 1/50 second = 0.02s for 50Hz)
+				m_pe->AdvanceModelTime(0.02, biogears::TimeUnit::s);
+	
+
+			if (logging_enabled && (lastFrame % DEFAULT_LOGGING_FREQUENCY == 0)) {
+				m_pe->GetEngineTrack()->TrackData(m_pe->GetSimulationTime(biogears::TimeUnit::s));
+			}
+		} catch (const std::exception &e) {
+			LOG_ERROR << "Error advancing time: " << e.what();
+		}		
 	}
 
 /**
@@ -695,14 +704,9 @@ namespace AMM {
  * @return double return a double of the string name
  */
 	double BiogearsThread::GetNodePath(const std::string &nodePath) {
-		std::map<std::string, double (BiogearsThread::*)()> localNodePathTable;
-		{
-			std::shared_lock<std::shared_mutex> lock(m_nodePathMutex);
-			localNodePathTable = nodePathTable;
-		}
-
-		auto entry = localNodePathTable.find(nodePath);
-		if (entry != localNodePathTable.end()) {
+		std::shared_lock<std::shared_mutex> lock(m_nodePathMutex);
+		auto entry = nodePathTable.find(nodePath);
+		if (entry != nodePathTable.end()) {
 			return (this->*(entry->second))();
 		}
 
