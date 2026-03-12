@@ -1132,7 +1132,7 @@ namespace AMM {
 				falling_R = false;
 				min_lung_vol_R = new_min_R;
 				new_min_R = 1500.0;
-				leftLungTidalVol = max_lung_vol_R - min_lung_vol_R;
+				rightLungTidalVol = max_lung_vol_R - min_lung_vol_R;
 
 				chestrise_pct_R = rightLungTidalVol * 100 / 300; // scale tidal volume to percent of max chest rise
 				if (chestrise_pct_R > 100)

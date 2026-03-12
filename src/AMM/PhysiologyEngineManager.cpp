@@ -968,7 +968,6 @@ namespace AMM {
 		if (running) {
 			if (ti.frame() > 0 || !paused) {
 				std::lock_guard<std::mutex> lg(m_mutex);
-				m_pe->running = true;
 				lastFrame = static_cast<int>(ti.frame());
 				m_pe->SetLastFrame(lastFrame);
 				// Per-frame stuff happens here

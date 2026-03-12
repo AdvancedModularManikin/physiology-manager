@@ -743,30 +743,30 @@ namespace AMM {
 
 		int GlasgowEstimator(double cbf);
 
-		biogears::SESubstance *sodium;
-		biogears::SESubstance *glucose;
-		biogears::SESubstance *creatinine;
-		biogears::SESubstance *calcium;
-		biogears::SESubstance *albumin;
-		biogears::SESubstance *hemoglobin;
-		biogears::SESubstance *bicarbonate;
-		biogears::SESubstance *CO2;
-		biogears::SESubstance *N2;
-		biogears::SESubstance *O2;
-		biogears::SESubstance *CO;
-		biogears::SESubstance *Hb;
-		biogears::SESubstance *HbO2;
-		biogears::SESubstance *HbCO2;
-		biogears::SESubstance *HbCO;
-		biogears::SESubstance *HbO2CO2;
-		biogears::SESubstance *potassium;
-		biogears::SESubstance *chloride;
-		biogears::SESubstance *lactate;
+		biogears::SESubstance *sodium = nullptr;
+		biogears::SESubstance *glucose = nullptr;
+		biogears::SESubstance *creatinine = nullptr;
+		biogears::SESubstance *calcium = nullptr;
+		biogears::SESubstance *albumin = nullptr;
+		biogears::SESubstance *hemoglobin = nullptr;
+		biogears::SESubstance *bicarbonate = nullptr;
+		biogears::SESubstance *CO2 = nullptr;
+		biogears::SESubstance *N2 = nullptr;
+		biogears::SESubstance *O2 = nullptr;
+		biogears::SESubstance *CO = nullptr;
+		biogears::SESubstance *Hb = nullptr;
+		biogears::SESubstance *HbO2 = nullptr;
+		biogears::SESubstance *HbCO2 = nullptr;
+		biogears::SESubstance *HbCO = nullptr;
+		biogears::SESubstance *HbO2CO2 = nullptr;
+		biogears::SESubstance *potassium = nullptr;
+		biogears::SESubstance *chloride = nullptr;
+		biogears::SESubstance *lactate = nullptr;
 
-		const biogears::SEGasCompartment *carina;
-		const biogears::SEGasCompartment *leftLung;
-		const biogears::SEGasCompartment *rightLung;
-		const biogears::SELiquidCompartment *bladder;
+		const biogears::SEGasCompartment *carina = nullptr;
+		const biogears::SEGasCompartment *leftLung = nullptr;
+		const biogears::SEGasCompartment *rightLung = nullptr;
+		const biogears::SELiquidCompartment *bladder = nullptr;
 
 	protected:
 		std::mutex m_mutex;
@@ -785,15 +785,15 @@ namespace AMM {
 
 		double thresh = 1.0;
 
-		bool falling_L;
-		double lung_vol_L, new_min_L, new_max_L, min_lung_vol_L, max_lung_vol_L;
-		double chestrise_pct_L;
-		double leftLungTidalVol;
+		bool falling_L = false;
+		double lung_vol_L = 0.0, new_min_L = 1500.0, new_max_L = 0.0, min_lung_vol_L = 0.0, max_lung_vol_L = 0.0;
+		double chestrise_pct_L = 0.0;
+		double leftLungTidalVol = 0.0;
 
-		bool falling_R;
-		double lung_vol_R, new_min_R, new_max_R, min_lung_vol_R, max_lung_vol_R;
-		double chestrise_pct_R;
-		double rightLungTidalVol;
+		bool falling_R = false;
+		double lung_vol_R = 0.0, new_min_R = 1500.0, new_max_R = 0.0, min_lung_vol_R = 0.0, max_lung_vol_R = 0.0;
+		double chestrise_pct_R = 0.0;
+		double rightLungTidalVol = 0.0;
 
 		bool eventHandlerAttached = false;
 
