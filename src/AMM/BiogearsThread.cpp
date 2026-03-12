@@ -182,9 +182,8 @@ namespace AMM {
 	}
 
 	std::map<std::string, double (BiogearsThread::*)()> *BiogearsThread::GetNodePathTable() {
-		return WithEngineLock([&]() -> std::map<std::string, double (BiogearsThread::*)()> * {
-			return &nodePathTable; // Always return the address of nodePathTable
-		});
+		std::lock_guard<std::mutex> lock(m_mutex);
+		return &nodePathTable;
 	}
 
 	void BiogearsThread::Shutdown() {
@@ -274,9 +273,7 @@ namespace AMM {
 					LOG_ERROR << "Error loading state.";
 					return false;
 				}
-				// Temporarily disable event handler to debug heap corruption
-				 m_pe->SetEventHandler(&myEventHandler);
-				 //patientEventStates = &myEventHandler->patientEventStates;
+				m_pe->SetEventHandler(&myEventHandler);
 			} catch (const std::exception &e) {
 				LOG_ERROR << "Exception loading state: " << e.what();
 				return false;
@@ -404,24 +401,32 @@ namespace AMM {
 
 
 	bool BiogearsThread::ExecuteXMLCommand(const std::string &cmd) {
-		char *tmpname = strdup("/tmp/tmp_amm_xml_XXXXXX");
-		std::ofstream out(tmpname);
-		if (out.is_open()) {
-			std::string newcmd = wrapActionsTag(cmd);
-			out << newcmd;
+		char tmpname[] = "/tmp/tmp_amm_xml_XXXXXX";
+		int fd = mkstemp(tmpname);
+		if (fd == -1) {
+			LOG_ERROR << "Unable to create temp file for XML command.";
+			return false;
+		}
+		close(fd);
 
-			out.close();
-			if (!LoadScenarioFile(tmpname)) {
-				LOG_ERROR << "Unable to load scenario file from temp.";
-				return false;
-			} else {
-				return true;
-			}
-		} else {
-			LOG_ERROR << "Unable to open file.";
+		std::ofstream out(tmpname);
+		if (!out.is_open()) {
+			LOG_ERROR << "Unable to open temp file for XML command.";
+			std::remove(tmpname);
+			return false;
 		}
 
-		return true;
+		std::string newcmd = wrapActionsTag(cmd);
+		out << newcmd;
+		out.close();
+
+		bool result = LoadScenarioFile(tmpname);
+		std::remove(tmpname);
+
+		if (!result) {
+			LOG_ERROR << "Unable to load scenario file from temp.";
+		}
+		return result;
 	}
 
 	bool file_exists(const char *fileName) {
@@ -525,7 +530,6 @@ namespace AMM {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		if (!IsEngineInitialized() || !running) {
-			LOG_DEBUG << "Engine not initialized or not running, returning";
 			return;
 		}
 
@@ -537,27 +541,25 @@ namespace AMM {
 		startOfExhale = myEventHandler.startOfExhale;
 
 		if (lastFrame == 0) {
-			LOG_DEBUG << "Starting frame";
+			// LOG_INFO << "Starting frame";
 		}
 
 		try {
-				// Validate engine pointer before use
-				if (m_pe == nullptr) {
-					LOG_ERROR << "BioGears engine pointer is null!";
-					return;
-				}
+			// BioGears expects time amount and unit parameters
+			// Advance by one timestep (typically 1/50 second = 0.02s for 50Hz)
 
-				// BioGears expects time amount and unit parameters
-				// Advance by one timestep (typically 1/50 second = 0.02s for 50Hz)
+			if (fixed_timestep) {
 				m_pe->AdvanceModelTime(0.02, biogears::TimeUnit::s);
-	
+			} else {
+				m_pe->AdvanceModelTime();
+			}
 
 			if (logging_enabled && (lastFrame % DEFAULT_LOGGING_FREQUENCY == 0)) {
 				m_pe->GetEngineTrack()->TrackData(m_pe->GetSimulationTime(biogears::TimeUnit::s));
 			}
 		} catch (const std::exception &e) {
 			LOG_ERROR << "Error advancing time: " << e.what();
-		}		
+		}
 	}
 
 /**
@@ -704,14 +706,18 @@ namespace AMM {
  * @return double return a double of the string name
  */
 	double BiogearsThread::GetNodePath(const std::string &nodePath) {
-		std::shared_lock<std::shared_mutex> lock(m_nodePathMutex);
-		auto entry = nodePathTable.find(nodePath);
-		if (entry != nodePathTable.end()) {
-			return (this->*(entry->second))();
+		double (BiogearsThread::*fn)() = nullptr;
+		{
+			std::shared_lock<std::shared_mutex> tableLock(m_nodePathMutex);
+			auto entry = nodePathTable.find(nodePath);
+			if (entry == nodePathTable.end()) {
+				LOG_ERROR << "Unable to access nodepath " << nodePath;
+				return 0;
+			}
+			fn = entry->second;
 		}
-
-		LOG_ERROR << "Unable to access nodepath " << nodePath;
-		return 0;
+		std::lock_guard<std::mutex> engineLock(m_mutex);
+		return (this->*fn)();
 	}
 
 	double BiogearsThread::GetBloodVolume() {
@@ -1710,6 +1716,8 @@ namespace AMM {
 		}
 		std::vector<std::string> strings = Utility::explode("\n", ventilatorSettings);
 
+		std::lock_guard<std::mutex> lg(m_mutex);
+
 		biogears::SEAnesthesiaMachineConfiguration AMConfig(m_pe->GetSubstanceManager());
 		biogears::SEAnesthesiaMachine &config = AMConfig.GetConfiguration();
 
@@ -1754,9 +1762,6 @@ namespace AMM {
 			}
 		}
 
-
-		std::lock_guard<std::mutex> lg(m_mutex);
-
 		try {
 			m_pe->ProcessAction(AMConfig);
 		} catch (std::exception &e) {
@@ -1765,7 +1770,12 @@ namespace AMM {
 	}
 
 	void BiogearsThread::SetBVMMask(const std::string &ventilatorSettings) {
+		if (!IsEngineInitialized()) {
+			return;
+		}
 		std::vector<std::string> strings = Utility::explode("\n", ventilatorSettings);
+
+		std::lock_guard<std::mutex> lg(m_mutex);
 
 		biogears::SEAnesthesiaMachineConfiguration AMConfig(m_pe->GetSubstanceManager());
 		biogears::SEAnesthesiaMachine &config = AMConfig.GetConfiguration();
@@ -1811,7 +1821,6 @@ namespace AMM {
 			}
 		}
 
-		std::lock_guard<std::mutex> lg(m_mutex);
 		try {
 			m_pe->ProcessAction(AMConfig);
 		} catch (std::exception &e) {

@@ -507,6 +507,8 @@ namespace AMM {
 
 		void Status();
 
+		bool fixed_timestep = true;
+
 		bool scenarioLoading = false;
 
 		bool running = false;
