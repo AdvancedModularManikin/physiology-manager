@@ -108,6 +108,7 @@ namespace AMM {
 	}
 
 	void PhysiologyEngineManager::PrintAvailableNodePaths() const {
+		if (!nodePathMap) return;
 		auto it = nodePathMap->begin();
 		while (it != nodePathMap->end()) {
 			std::string word = it->first;
@@ -117,6 +118,7 @@ namespace AMM {
 	}
 
 	void PhysiologyEngineManager::PrintAllCurrentData() const {
+		if (!nodePathMap || !m_pe) return;
 		auto it = nodePathMap->begin();
 		while (it != nodePathMap->end()) {
 			std::string node = it->first;
@@ -127,7 +129,7 @@ namespace AMM {
 	}
 
 	int PhysiologyEngineManager::GetNodePathCount() const {
-		return static_cast<int>(nodePathMap->size());
+		return nodePathMap ? static_cast<int>(nodePathMap->size()) : 0;
 	}
 
 	void PhysiologyEngineManager::WriteNodeData(const std::string &node) {
@@ -161,6 +163,7 @@ namespace AMM {
 	}
 
 	void PhysiologyEngineManager::PublishData(bool force = false) {
+		if (!nodePathMap || !m_pe) return;
 		for (const auto& [node, accessor] : *nodePathMap) {
 			if (localHighFrequencyNodes.contains(node)) {
 				WriteHighFrequencyNodeData(node);
@@ -420,6 +423,10 @@ namespace AMM {
  *
  */
 	void PhysiologyEngineManager::StartTickSimulation() {
+		if (!m_pe) {
+			LOG_WARNING << "Physiology engine not initialized, cannot start tick simulation.";
+			return;
+		}
 		LOG_INFO << "Starting tick simulation";
 		running = true;
 		m_pe->running = true;
@@ -445,9 +452,13 @@ namespace AMM {
 		LOG_INFO << "Simulation stopped and reset.";
 	}
 
-	void PhysiologyEngineManager::StartSimulation() { m_pe->StartSimulation(); }
+	void PhysiologyEngineManager::StartSimulation() {
+		if (m_pe) m_pe->StartSimulation();
+	}
 
-	void PhysiologyEngineManager::StopSimulation() { m_pe->StopSimulation(); }
+	void PhysiologyEngineManager::StopSimulation() {
+		if (m_pe) m_pe->StopSimulation();
+	}
 
 
   void PhysiologyEngineManager::SendPatientStateRendMod(std::string rendModType, std::string location, std::string state) {
@@ -591,7 +602,7 @@ namespace AMM {
 			}
 		}
 
-		if (m_pe->acuteStress && m_pe->acuteStressSent) {
+		if (m_pe->acuteStress && !m_pe->acuteStressSent) {
 			LOG_DEBUG << "Patient has acute stress, sending render mod.";
 			SendPatientStateRendMod("ACUTE_STRESS");
 			m_pe->acuteStressSent = true;
@@ -615,6 +626,7 @@ namespace AMM {
  *
  */
 	void PhysiologyEngineManager::AdvanceTimeTick() {
+		if (!m_pe) return;
 		m_pe->AdvanceTimeTick();
 	}
 
@@ -647,7 +659,9 @@ namespace AMM {
 		SendShutdown();
 
 		LOG_DEBUG << "[PhysiologyManager] Shutting down physiology engine.";
-		m_pe->Shutdown();
+		if (m_pe) {
+			m_pe->Shutdown();
+		}
 	}
 
 /**
@@ -836,6 +850,7 @@ namespace AMM {
 				m_pe->scenarioLoading = false;
 
 				nodePathMap = std::make_unique<std::map<std::string, double (BiogearsThread::*)()>>(*m_pe->GetNodePathTable());
+				localHighFrequencyNodes = m_pe->highFrequencyNodes;
 
 				paused = true;
 
@@ -897,6 +912,10 @@ namespace AMM {
 		XMLDocument doc;
 		doc.Parse(xmlConfig.c_str());
 		XMLElement *root = doc.RootElement();
+		if (!root) {
+			LOG_ERROR << "No root element in XML config.";
+			return;
+		}
 
 		if (strcasecmp(root->Value(), "AMMModuleConfiguration") == 0) {
 			ReadCapabilities(root);
@@ -934,7 +953,12 @@ namespace AMM {
 	}
 
 	void PhysiologyEngineManager::ReadCapabilities(XMLElement *_root) {
-		XMLElement *ele = _root->FirstChildElement("capabilities")->FirstChildElement("capability");
+		XMLElement *caps = _root->FirstChildElement("capabilities");
+		if (!caps) {
+			LOG_WARNING << "No capabilities element found.";
+			return;
+		}
+		XMLElement *ele = caps->FirstChildElement("capability");
 
 		if (ele != nullptr) {
 			const char *capEnabled = ele->Attribute("enabled");

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "amm/BaseLogger.h"
 #include "AMM/PhysiologyEngineManager.h"
 
@@ -152,7 +154,7 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	auto *pe = new AMM::PhysiologyEngineManager();
+	auto pe = std::make_unique<AMM::PhysiologyEngineManager>();
 	pe->SetLogging(logging);
 	pe->SetAutosend(autosend);
 	std::this_thread::sleep_for(std::chrono::milliseconds(250));
@@ -162,7 +164,7 @@ int main(int argc, char *argv[]) {
 
 	while (!closed) {
 		if (autostart != 1) {
-			show_menu(pe);
+			show_menu(pe.get());
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		std::cout.flush();
