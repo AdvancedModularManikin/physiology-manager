@@ -291,6 +291,10 @@ namespace AMM {
 			try {
 
 				auto bg = dynamic_cast<biogears::BioGears*>(m_pe.get());
+				if (!bg) {
+					LOG_ERROR << "Failed to cast BioGearsEngine to BioGears — incompatible library version?";
+					return false;
+				}
 				auto &patientactions = bg->GetActions().GetPatientActions();
 
 				pneumothoraxLClosed = patientactions.HasLeftClosedTensionPneumothorax();
@@ -531,6 +535,12 @@ namespace AMM {
 		std::lock_guard<std::mutex> lock(m_mutex);
 
 		if (!IsEngineInitialized() || !running) {
+			return;
+		}
+
+		if (!m_pe->IsReady()) {
+			LOG_ERROR << "BioGears engine is not ready to advance — state may not have loaded correctly.";
+			running = false;
 			return;
 		}
 
