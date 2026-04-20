@@ -263,13 +263,14 @@ namespace AMM {
 		return WithEngineLock([&]() {
 			if (!IsEngineInitialized()) return false;
 
-			auto startTime = std::make_unique<biogears::SEScalarTime>();
-			startTime->SetValue(sec, biogears::TimeUnit::s);
-
 			LOG_INFO << "Loading state file " << stateFile << " at position " << sec << " seconds";
 
 			try {
-				if (!m_pe->LoadState(stateFile, startTime.get())) {
+				// Pass nullptr so BioGears uses the simulation time embedded in the state
+				// file itself.  Constructing a temporary SEScalarTime and passing its raw
+				// pointer risks a dangling-pointer bug if BioGears retains the pointer
+				// after LoadState returns.
+				if (!m_pe->LoadState(stateFile, nullptr)) {
 					LOG_ERROR << "Error loading state.";
 					return false;
 				}
