@@ -538,12 +538,6 @@ namespace AMM {
 			return;
 		}
 
-		if (!m_pe->IsReady()) {
-			LOG_ERROR << "BioGears engine is not ready to advance — state may not have loaded correctly.";
-			running = false;
-			return;
-		}
-
 		if (myEventHandler.irreversible && !irreversible) {
 			irreversible = true;
 		}
@@ -551,18 +545,15 @@ namespace AMM {
 		startOfInhale = myEventHandler.startOfInhale;
 		startOfExhale = myEventHandler.startOfExhale;
 
-		if (lastFrame == 0) {
-			// LOG_INFO << "Starting frame";
-		}
-
 		try {
-			// BioGears expects time amount and unit parameters
-			// Advance by one timestep (typically 1/50 second = 0.02s for 50Hz)
+			bool advanced = fixed_timestep
+				? m_pe->AdvanceModelTime(0.02, biogears::TimeUnit::s)
+				: m_pe->AdvanceModelTime();
 
-			if (fixed_timestep) {
-				m_pe->AdvanceModelTime(0.02, biogears::TimeUnit::s);
-			} else {
-				m_pe->AdvanceModelTime();
+			if (!advanced) {
+				LOG_ERROR << "BioGears AdvanceModelTime returned false — engine may not be ready (state file missing or load failed).";
+				running = false;
+				return;
 			}
 
 			if (logging_enabled && (lastFrame % DEFAULT_LOGGING_FREQUENCY == 0)) {
