@@ -551,7 +551,11 @@ namespace AMM {
 				: m_pe->AdvanceModelTime();
 
 			if (!advanced) {
-				LOG_ERROR << "BioGears AdvanceModelTime returned false — engine may not be ready (state file missing or load failed).";
+				if (irreversible) {
+					LOG_INFO << "BioGears simulation ended — patient has entered an irreversible state.";
+				} else {
+					LOG_ERROR << "BioGears AdvanceModelTime returned false — engine may not be ready (state file missing or load failed).";
+				}
 				running = false;
 				return;
 			}
