@@ -906,8 +906,7 @@ namespace AMM {
 	double BiogearsThread::GetTotalProtein() {
 		biogears::SEComprehensiveMetabolicPanel metabolicPanel;
 		m_pe->GetPatientAssessment(metabolicPanel);
-		biogears::SEScalarMassPerVolume protein = metabolicPanel.GetTotalProtein();
-		return protein.GetValue(biogears::MassPerVolumeUnit::g_Per_dL);
+		return metabolicPanel.GetTotalProtein().GetValue(biogears::MassPerVolumeUnit::g_Per_dL);
 	}
 
 // RBC - White Blood Cell Count - ct/uL
@@ -991,44 +990,38 @@ namespace AMM {
 	double BiogearsThread::GetBaseExcessRaw() {
 		biogears::SEArterialBloodGasAnalysis abga;
 		m_pe->GetPatientAssessment(abga);
-		biogears::SEScalarAmountPerVolume be = abga.GetBaseExcess();
-		return be.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
+		return abga.GetBaseExcess().GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
 	}
 
 	double BiogearsThread::GetBicarbonateRaw() {
 		biogears::SEArterialBloodGasAnalysis abga;
 		m_pe->GetPatientAssessment(abga);
-		biogears::SEScalarAmountPerVolume bc = abga.GetStandardBicarbonate();
-		return bc.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
+		return abga.GetStandardBicarbonate().GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
 	}
 
 	double BiogearsThread::GetCO2() {
 		biogears::SEComprehensiveMetabolicPanel metabolicPanel;
 		m_pe->GetPatientAssessment(metabolicPanel);
-		biogears::SEScalarAmountPerVolume CO2 = metabolicPanel.GetCO2();
-		return CO2.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
+		return metabolicPanel.GetCO2().GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
 	}
 
 	double BiogearsThread::GetPotassium() {
 		biogears::SEComprehensiveMetabolicPanel metabolicPanel;
 		m_pe->GetPatientAssessment(metabolicPanel);
-		biogears::SEScalarAmountPerVolume potassium = metabolicPanel.GetPotassium();
-		return potassium.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
+		return metabolicPanel.GetPotassium().GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
 	}
 
 	double BiogearsThread::GetChloride() {
 		biogears::SEComprehensiveMetabolicPanel metabolicPanel;
 		m_pe->GetPatientAssessment(metabolicPanel);
-		biogears::SEScalarAmountPerVolume chloride = metabolicPanel.GetChloride();
-		return chloride.GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
+		return metabolicPanel.GetChloride().GetValue(biogears::AmountPerVolumeUnit::mmol_Per_L);
 	}
 
 // PLT - Platelet Count - ct/uL
 	double BiogearsThread::GetPlateletCount() {
 		biogears::SECompleteBloodCount CBC;
 		m_pe->GetPatientAssessment(CBC);
-		biogears::SEScalarAmountPerVolume plateletCount = CBC.GetPlateletCount();
-		return plateletCount.GetValue(biogears::AmountPerVolumeUnit::ct_Per_uL) / 1000;
+		return CBC.GetPlateletCount().GetValue(biogears::AmountPerVolumeUnit::ct_Per_uL) / 1000;
 	}
 
 	double BiogearsThread::GetUrineProductionRate() {

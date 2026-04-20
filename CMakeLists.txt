@@ -68,7 +68,7 @@ find_package(Boost REQUIRED COMPONENTS filesystem iostreams system thread date_t
 if (MSVC)
     find_package(TinyXML2 REQUIRED NO_SYSTEM_ENVIRONMENT_PATH)
 else ()
-    find_package(TinyXML2 REQUIRED)
+#    find_package(TinyXML2 REQUIRED)
 endif ()
 
 find_package(Threads REQUIRED)

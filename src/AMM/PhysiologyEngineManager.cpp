@@ -869,7 +869,10 @@ namespace AMM {
  * @param info
  */
 	void PhysiologyEngineManager::OnNewModuleConfiguration(AMM::ModuleConfiguration &mc, SampleInfo_t *info) {
-		if (mc.name() == "physiology_engine") {
+		if (mc.name() != "physiology_engine") return;
+
+		bool doReinit = false;
+		{
 			std::lock_guard<std::mutex> lg(mgr_mutex);
 			LOG_DEBUG << "Entering ModuleConfiguration for physiology engine.";
 			std::string capabilities = mc.capabilities_configuration().to_string();
@@ -877,14 +880,6 @@ namespace AMM {
 			auto it = config.find("state_file");
 			if (it != config.end()) {
 				LOG_INFO << "(find) state_file is " << it->second;
-				StopTickSimulation();
-
-				AMM::SimulationControl simControl;
-				auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
-				simControl.timestamp(ms);
-				simControl.type(AMM::ControlType::RESET);
-				m_mgr->WriteSimulationControl(simControl);
-
 				authoringMode = false;
 				LOG_INFO << "Loading state.  Setting state file to " << it->second;
 				std::string holdStateFile = stateFile;
@@ -896,9 +891,21 @@ namespace AMM {
 					LOG_ERROR << "Returning to last good state: " << stateFile;
 				}
 				infile.close();
-				
-				InitializeBiogears();
+				doReinit = true;
 			}
+		}  // mgr_mutex released before acquiring m_mutex
+
+		if (doReinit) {
+			StopTickSimulation();  // acquires m_mutex — safe now (mgr_mutex not held)
+			{
+				std::lock_guard<std::mutex> lg(mgr_mutex);
+				AMM::SimulationControl simControl;
+				auto ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+				simControl.timestamp(ms);
+				simControl.type(AMM::ControlType::RESET);
+				m_mgr->WriteSimulationControl(simControl);
+			}
+			InitializeBiogears();
 		}
 	}
 
@@ -992,6 +999,7 @@ namespace AMM {
 		if (running) {
 			if (ti.frame() > 0 || !paused) {
 				std::lock_guard<std::mutex> lg(m_mutex);
+				if (!running || !m_pe) return;  // re-check under lock: StopTickSimulation may have fired
 				lastFrame = static_cast<int>(ti.frame());
 				m_pe->SetLastFrame(lastFrame);
 				// Per-frame stuff happens here
@@ -1016,6 +1024,7 @@ namespace AMM {
  */
 	void PhysiologyEngineManager::OnNewInstrumentData(AMM::InstrumentData &i, SampleInfo_t *info) {
 		LOG_DEBUG << "Instrument data for " << i.instrument() << " received with payload: " << i.payload();
+		std::lock_guard<std::mutex> lg(m_mutex);
 		if (m_pe == nullptr || !running) {
 			LOG_WARNING << "Physiology engine not running, cannot execute instrument data.";
 			return;
