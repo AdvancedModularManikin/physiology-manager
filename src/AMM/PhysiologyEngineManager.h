@@ -23,7 +23,7 @@ namespace AMM {
 
 		virtual ~PhysiologyEngineManager();
 
-		static constexpr int LOW_FREQUENCY_INTERVAL = 10;
+		int LOW_FREQUENCY_INTERVAL = 50;
 
 		const std::string CAPABILITIES_FILE = "config/pe_manager_capabilities.xml";
 		const std::string CONFIG_FILE = "config/pe_manager_configuration.xml";

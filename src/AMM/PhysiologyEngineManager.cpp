@@ -692,7 +692,21 @@ namespace AMM {
 			}
 			return;
 		} else {
-			if (pm.type().empty() || pm.type() == "biogears") {
+			std::string pmType = pm.type();
+			if (pmType.empty()) {
+				// No type on the message: fall back to the type attribute of the payload's root element.
+				tinyxml2::XMLDocument typeDoc;
+				if (typeDoc.Parse(pmData.c_str()) == tinyxml2::XML_SUCCESS) {
+					tinyxml2::XMLElement *typeRoot = typeDoc.FirstChildElement("PhysiologyModification");
+					const char *typeAttr = typeRoot ? typeRoot->Attribute("type") : nullptr;
+					if (typeAttr) {
+						pmType = typeAttr;
+						LOG_INFO << "Empty type field, using type from payload: " << pmType;
+					}
+				}
+			}
+
+			if (pmType.empty() || pmType == "biogears") {
 				LOG_INFO << "Executing Biogears PhysMod XML patient action";
 				try {
 					m_pe->ExecuteXMLCommand(pmData);
@@ -701,7 +715,7 @@ namespace AMM {
 				}
 				return;
 			}
-			LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pm.type();
+			LOG_INFO << "Executing AMM PhysMod XML patient action, type " << pmType;
 			try {
 				ExecutePhysiologyModification(pmData);
 			} catch (std::exception &e) {
@@ -877,6 +891,16 @@ namespace AMM {
 			LOG_DEBUG << "Entering ModuleConfiguration for physiology engine.";
 			std::string capabilities = mc.capabilities_configuration().to_string();
 			ParseXML(capabilities);
+			auto lfi = config.find("low_frequency_interval");
+			if (lfi != config.end()) {
+				try {
+					LOW_FREQUENCY_INTERVAL = std::stoi(lfi->second);
+					LOG_INFO << "Low frequency interval set to " << LOW_FREQUENCY_INTERVAL;
+				} catch (const std::exception &e) {
+					LOG_WARNING << "Invalid low_frequency_interval value '" << lfi->second << "': " << e.what();
+				}
+			}
+
 			auto it = config.find("state_file");
 			if (it != config.end()) {
 				LOG_INFO << "(find) state_file is " << it->second;

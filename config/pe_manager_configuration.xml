@@ -4,6 +4,7 @@
       <capability name="physiology_engine">
          <configuration_data>
             <data name="color" value="blue"/>
+            <data name="low_frequency_interval" value="50"/>
          </configuration_data>
       </capability>
    </capabilities>
