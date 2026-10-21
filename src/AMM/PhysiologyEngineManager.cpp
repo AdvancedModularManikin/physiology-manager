@@ -182,7 +182,11 @@ namespace AMM {
 			return ""; // If parent is null, return empty string
 
 		tinyxml2::XMLElement *elem = parent->FirstChildElement(elementName);
-		if (elem) { // If element exists, return its text content or attribute
+		if (elem) { // If element exists, prefer its own attribute (e.g. <Dose value="8" unit="mL"/>), then its text
+			if (attr) {
+				const char *elemAttr = elem->Attribute(attr);
+				if (elemAttr) return elemAttr;
+			}
 			const char *textValue = elem->GetText();
 			return textValue ? textValue : "";
 		} else if (attr) { // If element is null, fallback to parent attribute if provided
