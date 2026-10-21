@@ -74,7 +74,7 @@ endif ()
 find_package(Threads REQUIRED)
 find_package(Biogears REQUIRED)
 find_package(fastcdr REQUIRED)
-find_package(fastdds REQUIRED)
+find_package(fastrtps REQUIRED)
 find_package(amm_std REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
