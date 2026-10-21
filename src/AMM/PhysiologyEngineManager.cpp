@@ -189,8 +189,9 @@ namespace AMM {
 			}
 			const char *textValue = elem->GetText();
 			return textValue ? textValue : "";
-		} else if (attr) { // If element is null, fallback to parent attribute if provided
+		} else if (attr) { // If element is null, fallback to parent attribute (lowercase, then element-cased e.g. Side="Right")
 			const char *attrValue = parent->Attribute(attr);
+			if (!attrValue) attrValue = parent->Attribute(elementName);
 			return attrValue ? attrValue : "";
 		}
 		return ""; // If both element and attribute are missing, return empty string
@@ -248,6 +249,17 @@ namespace AMM {
 		  std::string pLoc = getElementText(pRoot, "Location", "location");
 		  double pSev = getElementDouble(pRoot, "Severity", "severity");
 		  double pFlow = getElementDouble(pRoot, "Flow", "flow");
+
+		  // Some senders give only a Location (e.g. RightChest) for side-specific actions
+		  if (pSide.empty()) {
+		    std::string locLower = pLoc;
+		    boost::algorithm::to_lower(locLower);
+		    if (locLower.find("left") != std::string::npos) {
+		      pSide = "Left";
+		    } else if (locLower.find("right") != std::string::npos) {
+		      pSide = "Right";
+		    }
+		  }
 		  
 
 			/**
