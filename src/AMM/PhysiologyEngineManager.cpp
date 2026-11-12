@@ -306,6 +306,10 @@ namespace AMM {
 			  handleSubstanceNasalDose(pRoot);
 			} else if (pmType == "tensionpneumothorax") {
 			  m_pe->SetTensionPneumothorax(pType, pSide, pSev);
+			} else if (pmType == "intubation") {
+			  m_pe->SetIntubation(pType);
+			} else if (pmType == "ventilation") {
+			  handleVentilation(pRoot);
 			} else {
 			  LOG_WARNING << "Unknown physiology modification type: " << pmType;
 			}
@@ -318,6 +322,30 @@ namespace AMM {
 		double rate = getElementDouble(pRoot, "Rate", "value");
 		std::string pUnit = getElementText(pRoot, "Rate", "unit");
 		m_pe->SetNasalCannula(rate, pUnit);
+	}
+
+	void PhysiologyEngineManager::handleVentilation(tinyxml2::XMLElement *pRoot) {
+		VentilationSettings vs;
+		vs.state = getElementText(pRoot, "State", "state");
+		if (pRoot->FirstChildElement("Rate")) {
+			vs.rate = getElementDouble(pRoot, "Rate", "value");
+			vs.rateUnit = getElementText(pRoot, "Rate", "unit");
+		}
+		if (pRoot->FirstChildElement("InspiratoryExpiratoryRatio")) {
+			vs.inspiratoryExpiratoryRatio = getElementDouble(pRoot, "InspiratoryExpiratoryRatio", "value");
+		}
+		if (pRoot->FirstChildElement("PositiveEndExpiredPressure")) {
+			vs.positiveEndExpiredPressure = getElementDouble(pRoot, "PositiveEndExpiredPressure", "value");
+			vs.peepUnit = getElementText(pRoot, "PositiveEndExpiredPressure", "unit");
+		}
+		if (pRoot->FirstChildElement("VentilatorPressure")) {
+			vs.ventilatorPressure = getElementDouble(pRoot, "VentilatorPressure", "value");
+			vs.ventilatorPressureUnit = getElementText(pRoot, "VentilatorPressure", "unit");
+		}
+		if (pRoot->FirstChildElement("OxygenFraction")) {
+			vs.oxygenFraction = getElementDouble(pRoot, "OxygenFraction", "value");
+		}
+		m_pe->SetMechanicalVentilation(vs);
 	}
 
 	void PhysiologyEngineManager::handleSubstanceBolus(tinyxml2::XMLElement *pRoot) {

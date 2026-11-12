@@ -12,6 +12,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <thread>
+#include <optional>
 #include <unordered_set>
 
 // #include "amm_std.h"
@@ -361,6 +362,19 @@ public:
 // Forward declare what we will use in our thread
 namespace AMM {
 
+	// Settings for a ventilator run through the anesthesia machine; unset fields are left to BioGears defaults.
+	struct VentilationSettings {
+		std::string state;                                   // "On" (tube connection) or "Off"
+		std::optional<double> rate;                          // breaths per unit time
+		std::string rateUnit;                                // "1/min" (default) or "Hz"
+		std::optional<double> inspiratoryExpiratoryRatio;
+		std::optional<double> positiveEndExpiredPressure;
+		std::string peepUnit;                                // "cmH2O" (default) or "mmHg"
+		std::optional<double> ventilatorPressure;
+		std::string ventilatorPressureUnit;                  // "cmH2O" (default) or "mmHg"
+		std::optional<double> oxygenFraction;                // 0.0 - 1.0
+	};
+
 	class BiogearsThread {
 
 	public:
@@ -455,9 +469,9 @@ namespace AMM {
 
 		void SetInfection(const std::string &actionSettings);
 
-		void SetIntubation(const std::string &actionSettings);
+		void SetIntubation(const std::string &type);
 
-		void SetMechanicalVentilation(const std::string &actionSettings);
+		void SetMechanicalVentilation(const VentilationSettings &settings);
 
 		void SetNasalCannula(double flowRate, const std::string &unit);
 

@@ -2079,18 +2079,109 @@ namespace AMM {
 		std::lock_guard<std::mutex> lg(m_mutex);
 	}
 
-	void BiogearsThread::SetIntubation(const std::string &actionSettings) {
+	void BiogearsThread::SetIntubation(const std::string &type) {
 		if (!IsEngineInitialized()) {
 			return;
 		}
+		// Normalize so "Right Mainstem", "right_mainstem" and "RightMainstem" all match
+		std::string key = boost::algorithm::to_lower_copy(type);
+		boost::algorithm::erase_all(key, " ");
+		boost::algorithm::erase_all(key, "_");
+		boost::algorithm::erase_all(key, "-");
+
+		biogears::SEIntubation intubation;
+		if (key == "tracheal") {
+			intubation.SetType(biogears::SEIntubationType::Tracheal);
+		} else if (key == "esophageal" || key == "esophogeal") {
+			intubation.SetType(biogears::SEIntubationType::Esophageal);
+		} else if (key == "rightmainstem") {
+			intubation.SetType(biogears::SEIntubationType::RightMainstem);
+		} else if (key == "off") {
+			intubation.SetType(biogears::SEIntubationType::Off);
+		} else {
+			LOG_WARNING << "Unknown intubation type: " << type;
+			return;
+		}
+
 		std::lock_guard<std::mutex> lg(m_mutex);
+		try {
+			m_pe->ProcessAction(intubation);
+		} catch (std::exception &e) {
+			LOG_ERROR << "Error processing intubation action: " << e.what();
+		}
 	}
 
-	void BiogearsThread::SetMechanicalVentilation(const std::string &actionSettings) {
+	void BiogearsThread::SetMechanicalVentilation(const VentilationSettings &settings) {
 		if (!IsEngineInitialized()) {
 			return;
 		}
+
+		bool on;
+		if (boost::iequals(settings.state, "on")) {
+			on = true;
+		} else if (boost::iequals(settings.state, "off")) {
+			on = false;
+		} else {
+			LOG_WARNING << "Unknown ventilation state: " << settings.state;
+			return;
+		}
+
+		biogears::SEAnesthesiaMachineConfiguration AMConfig(m_pe->GetSubstanceManager());
+		biogears::SEAnesthesiaMachine &config = AMConfig.GetConfiguration();
+
+		// Same fixed machine setup as SetVentilator; the ventilator is connected through the tube
+		config.GetInletFlow().SetValue(2.0, biogears::VolumePerTimeUnit::L_Per_min);
+		config.SetPrimaryGas(biogears::SEAnesthesiaMachinePrimaryGas::Nitrogen);
+		config.SetConnection(on ? biogears::SEAnesthesiaMachineConnection::Tube
+		                        : biogears::SEAnesthesiaMachineConnection::Off);
+		config.SetOxygenSource(biogears::SEAnesthesiaMachineOxygenSource::Wall);
+		config.GetReliefValvePressure().SetValue(20.0, biogears::PressureUnit::cmH2O);
+
+		auto pressureUnit = [](const std::string &unit) -> const biogears::PressureUnit * {
+			if (unit.empty() || unit == "cmH2O") return &biogears::PressureUnit::cmH2O;
+			if (unit == "mmHg") return &biogears::PressureUnit::mmHg;
+			return nullptr;
+		};
+
+		if (settings.rate) {
+			if (settings.rateUnit.empty() || settings.rateUnit == "1/min") {
+				config.GetRespiratoryRate().SetValue(*settings.rate, biogears::FrequencyUnit::Per_min);
+			} else if (settings.rateUnit == "Hz") {
+				config.GetRespiratoryRate().SetValue(*settings.rate, biogears::FrequencyUnit::Hz);
+			} else {
+				LOG_WARNING << "Unsupported ventilation rate unit: " << settings.rateUnit;
+				return;
+			}
+		}
+		if (settings.inspiratoryExpiratoryRatio) {
+			config.GetInspiratoryExpiratoryRatio().SetValue(*settings.inspiratoryExpiratoryRatio);
+		}
+		if (settings.positiveEndExpiredPressure) {
+			const auto *unit = pressureUnit(settings.peepUnit);
+			if (!unit) {
+				LOG_WARNING << "Unsupported ventilation PEEP unit: " << settings.peepUnit;
+				return;
+			}
+			config.GetPositiveEndExpiredPressure().SetValue(*settings.positiveEndExpiredPressure, *unit);
+		}
+		if (settings.ventilatorPressure) {
+			const auto *unit = pressureUnit(settings.ventilatorPressureUnit);
+			if (!unit) {
+				LOG_WARNING << "Unsupported ventilator pressure unit: " << settings.ventilatorPressureUnit;
+				return;
+			}
+			config.GetVentilatorPressure().SetValue(*settings.ventilatorPressure, *unit);
+		}
+		if (settings.oxygenFraction) {
+			config.GetOxygenFraction().SetValue(*settings.oxygenFraction);
+		}
+
 		std::lock_guard<std::mutex> lg(m_mutex);
+		try {
+			m_pe->ProcessAction(AMConfig);
+		} catch (std::exception &e) {
+			LOG_ERROR << "Error processing ventilation action: " << e.what();
+		}
 	}
 
 	void BiogearsThread::SetPatientAction(const std::string &actionSettings) {

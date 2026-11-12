@@ -130,6 +130,8 @@ namespace AMM {
 		// Specialized handlers for specific modification types
 		void handleNasalCannula(tinyxml2::XMLElement *pRoot);
 
+		void handleVentilation(tinyxml2::XMLElement *pRoot);
+
 		void handleSubstanceBolus(tinyxml2::XMLElement *pRoot);
 
 		void handleSubstanceCompoundInfusion(tinyxml2::XMLElement *pRoot);
