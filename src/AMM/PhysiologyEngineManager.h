@@ -107,6 +107,8 @@ namespace AMM {
 
 		void OnNewPhysiologyModification(AMM::PhysiologyModification &physMod, SampleInfo_t *info);
 
+		void OnNewRenderModification(AMM::RenderModification &rendMod, SampleInfo_t *info);
+
 	  void SendPatientStateRendMod(std::string rendModType);
 	  void SendPatientStateRendMod(std::string rendModType, std::string location, std::string state);
 

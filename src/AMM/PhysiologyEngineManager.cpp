@@ -60,6 +60,7 @@ namespace AMM {
 		m_mgr->CreateSimulationControlSubscriber(this, &AMM::PhysiologyEngineManager::OnNewSimulationControl);
 		m_mgr->CreateCommandSubscriber(this, &AMM::PhysiologyEngineManager::OnNewCommand);
 		m_mgr->CreatePhysiologyModificationSubscriber(this, &AMM::PhysiologyEngineManager::OnNewPhysiologyModification);
+		m_mgr->CreateRenderModificationSubscriber(this, &AMM::PhysiologyEngineManager::OnNewRenderModification);
 		m_mgr->CreateInstrumentDataSubscriber(this, &AMM::PhysiologyEngineManager::OnNewInstrumentData);
 		m_mgr->CreateModuleConfigurationSubscriber(this, &AMM::PhysiologyEngineManager::OnNewModuleConfiguration);
 
@@ -765,6 +766,56 @@ namespace AMM {
 			} catch (std::exception &e) {
 				LOG_ERROR << "Unable to apply physiology modification: " << e.what();
 			}
+		}
+	}
+
+/**
+ * @brief Listens for render modifications that imply a physiology change and applies the matching physiology modification
+ *
+ * Currently handles the ET tube insertion render mods, which are published without a paired physiology modification.
+ *
+ * @param rendMod a render modification (only the types handled below are acted on)
+ * @param info rtps data
+ */
+	void PhysiologyEngineManager::OnNewRenderModification(AMM::RenderModification &rendMod, SampleInfo_t *info) {
+		// The type is carried in the payload, e.g. <RenderModification type="MASK_INSERT_ET_TUBE_MS"/>,
+		// not in the type field of the message.
+		std::string rmType;
+		std::string rmData = rendMod.data().to_string();
+		if (!rmData.empty()) {
+			tinyxml2::XMLDocument rmDoc;
+			if (rmDoc.Parse(rmData.c_str()) == tinyxml2::XML_SUCCESS) {
+				tinyxml2::XMLElement *rmRoot = rmDoc.FirstChildElement("RenderModification");
+				const char *rmTypeAttr = rmRoot ? rmRoot->Attribute("type") : nullptr;
+				if (rmTypeAttr) rmType = rmTypeAttr;
+			}
+		}
+		if (rmType.empty()) {
+			rmType = rendMod.type();
+		}
+
+		const char *intubationType = nullptr;
+		if (rmType == "MASK_INSERT_ET_TUBE_CORRECT") {
+			intubationType = "Tracheal";
+		} else if (rmType == "MASK_INSERT_ET_TUBE_MS") {
+			intubationType = "RightMainstem";
+		} else if (rmType == "MASK_INSERT_ET_TUBE_ESOPH") {
+			intubationType = "Esophageal";
+		} else {
+			return;
+		}
+
+		LOG_INFO << "Render modification " << rmType << " received, applying " << intubationType << " intubation";
+
+		std::lock_guard <std::mutex> lg(m_mutex);
+		if (m_pe == nullptr || !running) {
+			LOG_WARNING << "Physiology engine not running, cannot execute intubation for " << rmType;
+			return;
+		}
+		try {
+			m_pe->SetIntubation(intubationType);
+		} catch (std::exception &e) {
+			LOG_ERROR << "Unable to apply intubation for " << rmType << ": " << e.what();
 		}
 	}
 
